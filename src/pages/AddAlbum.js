@@ -37,7 +37,7 @@ export default function AddAlbum(){
 	      title: form.get("title"),
 	      desc: form.get("desc"),
 	      date: date,
-	      albumsFeaturedImgID: '0',
+	      albumsFeaturedImgID: 'fakeID',
 	    };
 	    console.log('read data')
 	    await API.graphql({

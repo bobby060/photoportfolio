@@ -28,10 +28,14 @@ export default function AlbumsUpdateForm(props) {
     title: "",
     desc: "",
     date: "",
+    featuredImg: "",
   };
   const [title, setTitle] = React.useState(initialValues.title);
   const [desc, setDesc] = React.useState(initialValues.desc);
   const [date, setDate] = React.useState(initialValues.date);
+  const [featuredImg, setFeaturedImg] = React.useState(
+    initialValues.featuredImg
+  );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = albumsRecord
@@ -40,6 +44,7 @@ export default function AlbumsUpdateForm(props) {
     setTitle(cleanValues.title);
     setDesc(cleanValues.desc);
     setDate(cleanValues.date);
+    setFeaturedImg(cleanValues.featuredImg);
     setErrors({});
   };
   const [albumsRecord, setAlbumsRecord] = React.useState(albumsModelProp);
@@ -62,6 +67,7 @@ export default function AlbumsUpdateForm(props) {
     title: [],
     desc: [],
     date: [],
+    featuredImg: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -109,6 +115,7 @@ export default function AlbumsUpdateForm(props) {
           title: title ?? null,
           desc: desc ?? null,
           date: date ?? null,
+          featuredImg: featuredImg ?? null,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -172,6 +179,7 @@ export default function AlbumsUpdateForm(props) {
               title: value,
               desc,
               date,
+              featuredImg,
             };
             const result = onChange(modelFields);
             value = result?.title ?? value;
@@ -198,6 +206,7 @@ export default function AlbumsUpdateForm(props) {
               title,
               desc: value,
               date,
+              featuredImg,
             };
             const result = onChange(modelFields);
             value = result?.desc ?? value;
@@ -226,6 +235,7 @@ export default function AlbumsUpdateForm(props) {
               title,
               desc,
               date: value,
+              featuredImg,
             };
             const result = onChange(modelFields);
             value = result?.date ?? value;
@@ -239,6 +249,33 @@ export default function AlbumsUpdateForm(props) {
         errorMessage={errors.date?.errorMessage}
         hasError={errors.date?.hasError}
         {...getOverrideProps(overrides, "date")}
+      ></TextField>
+      <TextField
+        label="Featured img"
+        isRequired={false}
+        isReadOnly={false}
+        value={featuredImg}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              desc,
+              date,
+              featuredImg: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.featuredImg ?? value;
+          }
+          if (errors.featuredImg?.hasError) {
+            runValidationTasks("featuredImg", value);
+          }
+          setFeaturedImg(value);
+        }}
+        onBlur={() => runValidationTasks("featuredImg", featuredImg)}
+        errorMessage={errors.featuredImg?.errorMessage}
+        hasError={errors.featuredImg?.hasError}
+        {...getOverrideProps(overrides, "featuredImg")}
       ></TextField>
       <Flex
         justifyContent="space-between"

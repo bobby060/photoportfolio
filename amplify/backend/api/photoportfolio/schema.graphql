@@ -1,0 +1,24 @@
+type Albums @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String
+  desc: String
+  date: AWSDateTime
+  featuredImg: String
+  Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
+}
+
+type Images @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String
+  desc: String
+  filename: String
+  date: AWSDateTime
+  albumsID: ID! @index(name: "byAlbums")
+}
+
+type Todo @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  description: String
+}
+ 

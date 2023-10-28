@@ -10,8 +10,8 @@ import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import { fetchByPath, validateField } from "./utils";
 import { API } from "aws-amplify";
-import { createAlbums } from "../graphql/mutations";
-export default function AlbumsCreateForm(props) {
+import { createTodo } from "../graphql/mutations";
+export default function TodoCreateForm(props) {
   const {
     clearOnSuccess = true,
     onSuccess,
@@ -23,30 +23,22 @@ export default function AlbumsCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    title: "",
-    desc: "",
-    date: "",
-    featuredImg: "",
+    name: "",
+    description: "",
   };
-  const [title, setTitle] = React.useState(initialValues.title);
-  const [desc, setDesc] = React.useState(initialValues.desc);
-  const [date, setDate] = React.useState(initialValues.date);
-  const [featuredImg, setFeaturedImg] = React.useState(
-    initialValues.featuredImg
+  const [name, setName] = React.useState(initialValues.name);
+  const [description, setDescription] = React.useState(
+    initialValues.description
   );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setTitle(initialValues.title);
-    setDesc(initialValues.desc);
-    setDate(initialValues.date);
-    setFeaturedImg(initialValues.featuredImg);
+    setName(initialValues.name);
+    setDescription(initialValues.description);
     setErrors({});
   };
   const validations = {
-    title: [],
-    desc: [],
-    date: [],
-    featuredImg: [],
+    name: [{ type: "Required" }],
+    description: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -65,23 +57,6 @@ export default function AlbumsCreateForm(props) {
     setErrors((errors) => ({ ...errors, [fieldName]: validationResponse }));
     return validationResponse;
   };
-  const convertToLocal = (date) => {
-    const df = new Intl.DateTimeFormat("default", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      calendar: "iso8601",
-      numberingSystem: "latn",
-      hourCycle: "h23",
-    });
-    const parts = df.formatToParts(date).reduce((acc, part) => {
-      acc[part.type] = part.value;
-      return acc;
-    }, {});
-    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
-  };
   return (
     <Grid
       as="form"
@@ -91,10 +66,8 @@ export default function AlbumsCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          title,
-          desc,
-          date,
-          featuredImg,
+          name,
+          description,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -125,7 +98,7 @@ export default function AlbumsCreateForm(props) {
             }
           });
           await API.graphql({
-            query: createAlbums.replaceAll("__typename", ""),
+            query: createTodo.replaceAll("__typename", ""),
             variables: {
               input: {
                 ...modelFields,
@@ -145,118 +118,58 @@ export default function AlbumsCreateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "AlbumsCreateForm")}
+      {...getOverrideProps(overrides, "TodoCreateForm")}
       {...rest}
     >
       <TextField
-        label="Title"
-        isRequired={false}
+        label="Name"
+        isRequired={true}
         isReadOnly={false}
-        value={title}
+        value={name}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              title: value,
-              desc,
-              date,
-              featuredImg,
+              name: value,
+              description,
             };
             const result = onChange(modelFields);
-            value = result?.title ?? value;
+            value = result?.name ?? value;
           }
-          if (errors.title?.hasError) {
-            runValidationTasks("title", value);
+          if (errors.name?.hasError) {
+            runValidationTasks("name", value);
           }
-          setTitle(value);
+          setName(value);
         }}
-        onBlur={() => runValidationTasks("title", title)}
-        errorMessage={errors.title?.errorMessage}
-        hasError={errors.title?.hasError}
-        {...getOverrideProps(overrides, "title")}
+        onBlur={() => runValidationTasks("name", name)}
+        errorMessage={errors.name?.errorMessage}
+        hasError={errors.name?.hasError}
+        {...getOverrideProps(overrides, "name")}
       ></TextField>
       <TextField
-        label="Desc"
+        label="Description"
         isRequired={false}
         isReadOnly={false}
-        value={desc}
+        value={description}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              title,
-              desc: value,
-              date,
-              featuredImg,
+              name,
+              description: value,
             };
             const result = onChange(modelFields);
-            value = result?.desc ?? value;
+            value = result?.description ?? value;
           }
-          if (errors.desc?.hasError) {
-            runValidationTasks("desc", value);
+          if (errors.description?.hasError) {
+            runValidationTasks("description", value);
           }
-          setDesc(value);
+          setDescription(value);
         }}
-        onBlur={() => runValidationTasks("desc", desc)}
-        errorMessage={errors.desc?.errorMessage}
-        hasError={errors.desc?.hasError}
-        {...getOverrideProps(overrides, "desc")}
-      ></TextField>
-      <TextField
-        label="Date"
-        isRequired={false}
-        isReadOnly={false}
-        type="datetime-local"
-        value={date && convertToLocal(new Date(date))}
-        onChange={(e) => {
-          let value =
-            e.target.value === "" ? "" : new Date(e.target.value).toISOString();
-          if (onChange) {
-            const modelFields = {
-              title,
-              desc,
-              date: value,
-              featuredImg,
-            };
-            const result = onChange(modelFields);
-            value = result?.date ?? value;
-          }
-          if (errors.date?.hasError) {
-            runValidationTasks("date", value);
-          }
-          setDate(value);
-        }}
-        onBlur={() => runValidationTasks("date", date)}
-        errorMessage={errors.date?.errorMessage}
-        hasError={errors.date?.hasError}
-        {...getOverrideProps(overrides, "date")}
-      ></TextField>
-      <TextField
-        label="Featured img"
-        isRequired={false}
-        isReadOnly={false}
-        value={featuredImg}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              title,
-              desc,
-              date,
-              featuredImg: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.featuredImg ?? value;
-          }
-          if (errors.featuredImg?.hasError) {
-            runValidationTasks("featuredImg", value);
-          }
-          setFeaturedImg(value);
-        }}
-        onBlur={() => runValidationTasks("featuredImg", featuredImg)}
-        errorMessage={errors.featuredImg?.errorMessage}
-        hasError={errors.featuredImg?.hasError}
-        {...getOverrideProps(overrides, "featuredImg")}
+        onBlur={() => runValidationTasks("description", description)}
+        errorMessage={errors.description?.errorMessage}
+        hasError={errors.description?.hasError}
+        {...getOverrideProps(overrides, "description")}
       ></TextField>
       <Flex
         justifyContent="space-between"
