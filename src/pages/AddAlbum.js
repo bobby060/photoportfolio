@@ -75,8 +75,9 @@ export default function AddAlbum(){
 		<div>
 			<h2> Create new album </h2>
 
-			<form onSubmit={newAlbum}>
+			
 				<MDBRow className='d-flex justify-content-center'>
+				<form onSubmit={newAlbum}>
 			      <MDBCol size='2'>
 			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text'/>
 			        <MDBInput className='mb-3' label = 'Date' name='date' type ='date'/>
@@ -87,20 +88,21 @@ export default function AddAlbum(){
 			      <MDBCol size='12'>
 			        <MDBBtn type='submit' className="bg-dark">Submit</MDBBtn>
 			      </MDBCol>
+			      </form>
+			      <MDBCol size='2'>
+				    <MDBDropdown>
+				      <MDBDropdownToggle tag='a' className='btn btn-primary bg-dark'>
+				        Albums
+				      </MDBDropdownToggle>
+				      <MDBDropdownMenu>
+				      	{albums.map((album) => (
+				      		<MDBDropdownItem link>{album.title}</MDBDropdownItem>
+				      		))}
+				      </MDBDropdownMenu>
+				    </MDBDropdown>
+				    </MDBCol>
 			    </MDBRow>
-			</form>
 
-
-			    <MDBDropdown>
-			      <MDBDropdownToggle tag='a' className='btn btn-primary'>
-			        Albums
-			      </MDBDropdownToggle>
-			      <MDBDropdownMenu>
-			      	{albums.map((album) => (
-			      		<MDBDropdownItem link>{album.title}</MDBDropdownItem>
-			      		))}
-			      </MDBDropdownMenu>
-			    </MDBDropdown>
 
 
 
