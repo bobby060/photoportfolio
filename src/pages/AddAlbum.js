@@ -8,6 +8,10 @@ import {
   MDBBtn,
   MDBInput,
   MDBTextArea,
+  MDBDropdown,
+  MDBDropdownToggle,
+  MDBDropdownMenu,
+  MDBDropdownItem,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import '../css/index.css'
@@ -32,26 +36,26 @@ export default function AddAlbum(){
 	    const form = new FormData(event.target);
 
 	    const date = form.get("date") + 'T00:00:00.000Z'
-	    console.log(date)
 	    const data = {
 	      title: form.get("title"),
 	      desc: form.get("desc"),
 	      date: date,
-	      albumsFeaturedImgID: 'fakeID',
+	      featuredImg: "fakeID",
 	    };
-	    console.log('read data')
 	    await API.graphql({
 	      query: createAlbums,
 	      variables: { input: data },
 	    });
-	    console.log('album created')
 	    fetchAlbums();
 	    event.target.reset();
 	 }
 
 	 async function fetchAlbums() {
+	 	console.log(albums)
 	    const apiData = await API.graphql({ query: listAlbums});
+	    console.log('api passed')
 	    const albumsFromAPI = apiData.data.listAlbums.items;
+	    console.log(albumsFromAPI)
 	    // Put logic to pull urls for images here
 	    setAlbums(albumsFromAPI);
 	 }
@@ -85,6 +89,20 @@ export default function AddAlbum(){
 			      </MDBCol>
 			    </MDBRow>
 			</form>
+
+
+			    <MDBDropdown>
+			      <MDBDropdownToggle tag='a' className='btn btn-primary'>
+			        Albums
+			      </MDBDropdownToggle>
+			      <MDBDropdownMenu>
+			      	{albums.map((album) => (
+			      		<MDBDropdownItem link>{album.title}</MDBDropdownItem>
+			      		))}
+			      </MDBDropdownMenu>
+			    </MDBDropdown>
+
+
 
 
 

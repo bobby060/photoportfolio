@@ -19,5 +19,23 @@
         "photoportfolio": {}
       }
     }
+  },
+  "bobby": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amplify2249ee822dbe4-staging-134741-authRole",
+      "UnauthRoleArn": "arn:aws:iam::068884799909:role/amplify-amplify2249ee822dbe4-staging-134741-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::068884799909:role/amplify-amplify2249ee822dbe4-staging-134741-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-amplify2249ee822dbe4-staging-134741-deployment",
+      "UnauthRoleName": "amplify-amplify2249ee822dbe4-staging-134741-unauthRole",
+      "StackName": "amplify-amplify2249ee822dbe4-staging-134741",
+      "StackId": "arn:aws:cloudformation:us-east-2:068884799909:stack/amplify-amplify2249ee822dbe4-staging-134741/661e5420-74cf-11ee-9be0-02238268dced",
+      "AmplifyAppId": "d31w5rszj2sf4f"
+    },
+    "categories": {
+      "auth": {
+        "photoportfolio7e5401aa": {}
+      }
+    }
   }
 }
