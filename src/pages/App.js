@@ -12,6 +12,11 @@ import {
   View,
   withAuthenticator,
 } from '@aws-amplify/ui-react';
+
+import {
+  MDBBtn
+} from 'mdb-react-ui-kit';
+
 import { listNotes } from "../graphql/queries";
 import {
   createNote as createNoteMutation,
@@ -82,7 +87,7 @@ const App = ({ signOut }) => {
 
       <AddAlbum />
       
-      <Button onClick={signOut}>Sign Out</Button>
+      <MDBBtn className='mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn>
     </View>
   );
 };

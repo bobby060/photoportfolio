@@ -13,6 +13,7 @@
     "mdb-react-ui-kit": "^6.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-headroom": "^3.2.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
@@ -42,7 +43,7 @@
     ]
   },
   "devDependencies": {
-    "react-router-dom": "^6.17.0",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "react-router-dom": "^6.17.0"
   }
 }

@@ -71,3 +71,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 # photoportfolio
 Photo portfolio based on AWS react tutorial as start point
+
+
+# Usful documents
+- [react-dropzone documentation](https://react-dropzone.js.org/)

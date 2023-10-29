@@ -17,6 +17,9 @@
       },
       "api": {
         "photoportfolio": {}
+      },
+      "storage": {
+        "portfoliostorage": {}
       }
     }
   },
