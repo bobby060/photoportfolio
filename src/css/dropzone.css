@@ -1,28 +1,33 @@
-/* .baseStyle = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '20px',
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: '#eeeeee',
-  borderStyle: 'dashed',
-  backgroundColor: '#fafafa',
-  color: '#bdbdbd',
-  outline: 'none',
-  transition: 'border .24s ease-in-out'
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-.focusedStyle = {
-  borderColor: '#2196f3'
+.banner_text {
+  font-size: 1.5rem;
+  color: #ccc;
+  display: block;
+  margin: 0.5rem 0;
 }
 
-.acceptStyle = {
-  borderColor: '#00e676'
+.banner {
+  background-color: #fafafa;
+  width: 100%;
+  border: 4px dashed #ccc;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  cursor: pointer;
 }
 
-.rejectStyle = {
-  borderColor: '#ff1744'
+.input {
+  width: 100%;
+  height: 100%;
+  display: none;
 }
-*/

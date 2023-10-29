@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import {useDropzone} from 'react-dropzone'
+import {EXIF} from 'exif-js'
 import {
 	MDBContainer,
   MDBRow,
@@ -14,6 +15,8 @@ import {
   MDBDropdownMenu,
   MDBDropdownItem,
   MDBIcon,
+  MDBTooltip,
+  MDBFile,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import '../css/index.css'
@@ -24,6 +27,8 @@ import ReactDOM from 'react-dom/client';
 import {createAlbums, updateAlbums, deleteAlbums, createImages, updateImages, deleteImages} from '../graphql/mutations'; 
 import {listAlbums} from '../graphql/queries';
 
+import {DropZone} from './Dropzone'
+
 
 
 export default function AddAlbum(){
@@ -32,15 +37,19 @@ export default function AddAlbum(){
 	const [selectedAlbum, selectAlbum] = useState([])
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 
+	// stores selected files
+	const [selectedFiles, setSelectedFiles] = useState(null);
+
 	useEffect(() => {
 	    fetchAlbums();
 	  }, []);
 
+	// Album handler functions
 	async function newAlbum(event) {
 		event.preventDefault();
 	    const form = new FormData(event.target);
 
-	    const date = form.get("date") + 'T00:00:00.000Z'
+	    const date = form.get("date") + 'T00:00:00.000Z';
 	    const data = {
 	      title: form.get("title"),
 	      desc: form.get("desc"),
@@ -56,13 +65,10 @@ export default function AddAlbum(){
 	 }
 
 	 async function fetchAlbums() {
-	 	console.log(albums)
 	    const apiData = await API.graphql({ query: listAlbums});
-	    console.log('api passed')
 	    const albumsFromAPI = apiData.data.listAlbums.items;
-	    console.log(albumsFromAPI)
-	    // Put logic to pull urls for images here
 	    setAlbums(albumsFromAPI);
+	    // Put logic to pull urls for images here
 	 }
 
 	 async function deleteAlbum({ id, title}) {
@@ -77,28 +83,86 @@ export default function AddAlbum(){
 	    });
 	 }
 
-	 // Add dropped files to current album
-	 const onDrop = useCallback(acceptedFiles => {
-	 	// To be implemented
-	 }, [])
+	 // Image handler functions
 
-	const {
-		fileRejections,
-    	getRootProps,
-    	getInputProps,
-    	isDragActive
-  	} = useDropzone({
-    accept: {
-      'image/jpeg': [],
-      'image/png': []
-    }
-  	});
+	 function getExifDate(photo) {
+
+	 	// if (photo.name.endsWith(".jpg" || ".jpeg")){
+		//   // Get the EXIF metadata of the photo.
+		//   const exifData = EXIF.getData(photo);
+
+		//   // Get the date and time the photo was taken.
+		//   const dateTaken = exifData.DateTimeOriginal;
+
+		//   // Convert the date and time to a Date object.
+		//   const date = new Date(dateTaken);
+
+		//   // Return the date of the photo.
+		//   return date.toISOString();
+		//   	}
+
+		  const date2 = new Date()
+
+		  return date2.toISOString()
+
+	}
+
+
+	async function newImage(image){
+	 	console.log('starting image')
+	 	const data = {
+	 		name: image.name,
+	 		description: "",
+	 		filename: image.name,
+	 		date: getExifDate(image),
+	 		albumsID: selectedAlbum.id
+	 	}
+	 	console.log('data good')
+	 	const response = await API.graphql({
+	 		query: createImages,
+	 		variables: data,
+	 	});
+
+	 	const img = response?.data?.createImages
+
+	 	if (!img) return;
+	 	console.log(`starting upload for ${image.name}`)
+	 	const result = await Storage.put(`${img.id}-${image.name}`, image, {
+  			contentType: "image/png", // contentType is optional
+			});
+	 	console.log('image uploaded')
+	 }
+
+	 async function handleFiles() {
+	 	console.log('loading files')
+	 	const files = Array.from(selectedFiles)
+	 	files.map((file) => newImage(file))
+	 }
+
+	 async function setFiles(event){
+	 	console.log("setting files")
+	 	const files = event.target.files;
+	 	setSelectedFiles(files);
+	 	console.log(files)
+	 }
+
+
+
+	 // Add dropped files to current album
+	//  const onDrop = useCallback(acceptedFiles => {
+	//  	acceptedFiles.map((pic) => newImage(pic))
+	//  }, [])
+
+	// const {
+    // 	getRootProps,
+    // 	getInputProps,
+    // 	isDragActive
+  	// } = useDropzone({onDrop});
 
   	function EditAlbum() {
   		if (showEditAlbum){
   			return(
 	  			<div>
-
 					<MDBRow  className='d-flex justify-content-center align-items-center' >
 						<MDBCol className='d-flex justify-content-start align-items-center' lg='5'>
 						    <h2 className="p-2">{selectedAlbum.title}</h2>
@@ -107,21 +171,27 @@ export default function AddAlbum(){
 						</MDBCol>
 						<MDBCol className ='d-flex justify-content-end' lg='5'>
 						    <p className='p-2'>{selectedAlbum.desc}</p>
-						    <MDBBtn onClick={()=>deleteAlbum(selectedAlbum)} color='tertiary'>
+						    <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum)} color='tertiary' data-mdb-toggle="tooltip" title="Delete album"  >
 						    	<MDBIcon fas icon="times text-dark" size='4x' />
 						    </MDBBtn>
 						</MDBCol>
 					 </MDBRow>
 					 <MDBRow className='d-flex justify-content-center'>
 				    	<MDBCol lg='6'>
-				    		<MDBBtn className='bg-light text-dark' {...getRootProps()}>
+				    		{/*<div className='bg-light text-dark ' {...getRootProps({className: 'dropzone'})}>
 						      <input {...getInputProps()} />
-						      {
-						        isDragActive ?
-						          <p>Drop the files here ...</p> :
-						          <p>Drag 'n' drop some files here, or click to select files</p>
-						      }
-						    </MDBBtn>
+						           {
+							        isDragActive ?
+							          <p>Drop the files here ...</p> :
+							          <p>Drag 'n' drop some files here, or click to select files</p>
+							      }
+						    </div>*/}
+				    		<MDBFile
+				    			multiple
+				    			onChange={setFiles}
+				    			/>
+
+				    		<MDBBtn onClick={handleFiles}>Upload Photos</MDBBtn>
 				    	</MDBCol>
 				    </MDBRow>
 			    </div>
