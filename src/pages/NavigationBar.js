@@ -42,15 +42,15 @@ export default function NavigationBar(){
                     Home
                   </MDBNavbarLink>
                 </MDBNavbarItem>
-                <MDBNavbarItem>
+{/*                <MDBNavbarItem>
                   <MDBNavbarLink href='#'>Features</MDBNavbarLink>
-                </MDBNavbarItem>
+                </MDBNavbarItem>*/}
                 <MDBNavbarItem>
-                  <MDBNavbarLink href='#'>Pricing</MDBNavbarLink>
+                  <MDBNavbarLink disabled href='#'>Github</MDBNavbarLink>
                 </MDBNavbarItem>
                 <MDBNavbarItem>
                   <MDBNavbarLink disabled href='#' tabIndex={-1} aria-disabled='true'>
-                    Disabled
+                    About Me
                   </MDBNavbarLink>
                 </MDBNavbarItem>
               </MDBNavbarNav>

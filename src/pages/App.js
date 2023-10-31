@@ -24,7 +24,7 @@ import {
 } from "../graphql/mutations";
 import Headroom from 'react-headroom'
 import NavigationBar from './NavigationBar'
-import AddAlbum from './AddAlbum'
+import EditAlbum from './EditAlbum'
 
 const App = ({ signOut }) => {
   /*
@@ -85,7 +85,7 @@ const App = ({ signOut }) => {
           </div>
       </Headroom>
 
-      <AddAlbum />
+      <EditAlbum />
       
       <MDBBtn className='mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn>
     </View>
