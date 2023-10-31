@@ -25,7 +25,7 @@ import ReactDOM from 'react-dom/client';
 
 
 import {createAlbums, updateAlbums, deleteAlbums, createImages, updateImages, deleteImages} from '../graphql/mutations'; 
-import {listAlbums} from '../graphql/queries';
+import {listAlbums, imagesByAlbumsID} from '../graphql/queries';
 
 import {DropZone} from './Dropzone'
 
@@ -36,9 +36,13 @@ export default function AddAlbum(){
 	const [albums, setAlbums] = useState([])
 	const [selectedAlbum, selectAlbum] = useState([])
 	const [showEditAlbum, CanEditAlbum] = useState(false);
+	const debug = true;
 
 	// stores selected files
 	const [selectedFiles, setSelectedFiles] = useState(null);
+
+	// for storing images in current album
+	const [images, setImages] = useState([])
 
 	useEffect(() => {
 	    fetchAlbums();
@@ -109,42 +113,46 @@ export default function AddAlbum(){
 
 
 	async function newImage(image){
-	 	console.log('starting image')
+	 	if (debug) {console.log(`selected ID: ${selectedAlbum.id}`)}
 	 	const data = {
-	 		name: image.name,
-	 		description: "",
+	 		title: image.name,
+	 		desc: "",
 	 		filename: image.name,
 	 		date: getExifDate(image),
 	 		albumsID: selectedAlbum.id
 	 	}
-	 	console.log('data good')
+	 	if (debug) {console.log('data good')}
 	 	const response = await API.graphql({
 	 		query: createImages,
-	 		variables: data,
+	 		variables: {input: data},
 	 	});
-
+	 	if (debug){console.log('image database created ID:')}
 	 	const img = response?.data?.createImages
-
+	 	if (debug) {console.log(img.id)}
 	 	if (!img) return;
 	 	console.log(`starting upload for ${image.name}`)
+	 	// Combining id and image name ensures uniqueness while preserving information
 	 	const result = await Storage.put(`${img.id}-${image.name}`, image, {
   			contentType: "image/png", // contentType is optional
 			});
 	 	console.log('image uploaded')
 	 }
 
+
+	 // Creates images and uploads
 	 async function handleFiles() {
 	 	console.log('loading files')
 	 	const files = Array.from(selectedFiles)
 	 	files.map((file) => newImage(file))
 	 }
 
+
+	 // tracks files uploaded by clicker, sets state object
 	 async function setFiles(event){
-	 	console.log("setting files")
 	 	const files = event.target.files;
 	 	setSelectedFiles(files);
-	 	console.log(files)
 	 }
+
 
 
 
@@ -186,6 +194,8 @@ export default function AddAlbum(){
 							          <p>Drag 'n' drop some files here, or click to select files</p>
 							      }
 						    </div>*/}
+
+
 				    		<MDBFile
 				    			multiple
 				    			onChange={setFiles}
@@ -199,6 +209,60 @@ export default function AddAlbum(){
   		}
   		return;
   	}
+
+  	// async function getUrl(img){
+  	// 	if (debug) {console.log(img.id)};
+  	// 	if (debug) {console.log(img.filename)};	
+  	// 	const url = await Storage.get(`${img.id}-${img.filename}`);
+  	// 	if (debug) {console.log(url)}
+  	// 	// return url;
+  	// }
+
+
+  	function AlbumImage(){
+
+	 	return (
+	 		images.map((image) => {
+	 		<div>
+	 		  	<img
+				        src={image.filename}
+				        alt={`visual aid for ${image.name}`}
+				        className='img-fluid shadow-4' 
+			      />
+			      <p>{image.filename}</p>
+			      </div>
+			  }));
+	 }
+
+	 async function setAlbum(album){
+	 	selectAlbum(album);
+	 	console.log('test');
+	 	const imgs = await API.graphql({
+	 		query: imagesByAlbumsID,
+	 		 variables: { albumsID: selectedAlbum.id}
+	 		});
+
+	 	const imgs2 = imgs.data.imagesByAlbumsID.items;
+	 	console.log(imgs2);
+	 	imgs2.map((img) => console.log(img.id))
+	 	const new_imgs = await Promise.all(
+	 		imgs2.map(async (img) => {
+	 			const real_name = `${img.id}-${img.filename}`
+	 			if (debug) {console.log(real_name)};
+	 			const url = await Storage.get(real_name, { level: 'public' });
+	 			
+	 			// const url = await Storage.get(`03c8ccc1-7993-4df4-847c-9e3b99b94ea7-jinji-lanterns--3.jpg`)
+	 			img.filename = url;
+ 		 		return img;
+ 		 	})
+
+	 	);
+
+	 	console.log(new_imgs);
+	 	setImages(new_imgs);
+	 	if (debug) {console.log(`images set`)};
+	 }
+
 
 
 
@@ -232,7 +296,7 @@ export default function AddAlbum(){
 				      </MDBDropdownToggle>
 				      <MDBDropdownMenu >
 				      	{albums.map((album) => (
-				      		<MDBDropdownItem link onClick={() => {selectAlbum(album); CanEditAlbum(true);}}>{album.title}</MDBDropdownItem>
+				      		<MDBDropdownItem link onClick={() => {setAlbum(album); CanEditAlbum(true);}}>{album.title}</MDBDropdownItem>
 				      		))}
 				      </MDBDropdownMenu>
 				    </MDBDropdown>
@@ -240,6 +304,17 @@ export default function AddAlbum(){
 				    </MDBCol>
 				</MDBRow>
 				    <EditAlbum/>
+			<MDBRow className='p-3'>			    
+				 {images.map((image) => (
+			 		<MDBCol lg='6' xl='4'>
+			 		  	<img
+						        src={image.filename}
+						        alt={`visual aid for ${image.name}`}
+						        className='img-fluid shadow-4 m-2' 
+					      />
+					  </MDBCol>))}
+				</MDBRow>
+
 			    {/*Add more photos*/}
 
 
