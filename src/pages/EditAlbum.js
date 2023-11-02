@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import {useDropzone} from 'react-dropzone'
 import {EXIF} from 'exif-js'
 import {
 	MDBContainer,
