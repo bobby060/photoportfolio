@@ -80,6 +80,10 @@ export default function Album({curAlbum}){
             <div className="vr" style={{ height: '50px' }}></div>
             <h5 className="p-2">{curAlbum.date}</h5>
         </MDBCol>
+        <MDBCol className ='d-flex justify-content-end' lg='5'>
+          <p className='p-2'>{curAlbum.desc}</p>
+        
+        </MDBCol>
        </MDBRow>
     <MDBRow className='p-3'>          
      {images.map((image) => (

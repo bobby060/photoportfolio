@@ -110,7 +110,7 @@ export default function EditAlbum(){
     // 	isDragActive
   	// } = useDropzone({onDrop});
 
-  	function showAlbum() {
+  	function ShowAlbum() {
   		if (showEditAlbum){
   			  return(
 				  <div>
@@ -125,10 +125,9 @@ export default function EditAlbum(){
 				      </MDBCol>
 				    </MDBRow>
 				   	<MDBRow  className='d-flex justify-content-center align-items-center' >
-					    <MDBCol className ='d-flex justify-content-end' lg='5'>
-					        <p className='p-2'>{selectedAlbum.desc}</p>
-					        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum)} color='tertiary' data-mdb-toggle="tooltip" title="Delete album"  >
-					          <MDBIcon fas icon="times text-dark" size='4x' />
+					    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
+					        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
+					          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
 					        </MDBBtn>
 					    </MDBCol>
 				   </MDBRow>
@@ -172,14 +171,14 @@ export default function EditAlbum(){
 				      </MDBDropdownToggle>
 				      <MDBDropdownMenu >
 				      	{albums.map((album) => (
-				      		<MDBDropdownItem link onClick={() => {selectedAlbum(album); CanEditAlbum(true);}}>{album.title}</MDBDropdownItem>
+				      		<MDBDropdownItem link onClick={() => {selectAlbum(album); CanEditAlbum(true);}}>{album.title}</MDBDropdownItem>
 				      		))}
 				      </MDBDropdownMenu>
 				    </MDBDropdown>
 				
 				    </MDBCol>
 				</MDBRow>
-				    <EditAlbum/>
+				    <ShowAlbum/>
 
 
 			    {/*Add more photos*/}
