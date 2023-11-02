@@ -33,6 +33,7 @@ export default function AddImages({curAlbum, setCurAlbum}){
    async function handleFiles() {
       const files = Array.from(selectedFiles)
       files.map((file) => newImage(file))
+      setCurAlbum(curAlbum);
    }
 
 
@@ -88,7 +89,6 @@ export default function AddImages({curAlbum, setCurAlbum}){
         contentType: "image/png", // contentType is optional
       });
     console.log(`${image.name} uploaded`)
-    setCurAlbum(curAlbum);
    }
 
 

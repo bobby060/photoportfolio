@@ -47,7 +47,9 @@ export default function EditAlbum(){
 	  }, []);
 
 
-
+	function updateAlbum(album) {
+		selectAlbum(album);
+	}
 
 
 	// Album handler functions
@@ -81,12 +83,26 @@ export default function EditAlbum(){
 	    const newAlbums = albums.filter((album) => album.id !== id);
 	    setAlbums(newAlbums);
 	    CanEditAlbum(false);
+	   	const imgs = await API.graphql({
+	      	query: imagesByAlbumsID,
+	       	variables: { albumsID: id}
+	     });
+	   	imgs.data.imagesByAlbumsID.items.map(async (img) => {
+	   		const i = img;
+	   		await Storage.remove(`${img.id}-${img.filename}`);
+	   		await API.graphql({
+	   			query: deleteImages,
+	   			variables: {input: {id: img.id}},
+	   		});
+	   		if (debug) {console.log(`${img.id} deleted`)}
+	   	})
 	    selectAlbum([])
 	    // await Storage.remove(name);
 	    await API.graphql({
 	      query: deleteAlbums,
 	      variables: { input: { id } },
 	    });
+
 	    // TODO delete all associated images
 	 }
 
@@ -121,6 +137,7 @@ export default function EditAlbum(){
 				      <MDBCol lg='6'>
 				        <AddImages
 				        	curAlbum = {selectedAlbum}
+				        	setCurAlbum = {updateAlbum}
 				        />
 				      </MDBCol>
 				    </MDBRow>
