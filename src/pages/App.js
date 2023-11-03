@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../css/App.css";
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage } from 'aws-amplify';
+import { API, Storage, Auth } from 'aws-amplify';
 import {
   Button,
   Flex,
@@ -12,7 +12,11 @@ import {
   View,
   withAuthenticator,
 } from '@aws-amplify/ui-react';
-
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import ReactDOM from 'react-dom/client';
 import {
   MDBBtn
 } from 'mdb-react-ui-kit';
@@ -22,74 +26,29 @@ import {
   createNote as createNoteMutation,
   deleteNote as deleteNoteMutation,
 } from "../graphql/mutations";
-import Headroom from 'react-headroom'
-import NavigationBar from './NavigationBar'
-import EditAlbum from './EditAlbum'
+import Headroom from 'react-headroom';
+import NavigationBar from './NavigationBar';
+import EditAlbum from './EditAlbum';
+import Root from './Root';
+import ErrorPage from './ErrorPage';
+import SignIn from './Signin';
 
-const App = ({ signOut }) => {
-  /*
-  const [notes, setNotes] = useState([]);
-
-  useEffect(() => {
-    fetchNotes();
-  }, []);
-
-  async function fetchNotes() {
-    const apiData = await API.graphql({ query: listNotes });
-    const notesFromAPI = apiData.data.listNotes.items;
-    await Promise.all(
-      notesFromAPI.map(async (note) => {
-        if (note.image) {
-          const url = await Storage.get(note.name);
-          note.image = url;
-        }
-        return note;
-      })
-    );
-    setNotes(notesFromAPI);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    errorElement: <ErrorPage/>,
+    children: [
+    {
+      path: "signin",
+      element: <SignIn/>
+    }
+    ]
   }
+]);
 
-  async function createNote(event) {
-    event.preventDefault();
-    const form = new FormData(event.target);
-    const data = {
-      name: form.get("name"),
-      description: form.get("description"),
-    };
-    await API.graphql({
-      query: createNoteMutation,
-      variables: { input: data },
-    });
-    fetchNotes();
-    event.target.reset();
-  }
-
-  async function deleteNote({ id, name }) {
-    const newNotes = notes.filter((note) => note.id !== id);
-    setNotes(newNotes);
-    await Storage.remove(name);
-    await API.graphql({
-      query: deleteNoteMutation,
-      variables: { input: { id } },
-    });
-  }
-*/
-  return (
-
-    <View className="App">
-      <Headroom >
-          <NavigationBar />
-          <div>
-            <br />
-            <h1 style={{ color: "transparent" }}>_</h1>
-          </div>
-      </Headroom>
-
-      <EditAlbum />
-      
-      <MDBBtn className='mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn>
-    </View>
-  );
-};
-
-export default withAuthenticator(App);
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);

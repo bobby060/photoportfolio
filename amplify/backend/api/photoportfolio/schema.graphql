@@ -1,4 +1,4 @@
-type Albums @model @auth(rules: [{allow: public}]) {
+type Albums @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read] }]) {
   id: ID!
   title: String
   desc: String
@@ -7,7 +7,7 @@ type Albums @model @auth(rules: [{allow: public}]) {
   Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
 }
 
-type Images @model @auth(rules: [{allow: public}]) {
+type Images @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read] }]) {
   id: ID!
   title: String
   desc: String
@@ -16,7 +16,7 @@ type Images @model @auth(rules: [{allow: public}]) {
   albumsID: ID! @index(name: "byAlbums")
 }
 
-type Todo @model @auth(rules: [{allow: public}]) {
+type Todo @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read] }]) {
   id: ID!
   name: String!
   description: String

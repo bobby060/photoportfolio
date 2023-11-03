@@ -38,7 +38,7 @@ export default function NavigationBar(){
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav>
                 <MDBNavbarItem>
-                  <MDBNavbarLink active aria-current='page' href='#'>
+                  <MDBNavbarLink active href='/'>
                     Home
                   </MDBNavbarLink>
                 </MDBNavbarItem>
@@ -46,12 +46,17 @@ export default function NavigationBar(){
                   <MDBNavbarLink href='#'>Features</MDBNavbarLink>
                 </MDBNavbarItem>*/}
                 <MDBNavbarItem>
-                  <MDBNavbarLink disabled href='#'>Github</MDBNavbarLink>
+                  <MDBNavbarLink  href='/editalbum'>Edit Album</MDBNavbarLink>
                 </MDBNavbarItem>
                 <MDBNavbarItem>
-                  <MDBNavbarLink disabled href='#' tabIndex={-1} aria-disabled='true'>
+                  <MDBNavbarLink  href='/about' aria-disabled='true'>
                     About Me
                   </MDBNavbarLink>
+                </MDBNavbarItem>
+                <MDBNavbarItem>
+                <MDBNavbarLink  href='/signin' tabIndex={-1} aria-disabled='true'>
+                  Sign In
+                </MDBNavbarLink>
                 </MDBNavbarItem>
               </MDBNavbarNav>
             </MDBCollapse>

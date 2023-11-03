@@ -17,7 +17,8 @@ import {
   MDBTooltip,
   MDBFile,
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
+import { Auth, API, Storage } from 'aws-amplify';
+import { GRAPHQL_AUTH_MODE } from '@aws-amplify/api';
 import '../css/index.css'
 import ReactDOM from 'react-dom/client';
 
@@ -33,6 +34,8 @@ import Album from './Album';
 
 
 export default function EditAlbum(){
+
+
 
 	const [albums, setAlbums] = useState([])
 	const [selectedAlbum, selectAlbum] = useState([])
@@ -50,10 +53,21 @@ export default function EditAlbum(){
 		selectAlbum(album);
 	}
 
+	 async function currentSession() {
+	    try {
+	      const { accessToken, idToken, refreshToken } = await Auth.currentSession();
+	      return(accessToken.jwtToken);
+	    } catch(err) {
+	      console.log(err);
+	    }
+	  };
+
 
 	// Album handler functions
 	async function newAlbum(event) {
 		event.preventDefault();
+		const token = await currentSession();
+		console.log(token);
 	    const form = new FormData(event.target);
 
 	    const date = form.get("date") + 'T00:00:00.000Z';
