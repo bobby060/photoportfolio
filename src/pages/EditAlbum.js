@@ -80,6 +80,7 @@ export default function EditAlbum(){
 	    await API.graphql({
 	      query: createAlbums,
 	      variables: { input: data },
+	      authMode: 'AMAZON_COGNITO_USER_POOLS',
 	    });
 	    fetchAlbums();
 	    event.target.reset();

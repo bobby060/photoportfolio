@@ -5,15 +5,15 @@
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "API_KEY",
-      "expirationTime": 7,
-      "apiKeyExpirationDate": "2023-11-10T13:13:05.542Z",
-      "keyDescription": ""
+      "expirationTime": 30,
+      "apiKeyExpirationDate": "2023-12-03T09:06:52.415Z",
+      "keyDescription": "photoportfolioapikey"
     },
     "conflictResolution": {},
     "additionalAuthTypes": [
       {
         "mode": "AMAZON_COGNITO_USER_POOLS",
-        "cognitoUserPoolId": "authphotoportfolio7e5401aa"
+        "cognitoUserPoolId": "us-east-2_p6LIDzIDi"
       }
     ]
   }
