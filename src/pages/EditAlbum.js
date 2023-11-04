@@ -87,7 +87,10 @@ export default function EditAlbum(){
 	 }
 
 	 async function fetchAlbums() {
-	    const apiData = await API.graphql({ query: listAlbums});
+	    const apiData = await API.graphql({ 
+	    	query: listAlbums,
+	    	authMode: 'API_KEY',
+	    });
 	    const albumsFromAPI = apiData.data.listAlbums.items;
 	    setAlbums(albumsFromAPI);
 	    // Put logic to pull urls for images here

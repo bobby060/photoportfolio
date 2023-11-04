@@ -36,7 +36,8 @@ export default function Album({curAlbum}){
   // Pulls the image objects associated with the selected album
     const imgs = await API.graphql({
       query: imagesByAlbumsID,
-       variables: { albumsID: curAlbum.id}
+       variables: { albumsID: curAlbum.id},
+       authMode: 'API_KEY',
       });
 
     const imgs2 = imgs.data.imagesByAlbumsID.items;

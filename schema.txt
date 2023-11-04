@@ -1,0 +1,26 @@
+
+type Albums @model @auth(rules: [{allow: private, provider: userPools}])
+{
+  id: ID!
+  title: String
+  desc: String
+  date: AWSDateTime
+  featuredImg: String
+  Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
+}
+
+type Images @model @auth(rules: [{allow: private , provider: userPools}]) {
+  id: ID!
+  title: String
+  desc: String
+  filename: String
+  date: AWSDateTime
+  albumsID: ID! @index(name: "byAlbums")
+}
+
+type Todo @model @auth(rules: [{allow: private, provider: userPools}]) {
+  id: ID!
+  name: String!
+  description: String
+}
+ 

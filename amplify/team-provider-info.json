@@ -15,11 +15,11 @@
       "auth": {
         "photoportfolio7e5401aa": {}
       },
-      "api": {
-        "photoportfolio": {}
-      },
       "storage": {
         "portfoliostorage": {}
+      },
+      "api": {
+        "photoportfolio": {}
       }
     }
   },
