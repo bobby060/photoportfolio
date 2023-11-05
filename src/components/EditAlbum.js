@@ -18,16 +18,12 @@ import {
   MDBFile,
 } from 'mdb-react-ui-kit';
 import { Auth, API, Storage } from 'aws-amplify';
-import { GRAPHQL_AUTH_MODE } from '@aws-amplify/api';
 import '../css/index.css'
 import ReactDOM from 'react-dom/client';
 
 
 import {createAlbums, updateAlbums, deleteAlbums, createImages, updateImages, deleteImages} from '../graphql/mutations'; 
-import {listAlbums, imagesByAlbumsID} from '../graphql/queries';
-
-// import * from './Album';
-
+import {listAlbums, imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import AddImages from './AddImages';
 import Album from './Album';
 
@@ -48,26 +44,14 @@ export default function EditAlbum(){
 	    fetchAlbums();
 	  }, []);
 
-
 	function updateAlbum(album) {
 		selectAlbum(album);
 	}
-
-	 async function currentSession() {
-	    try {
-	      const { accessToken, idToken, refreshToken } = await Auth.currentSession();
-	      return(accessToken.jwtToken);
-	    } catch(err) {
-	      console.log(err);
-	    }
-	  };
 
 
 	// Album handler functions
 	async function newAlbum(event) {
 		event.preventDefault();
-		const token = await currentSession();
-		console.log(token);
 	    const form = new FormData(event.target);
 
 	    const date = form.get("date") + 'T00:00:00.000Z';
@@ -75,7 +59,6 @@ export default function EditAlbum(){
 	      title: form.get("title"),
 	      desc: form.get("desc"),
 	      date: date,
-	      featuredImg: "fakeID",
 	    };
 	    await API.graphql({
 	      query: createAlbums,
@@ -124,24 +107,6 @@ export default function EditAlbum(){
 	 }
 
 
-
-
-
-
-
-
-
-
-	 // Add dropped files to current album
-	//  const onDrop = useCallback(acceptedFiles => {
-	//  	acceptedFiles.map((pic) => newImage(pic))
-	//  }, [])
-
-	// const {
-    // 	getRootProps,
-    // 	getInputProps,
-    // 	isDragActive
-  	// } = useDropzone({onDrop});
 
   	function ShowAlbum() {
   		if (showEditAlbum){
@@ -212,17 +177,7 @@ export default function EditAlbum(){
 				
 				    </MDBCol>
 				</MDBRow>
-				    <ShowAlbum/>
-
-
-			    {/*Add more photos*/}
-
-
-
-
-
-
-
+				<ShowAlbum/>
 
 		  </div>
 		)

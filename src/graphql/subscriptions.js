@@ -8,13 +8,25 @@ export const onCreateAlbums = /* GraphQL */ `
       title
       desc
       date
-      featuredImg
       Images {
         nextToken
         __typename
       }
+      featuredImage {
+        id
+        title
+        desc
+        filename
+        date
+        albumsID
+        index
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
+      albumsFeaturedImageId
       __typename
     }
   }
@@ -26,13 +38,25 @@ export const onUpdateAlbums = /* GraphQL */ `
       title
       desc
       date
-      featuredImg
       Images {
         nextToken
         __typename
       }
+      featuredImage {
+        id
+        title
+        desc
+        filename
+        date
+        albumsID
+        index
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
+      albumsFeaturedImageId
       __typename
     }
   }
@@ -44,13 +68,25 @@ export const onDeleteAlbums = /* GraphQL */ `
       title
       desc
       date
-      featuredImg
       Images {
         nextToken
         __typename
       }
+      featuredImage {
+        id
+        title
+        desc
+        filename
+        date
+        albumsID
+        index
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
+      albumsFeaturedImageId
       __typename
     }
   }
@@ -64,6 +100,7 @@ export const onCreateImages = /* GraphQL */ `
       filename
       date
       albumsID
+      index
       createdAt
       updatedAt
       __typename
@@ -79,6 +116,7 @@ export const onUpdateImages = /* GraphQL */ `
       filename
       date
       albumsID
+      index
       createdAt
       updatedAt
       __typename
@@ -94,6 +132,7 @@ export const onDeleteImages = /* GraphQL */ `
       filename
       date
       albumsID
+      index
       createdAt
       updatedAt
       __typename

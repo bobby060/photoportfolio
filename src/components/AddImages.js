@@ -1,19 +1,6 @@
 import React, { useState, useEffect  } from 'react';
 import {
-// 	MDBContainer,
-  // MDBRow,
-  // MDBCol,
-  // MDBCheckbox,
-  // MDBSwitch,
   MDBBtn,
-  // MDBInput,
-  // MDBTextArea,
-  // MDBDropdown,
-  // MDBDropdownToggle,
-  // MDBDropdownMenu,
-  // MDBDropdownItem,
-  // MDBIcon,
-  // MDBTooltip,
   MDBFile,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
@@ -65,11 +52,9 @@ export default function AddImages({curAlbum, setCurAlbum}){
 
   }
 
-  // Creates new image object and adds to AWS
+  // Creates new image object and uploads source to AWS
+  // TODO: implement automatic resizing/saving for thumbnails, different sized photos
   async function newImage(image){
-    console.log(image.name);
-    console.log(image.name);
-    console.log(curAlbum.id);
     const data = {
       title: image.name,
       desc: "",
@@ -91,27 +76,15 @@ export default function AddImages({curAlbum, setCurAlbum}){
     console.log(`${image.name} uploaded`)
    }
 
-
   return(
   <div>
+    {/*Implement Dropzone here*/}
+    <MDBFile
+      multiple
+      onChange={setFiles}
+      />
 
-        {/*<div className='bg-light text-dark ' {...getRootProps({className: 'dropzone'})}>
-          <input {...getInputProps()} />
-               {
-              isDragActive ?
-                <p>Drop the files here ...</p> :
-                <p>Drag 'n' drop some files here, or click to select files</p>
-            }
-        </div>*/}
-
-
-        <MDBFile
-          multiple
-          onChange={setFiles}
-          />
-
-        <MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>
-
+    <MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>
   </div>
   );
 

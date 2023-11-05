@@ -1,5 +1,6 @@
 import {React, useState} from 'react';
 import ReactDOM from 'react-dom/client';
+import {Link} from 'react-router-dom';
 // import { BrowserRouter as Router, Route, Link, withRouter, Redirect } from "react-router-dom";
 import {
   MDBContainer,
@@ -12,6 +13,7 @@ import {
   MDBCollapse,
   MDBIcon,
 } from 'mdb-react-ui-kit';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 // import AnchorLink from 'react-anchor-link-smooth-scroll'
 // **** ROUTES *****//
@@ -21,7 +23,32 @@ import '../css/index.css'
 export default function NavigationBar(){
 
     const [showNav, setShowNav] = useState(false);
+    const user_item = useAuthenticator((context) => [context.user]);
+    const authStatus = useAuthenticator(context => [context.authStatus]);
 
+    function SignInWrapper() {
+      if (authStatus.authStatus != 'authenticated') {
+        return (
+        <Link to={`/signin`}>
+        <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
+          Sign In</MDBNavbarLink>
+        </Link>);
+      }
+      return (<MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
+                  {user_item.user.username}
+                </MDBNavbarLink>);
+    }
+
+    function EditLinkWrapper(){
+      if (authStatus.authStatus != 'authenticated') {
+        return;
+      }
+      return (<MDBNavbarItem>
+                  <Link to={`/editalbum`}>
+                    <MDBNavbarLink>Edit Album</MDBNavbarLink>
+                  </Link>
+                </MDBNavbarItem>);
+    }
     return (
         <MDBNavbar expand='lg' light bgColor='light'>
           <MDBContainer fluid>
@@ -38,25 +65,20 @@ export default function NavigationBar(){
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav>
                 <MDBNavbarItem>
-                  <MDBNavbarLink active href='/'>
-                    Home
-                  </MDBNavbarLink>
+                  <Link to={`/home`}>
+                    <MDBNavbarLink active>
+                      Home
+                    </MDBNavbarLink>
+                  </Link>
                 </MDBNavbarItem>
-{/*                <MDBNavbarItem>
-                  <MDBNavbarLink href='#'>Features</MDBNavbarLink>
-                </MDBNavbarItem>*/}
+                <EditLinkWrapper/>
                 <MDBNavbarItem>
-                  <MDBNavbarLink  href='/editalbum'>Edit Album</MDBNavbarLink>
+                  <Link to={`/about`}>
+                    <MDBNavbarLink aria-disabled='true'>About Me</MDBNavbarLink>
+                  </Link>                  
                 </MDBNavbarItem>
-                <MDBNavbarItem>
-                  <MDBNavbarLink  href='/about' aria-disabled='true'>
-                    About Me
-                  </MDBNavbarLink>
-                </MDBNavbarItem>
-                <MDBNavbarItem>
-                <MDBNavbarLink  href='/signin' tabIndex={-1} aria-disabled='true'>
-                  Sign In
-                </MDBNavbarLink>
+                <MDBNavbarItem className = "ms-auto">
+                  <SignInWrapper/>
                 </MDBNavbarItem>
               </MDBNavbarNav>
             </MDBCollapse>

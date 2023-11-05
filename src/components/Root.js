@@ -11,6 +11,7 @@ import {
   TextField,
   View,
   Authenticator,
+  useAuthenticator,
 } from '@aws-amplify/ui-react';
 import {
   Outlet
@@ -18,7 +19,8 @@ import {
 
 import ReactDOM from 'react-dom/client';
 import {
-  MDBBtn
+  MDBBtn,
+  MDBContainer,
 } from 'mdb-react-ui-kit';
 
 import Headroom from 'react-headroom'
@@ -26,12 +28,16 @@ import NavigationBar from './NavigationBar'
 import EditAlbum from './EditAlbum'
 
 export default function Root() {
-
-
+  const { signOut } = useAuthenticator((context) => [context.user]);
+ const authStatus = useAuthenticator((context) => [context.authStatus]);
+  function ShowLogOut() {
+      if (authStatus.authStatus != 'authenticated') {
+      }
+      return (<MDBBtn className=' float-center mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn> );
+  }
   return (
 
     <View className="App">
-      <Authenticator.Provider>
         <Headroom >
             <NavigationBar />
             <div>
@@ -39,11 +45,9 @@ export default function Root() {
               <h1 style={{ color: "transparent" }}>_</h1>
             </div>
         </Headroom>
+
         <Outlet/>
-        <EditAlbum />
-        
-        <MDBBtn className='mt-3 bg-dark'>Sign Out</MDBBtn>
-      </Authenticator.Provider>
+        <ShowLogOut/>
     </View>
   );
 }

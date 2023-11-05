@@ -25,13 +25,11 @@ export declare type AlbumsCreateFormInputValues = {
     title?: string;
     desc?: string;
     date?: string;
-    featuredImg?: string;
 };
 export declare type AlbumsCreateFormValidationValues = {
     title?: ValidationFunction<string>;
     desc?: ValidationFunction<string>;
     date?: ValidationFunction<string>;
-    featuredImg?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type AlbumsCreateFormOverridesProps = {
@@ -39,7 +37,6 @@ export declare type AlbumsCreateFormOverridesProps = {
     title?: PrimitiveOverrideProps<TextFieldProps>;
     desc?: PrimitiveOverrideProps<TextFieldProps>;
     date?: PrimitiveOverrideProps<TextFieldProps>;
-    featuredImg?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type AlbumsCreateFormProps = React.PropsWithChildren<{
     overrides?: AlbumsCreateFormOverridesProps | undefined | null;

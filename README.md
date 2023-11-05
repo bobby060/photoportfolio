@@ -1,6 +1,17 @@
-# Getting Started with Create React App
+
+
+
+
+# React Photo Portfolio
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+
+
+
+
+
+# Build instructions
 
 ## Available Scripts
 
@@ -69,10 +80,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-# photoportfolio
-Photo portfolio based on AWS react tutorial as start point
+# Features to add:
+- Lightbox using [Yet Another React Lightbox](https://yet-another-react-lightbox.com/)
 
 
 # Usful documents
 - [react-dropzone documentation](https://react-dropzone.js.org/)
 -[mdb react components](https://mdbootstrap.com/docs/standard)
+-[react router quick start](https://reactrouter.com/en/main/start/tutorial)

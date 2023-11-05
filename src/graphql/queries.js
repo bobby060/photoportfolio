@@ -8,13 +8,25 @@ export const getAlbums = /* GraphQL */ `
       title
       desc
       date
-      featuredImg
       Images {
         nextToken
         __typename
       }
+      featuredImage {
+        id
+        title
+        desc
+        filename
+        date
+        albumsID
+        index
+        createdAt
+        updatedAt
+        __typename
+      }
       createdAt
       updatedAt
+      albumsFeaturedImageId
       __typename
     }
   }
@@ -31,9 +43,9 @@ export const listAlbums = /* GraphQL */ `
         title
         desc
         date
-        featuredImg
         createdAt
         updatedAt
+        albumsFeaturedImageId
         __typename
       }
       nextToken
@@ -50,6 +62,7 @@ export const getImages = /* GraphQL */ `
       filename
       date
       albumsID
+      index
       createdAt
       updatedAt
       __typename
@@ -70,6 +83,7 @@ export const listImages = /* GraphQL */ `
         filename
         date
         albumsID
+        index
         createdAt
         updatedAt
         __typename
@@ -101,6 +115,7 @@ export const imagesByAlbumsID = /* GraphQL */ `
         filename
         date
         albumsID
+        index
         createdAt
         updatedAt
         __typename

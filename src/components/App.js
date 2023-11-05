@@ -11,6 +11,7 @@ import {
   TextField,
   View,
   withAuthenticator,
+  Authenticator
 } from '@aws-amplify/ui-react';
 import {
   createBrowserRouter,
@@ -32,6 +33,8 @@ import EditAlbum from './EditAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';
 import SignIn from './Signin';
+import Home from './Home';
+import AboutPage from './AboutPage';
 
 const router = createBrowserRouter([
   {
@@ -42,6 +45,18 @@ const router = createBrowserRouter([
     {
       path: "signin",
       element: <SignIn/>
+    },
+    {
+      path: "editalbum",
+      element: <EditAlbum/>
+    },
+    {
+      path: "home",
+      element: <Home/>,
+    },
+    {
+      path: "about",
+      element: <AboutPage/>,
     }
     ]
   }
@@ -49,6 +64,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <Authenticator.Provider>
     <RouterProvider router={router} />
+    </Authenticator.Provider>
   </React.StrictMode>
 );

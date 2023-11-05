@@ -1,25 +1,23 @@
-
-type Albums @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations:[read]}])
-{
+type Albums @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   title: String
   desc: String
   date: AWSDateTime
-  featuredImg: String
   Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
+  featuredImage: Images @hasOne
 }
 
-type Images @model @auth(rules: [
-  {allow: private , provider: userPools}, {allow: public, operations:[read]}]) {
+type Images @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   title: String
   desc: String
   filename: String
   date: AWSDateTime
   albumsID: ID! @index(name: "byAlbums")
+  index: Int
 }
 
-type Todo @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations:[read]}]) {
+type Todo @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   name: String!
   description: String
