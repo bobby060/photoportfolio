@@ -4,11 +4,13 @@ import {
   MDBCol,
   MDBBtn,
   MDBIcon,
+  MDBContainer,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import PhotoGrid from './PhotoGrid';
 
 export default function Album({curAlbum}){
   const [selectedAlbum, setSelectedAlbum] = useState(curAlbum);
@@ -46,15 +48,35 @@ export default function Album({curAlbum}){
       })
     );
 
+    const img2 = new_imgs.map((image, i) => {
+      return(
+        <div className= 'm-0 p-1'>        
+          <div className='bg-image hover-overlay'>
+          <img
+              src={image.filename}
+              alt={`visual aid for ${image.name}`}
+              className='img-fluid shadow-4' 
+            />
+            <a href='#'>
+              <div className='mask overlay' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+            </a>
+          </div>
+          <DeleteImageWrapper
+            image={image} />
+{/*          <MakeFeaturedWrapper
+          image = {image}/>*/}
+          </div>);
+    })
+
     if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
     // Updates images to the new image objects that have urls
-    setImages(new_imgs);
+    setImages(img2);
     if (debug) {console.log(`images set`)};
    }
 
-
    // Deletes image object and source image on AWS
   async function deleteImage(image){
+    console.log(image.id);
     const newImages = images.filter((img) => img.id !== image.id);
     await Storage.remove(`${image.id}-${image.name}`)
     await API.graphql({
@@ -95,8 +117,7 @@ export default function Album({curAlbum}){
   }
 
   function MakeFeaturedWrapper(image){
-      console.log(image.id);
-      console.log(selectedAlbum.featuredImage);
+
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
@@ -111,6 +132,8 @@ export default function Album({curAlbum}){
             </MDBBtn>);
   }
 
+
+
  // Image handler functions
 
   return(
@@ -124,21 +147,10 @@ export default function Album({curAlbum}){
        </MDBRow>
        <MDBRow>
           <p className='p-2'>{selectedAlbum.desc} </p> 
-       </MDBRow>
-    <MDBRow className='p-3'>          
-     {images.map((image) => (
-      <MDBCol lg='6' xl='4'>
-          <img
-                src={image.filename}
-                alt={`visual aid for ${image.name}`}
-                className='img-fluid shadow-4 m-2' 
-            />
-            <DeleteImageWrapper
-              image={image} />
-              <MakeFeaturedWrapper
-              image = {image}/>
-        </MDBCol>))}
-    </MDBRow>
+       </MDBRow>        
+    <PhotoGrid
+      items = {images}
+      />
     </div>
     );
 
