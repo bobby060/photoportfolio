@@ -48,42 +48,21 @@ export default function Album({curAlbum}){
       })
     );
 
-    const img2 = new_imgs.map((image, i) => {
-      return(
-        <div className= 'm-0 p-1'>        
-          <div className='bg-image hover-overlay'>
-          <img
-              src={image.filename}
-              alt={`visual aid for ${image.name}`}
-              className='img-fluid shadow-4' 
-            />
-            <a href='#'>
-              <div className='mask overlay' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
-            </a>
-          </div>
-          <DeleteImageWrapper
-            image={image} />
-{/*          <MakeFeaturedWrapper
-          image = {image}/>*/}
-          </div>);
-    })
-
     if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
     // Updates images to the new image objects that have urls
-    setImages(img2);
+    setImages(new_imgs);
     if (debug) {console.log(`images set`)};
    }
 
    // Deletes image object and source image on AWS
   async function deleteImage(image){
-    console.log(image.id);
     const newImages = images.filter((img) => img.id !== image.id);
     await Storage.remove(`${image.id}-${image.name}`)
     await API.graphql({
       query: deleteImageMutation,
       variables: { input: {id: image.id}},
     });
-
+    console.log(`image with ID ${image.id} is deleted from album`);
     setImages(newImages);
   }
 
@@ -107,14 +86,7 @@ export default function Album({curAlbum}){
    }
 
   // Component wrapper for deleting a photo
-  function DeleteImageWrapper(image) {
-      if (authStatus.authStatus != 'authenticated') {
-        return;
-      }
-      return (<MDBBtn  title='Delete Photo' onClick={()=> deleteImage(image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
-              <MDBIcon fas icon="times text-dark" size='2x' />
-            </MDBBtn>);
-  }
+
 
   function MakeFeaturedWrapper(image){
 
@@ -128,28 +100,29 @@ export default function Album({curAlbum}){
             </MDBBtn>);
       }
       return (<MDBBtn  title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} color='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
-              <MDBIcon fas icon="sqauare text-dark" size='2x' />
+              <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
   }
 
 
-
+  const date = new Date(selectedAlbum.date);
  // Image handler functions
 
   return(
     <div>
-      <MDBRow  className='d-flex justify-content-center align-items-center' >
+      <MDBRow className='d-flex justify-content-center align-items-center'>
         <MDBCol className='d-flex justify-content-center align-items-center'>
             <h2 className="p-2">{selectedAlbum.title}</h2>
             <div className="vr" style={{ height: '50px' }}></div>
-            <h5 className="p-2">{selectedAlbum.date}</h5>
+            <h5 className="p-2">{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</h5>
         </MDBCol>
        </MDBRow>
-       <MDBRow>
-          <p className='p-2'>{selectedAlbum.desc} </p> 
+       <MDBRow className='d-flex align-items-center ps-4 pe-4'>
+          <p className=''>{selectedAlbum.desc} </p> 
        </MDBRow>        
     <PhotoGrid
       items = {images}
+      deleteImage = {deleteImage}
       />
     </div>
     );

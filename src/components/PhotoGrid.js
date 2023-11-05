@@ -5,10 +5,10 @@ import {
   MDBBtn,
   MDBIcon,
 } from 'mdb-react-ui-kit';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+export default function PhotoGrid({ items, deleteImage }) {
 
-
-export default function PhotoGrid({ items }) {
-
+  const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -59,13 +59,39 @@ export default function PhotoGrid({ items }) {
     columns[columnIndex].push(item);
   }
 
+
+    function DeleteImageWrapper(image) {
+      if (authStatus.authStatus != 'authenticated') {
+        return;
+      }
+      return (<MDBBtn  title='Delete Photo' onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+              <MDBIcon fas icon="times text-dark" size='2x' />
+            </MDBBtn>);
+  }
+
   return (
     <div className=" d-flex photo-album">
       {columns.map((column) => (
         <MDBCol className="column">
-          {column}
-        </MDBCol>
-      ))}
+          {column.map((image, i) => (
+              <div className= 'm-0 p-1'>        
+                <div className='bg-image hover-overlay'>
+                <img
+                    src={image.filename}
+                    alt={`visual aid for ${image.name}`}
+                    className='img-fluid shadow-4' 
+                  />
+                  <a href='#'>
+                    <div className='mask overlay' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+                  </a>
+                </div>
+                <DeleteImageWrapper
+                  image={image} />
+      {/*          <MakeFeaturedWrapper
+                image = {image}/>*/}
+                </div>))}
+              </MDBCol>
+            ))}
     </div>
   );
 }
