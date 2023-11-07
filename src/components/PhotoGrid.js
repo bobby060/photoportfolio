@@ -9,7 +9,8 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
-
+// Photogrid items takes an array of Image objects as input
+// deleteImage callback allows authenticated users to delete images
 export default function PhotoGrid({ items, deleteImage }) {
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
@@ -20,6 +21,7 @@ export default function PhotoGrid({ items, deleteImage }) {
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
 
+  // Slides object for lightbox doesn't hold full image object, just the url 
   const slides = items.map( (image) => ({src: image.filename}));
 
   // Adds ability to adjust column layout after resize
@@ -72,7 +74,7 @@ export default function PhotoGrid({ items, deleteImage }) {
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
-      return (<MDBBtn  title='Delete Photo' onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+      return (<MDBBtn  className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
               <MDBIcon fas icon="times text-dark" size='2x' />
             </MDBBtn>);
    }
@@ -84,7 +86,7 @@ export default function PhotoGrid({ items, deleteImage }) {
         <MDBCol className="column">
           {column.map((image, i) => (
               <div className= 'm-0 p-1'>        
-                <div className='bg-image hover-overlay'>
+                <div className='bg-image hover-overlay position-relative'>
                 <img
                     src={image.filename}
                     alt={`visual aid for ${image.name}`}
@@ -93,9 +95,10 @@ export default function PhotoGrid({ items, deleteImage }) {
                   <a type="button" >
                     <div className='mask overlay' onClick={() => setOpen(true)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
                   </a>
-                </div>
-                <DeleteImageWrapper
+                  <DeleteImageWrapper
                   image={image} />
+                </div>
+                
       {/*          <MakeFeaturedWrapper
                 image = {image}/>*/}
                 </div>))}
@@ -106,6 +109,8 @@ export default function PhotoGrid({ items, deleteImage }) {
         slides={slides}
         close={() => setOpen(false)}
         open={open}
+        controller={{closeonBackDropClick: true}}
+        styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
         />
     </div>
   );
