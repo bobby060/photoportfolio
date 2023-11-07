@@ -4,11 +4,13 @@ import {
   MDBCol,
   MDBBtn,
   MDBIcon,
+  MDBContainer,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import PhotoGrid from './PhotoGrid';
 
 export default function Album({curAlbum}){
   const [selectedAlbum, setSelectedAlbum] = useState(curAlbum);
@@ -52,7 +54,6 @@ export default function Album({curAlbum}){
     if (debug) {console.log(`images set`)};
    }
 
-
    // Deletes image object and source image on AWS
   async function deleteImage(image){
     const newImages = images.filter((img) => img.id !== image.id);
@@ -61,7 +62,7 @@ export default function Album({curAlbum}){
       query: deleteImageMutation,
       variables: { input: {id: image.id}},
     });
-
+    console.log(`image with ID ${image.id} is deleted from album`);
     setImages(newImages);
   }
 
@@ -85,18 +86,10 @@ export default function Album({curAlbum}){
    }
 
   // Component wrapper for deleting a photo
-  function DeleteImageWrapper(image) {
-      if (authStatus.authStatus != 'authenticated') {
-        return;
-      }
-      return (<MDBBtn  title='Delete Photo' onClick={()=> deleteImage(image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
-              <MDBIcon fas icon="times text-dark" size='2x' />
-            </MDBBtn>);
-  }
+
 
   function MakeFeaturedWrapper(image){
-      console.log(image.id);
-      console.log(selectedAlbum.featuredImage);
+
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
@@ -107,38 +100,30 @@ export default function Album({curAlbum}){
             </MDBBtn>);
       }
       return (<MDBBtn  title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} color='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
-              <MDBIcon fas icon="sqauare text-dark" size='2x' />
+              <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
   }
 
+
+  const date = new Date(selectedAlbum.date);
  // Image handler functions
 
   return(
     <div>
-      <MDBRow  className='d-flex justify-content-center align-items-center' >
+      <MDBRow className='d-flex justify-content-center align-items-center'>
         <MDBCol className='d-flex justify-content-center align-items-center'>
             <h2 className="p-2">{selectedAlbum.title}</h2>
             <div className="vr" style={{ height: '50px' }}></div>
-            <h5 className="p-2">{selectedAlbum.date}</h5>
+            <h5 className="p-2">{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</h5>
         </MDBCol>
        </MDBRow>
-       <MDBRow>
-          <p className='p-2'>{selectedAlbum.desc} </p> 
-       </MDBRow>
-    <MDBRow className='p-3'>          
-     {images.map((image) => (
-      <MDBCol lg='6' xl='4'>
-          <img
-                src={image.filename}
-                alt={`visual aid for ${image.name}`}
-                className='img-fluid shadow-4 m-2' 
-            />
-            <DeleteImageWrapper
-              image={image} />
-              <MakeFeaturedWrapper
-              image = {image}/>
-        </MDBCol>))}
-    </MDBRow>
+       <MDBRow className='d-flex align-items-center ps-4 pe-4'>
+          <p className=''>{selectedAlbum.desc} </p> 
+       </MDBRow>        
+    <PhotoGrid
+      items = {images}
+      deleteImage = {deleteImage}
+      />
     </div>
     );
 

@@ -42,7 +42,7 @@ export default function Home(){
 
 return(
 	<div>
-     <MDBContainer>
+     <div>
 	    <MDBDropdown >
 	      <MDBDropdownToggle tag='a' className='btn btn-primary bg-dark'>
 	        Albums
@@ -53,10 +53,10 @@ return(
 	      		))}
 	      </MDBDropdownMenu>
 	    </MDBDropdown>
-	</MDBContainer>
-	<MDBContainer>
+	</div>
+	<div>
 		<AlbumWrapper/>
-	</MDBContainer>
+	</div>
 	</div>
 
 	);

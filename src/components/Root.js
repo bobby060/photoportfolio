@@ -32,6 +32,7 @@ export default function Root() {
  const authStatus = useAuthenticator((context) => [context.authStatus]);
   function ShowLogOut() {
       if (authStatus.authStatus != 'authenticated') {
+        return;
       }
       return (<MDBBtn className=' float-center mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn> );
   }
