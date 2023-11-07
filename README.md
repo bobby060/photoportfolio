@@ -88,3 +88,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 - [react-dropzone documentation](https://react-dropzone.js.org/)
 -[mdb react components](https://mdbootstrap.com/docs/standard)
 -[react router quick start](https://reactrouter.com/en/main/start/tutorial)
+-[lightbox documentation](https://yet-another-react-lightbox.com/documentation)

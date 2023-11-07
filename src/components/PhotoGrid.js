@@ -6,6 +6,10 @@ import {
   MDBIcon,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+
+
 export default function PhotoGrid({ items, deleteImage }) {
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
@@ -13,6 +17,10 @@ export default function PhotoGrid({ items, deleteImage }) {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [open, setOpen] = React.useState(false);
+  const [index, setIndex] = React.useState(0);
+
+  const slides = items.map( (image) => ({src: image.filename}));
 
   // Adds ability to adjust column layout after resize
  useEffect(() => {
@@ -67,7 +75,8 @@ export default function PhotoGrid({ items, deleteImage }) {
       return (<MDBBtn  title='Delete Photo' onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
               <MDBIcon fas icon="times text-dark" size='2x' />
             </MDBBtn>);
-  }
+   }
+
 
   return (
     <div className=" d-flex photo-album">
@@ -81,8 +90,8 @@ export default function PhotoGrid({ items, deleteImage }) {
                     alt={`visual aid for ${image.name}`}
                     className='img-fluid shadow-4' 
                   />
-                  <a href='#'>
-                    <div className='mask overlay' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+                  <a type="button" >
+                    <div className='mask overlay' onClick={() => setOpen(true)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
                   </a>
                 </div>
                 <DeleteImageWrapper
@@ -92,6 +101,12 @@ export default function PhotoGrid({ items, deleteImage }) {
                 </div>))}
               </MDBCol>
             ))}
+      <Lightbox
+        index={index}
+        slides={slides}
+        close={() => setOpen(false)}
+        open={open}
+        />
     </div>
   );
 }
