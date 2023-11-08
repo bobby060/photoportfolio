@@ -159,7 +159,7 @@ amplify/.config/local-*
 amplify/logs
 amplify/mock-data
 amplify/mock-api-resources
-amplify/
+amplify/backend/amplify-meta.json
 amplify/backend/.temp
 amplify/team-provider-info.json
 build/
