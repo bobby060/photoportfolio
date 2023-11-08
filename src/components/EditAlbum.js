@@ -31,7 +31,6 @@ import Album from './Album';
 
 
 export default function EditAlbum(){
-
     const [selectedAlbum, setSelectedAlbum, setAlbums, albums] = useOutletContext();
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 
@@ -140,14 +139,6 @@ export default function EditAlbum(){
 		  );
   	}
 
-
-
-
-
-
-
-
-
 	return(
 		<div className=''>
 			<h2> Create new album </h2>
@@ -163,15 +154,10 @@ export default function EditAlbum(){
 			      <MDBCol xl ='12'>
 			        <MDBBtn type='submit' className="bg-dark mb-3">Create</MDBBtn>
 			      </MDBCol>
-			      </MDBRow>
-			    </form>
-			    {/*View selected album*/}
-			     <MDBRow className='d-flex justify-content-center'>
-			      <MDBCol xl='2' lg='2'>
-				    </MDBCol>
-				</MDBRow>
-				<ShowAlbum/>
+			    </MDBRow>
+			</form>
 
+			<ShowAlbum/>
 		  </div>
 		)
 }

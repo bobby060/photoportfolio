@@ -11,13 +11,11 @@ import {
 import { API, Storage } from 'aws-amplify';
 import {listAlbums} from '../graphql/queries';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-
 import { useOutletContext } from "react-router-dom";
-
 import Album from './Album';
 
 export default function Home(){
-	const [selectedAlbum, setSelectedAlbum] = useOutletContext();
+	const [selectedAlbum] = useOutletContext();
 
 
 	function AlbumWrapper() {
@@ -33,10 +31,7 @@ export default function Home(){
 
 return(
 	<div>
-
-	<div>
 		<AlbumWrapper/>
-	</div>
 	</div>
 
 	);

@@ -34,19 +34,19 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
 
-
+  // Loads albums on render
   useEffect(() => {
       fetchAlbums();
     }, []);
 
   async function fetchAlbums() {
-    console.log(`fetching albums`);
     const apiData = await API.graphql({ 
     query: listAlbums,
     authMode: 'API_KEY',
-  });
-  const albumsFromAPI = apiData.data.listAlbums.items;
-  setAlbums(albumsFromAPI);
+    });
+
+    const albumsFromAPI = apiData.data.listAlbums.items;
+    setAlbums(albumsFromAPI);
   } 
 
     function SignInWrapper() {
@@ -55,28 +55,33 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
         <Link to={`/signin`}>
         <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
           Sign In</MDBNavbarLink>
-        </Link>);
+        </Link>
+        );
       }
-      return (<MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
-                  {user_item.user.username}
-                </MDBNavbarLink>);
+      return (
+        <MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
+          {user_item.user.username}
+        </MDBNavbarLink>
+        );
     }
 
     function EditLinkWrapper(){
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
-      return (<MDBNavbarItem>
-                  <Link to={`/editalbum`}>
-                    <MDBNavbarLink>Edit Album</MDBNavbarLink>
-                  </Link>
-                </MDBNavbarItem>);
+      return (
+        <MDBNavbarItem>
+          <Link to={`/editalbum`}>
+            <MDBNavbarLink>Edit Album</MDBNavbarLink>
+          </Link>
+        </MDBNavbarItem>
+        );
     }
 
     function DropdownWrapper(){
       if(albums.length < 1) return;
       return (
-          <MDBDropdown  >
+          <MDBDropdown>
             <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
               Albums
             </MDBDropdownToggle>
@@ -98,7 +103,6 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
               aria-label='Toggle navigation'
               onClick={() => setShowNav(!showNav)}
             >
-              {/*<MDBIcon icon='bars' fas />*/}
                 <i class="fas fa-bars text-dark m-2 "></i>
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
@@ -126,7 +130,5 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
             </MDBCollapse>
           </MDBContainer>
         </MDBNavbar>
-    // <Router>
-
     )
 }
