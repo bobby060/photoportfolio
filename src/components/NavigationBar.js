@@ -120,8 +120,10 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
                     <MDBNavbarLink aria-disabled='true'>About Me</MDBNavbarLink>
                   </Link>                  
                 </MDBNavbarItem>
-                <MDBNavbarItem className="d-flex align-items-center">
+                <MDBNavbarItem >
+                  <MDBNavbarLink>
                   <DropdownWrapper/>
+                  </MDBNavbarLink>
                 </MDBNavbarItem>
                 <MDBNavbarItem className = "ms-auto">
                   <SignInWrapper/>

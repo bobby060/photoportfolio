@@ -19,8 +19,10 @@ export default function AddImages({curAlbum, setCurAlbum}){
      // Creates images and uploads
    async function handleFiles() {
       const files = Array.from(selectedFiles)
+      console.log(`starting uploads`)
       files.map((file) => newImage(file))
       setCurAlbum(curAlbum);
+      console.log(`All images uploaded!`)
    }
 
 
@@ -68,7 +70,6 @@ export default function AddImages({curAlbum, setCurAlbum}){
     });
     const img = response?.data?.createImages
     if (!img) return;
-    console.log(`starting upload for ${image.name}`)
     // Combining id and image name ensures uniqueness while preserving information
     const result = await Storage.put(`${img.id}-${image.name}`, image, {
         contentType: "image/png", // contentType is optional
