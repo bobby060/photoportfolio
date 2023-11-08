@@ -1,7 +1,7 @@
-import {React, useState} from 'react';
+import {React, useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import {Link} from 'react-router-dom';
-// import { BrowserRouter as Router, Route, Link, withRouter, Redirect } from "react-router-dom";
+import {listAlbums} from '../graphql/queries';
 import {
   MDBContainer,
   MDBNavbar,
@@ -12,19 +12,42 @@ import {
   MDBNavbarLink,
   MDBCollapse,
   MDBIcon,
+  MDBDropdown,
+  MDBDropdownMenu,
+  MDBDropdownToggle,
+  MDBDropdownItem
 } from 'mdb-react-ui-kit';
+
+import { API } from 'aws-amplify';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
+
+import { useOutletContext } from "react-router-dom";
 // import AnchorLink from 'react-anchor-link-smooth-scroll'
 // **** ROUTES *****//
 // Add routes here
 
 
-export default function NavigationBar(){
+export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, setAlbums}){
 
-    const [showNav, setShowNav] = useState(false);
-    const user_item = useAuthenticator((context) => [context.user]);
-    const authStatus = useAuthenticator(context => [context.authStatus]);
+  const [showNav, setShowNav] = useState(false);
+  const user_item = useAuthenticator((context) => [context.user]);
+  const authStatus = useAuthenticator(context => [context.authStatus]);
+
+  // Loads albums on render
+  useEffect(() => {
+      fetchAlbums();
+    }, []);
+
+  async function fetchAlbums() {
+    const apiData = await API.graphql({ 
+    query: listAlbums,
+    authMode: 'API_KEY',
+    });
+
+    const albumsFromAPI = apiData.data.listAlbums.items;
+    setAlbums(albumsFromAPI);
+  } 
 
     function SignInWrapper() {
       if (authStatus.authStatus != 'authenticated') {
@@ -32,22 +55,43 @@ export default function NavigationBar(){
         <Link to={`/signin`}>
         <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
           Sign In</MDBNavbarLink>
-        </Link>);
+        </Link>
+        );
       }
-      return (<MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
-                  {user_item.user.username}
-                </MDBNavbarLink>);
+      return (
+        <MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
+          {user_item.user.username}
+        </MDBNavbarLink>
+        );
     }
 
     function EditLinkWrapper(){
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
-      return (<MDBNavbarItem>
-                  <Link to={`/editalbum`}>
-                    <MDBNavbarLink>Edit Album</MDBNavbarLink>
-                  </Link>
-                </MDBNavbarItem>);
+      return (
+        <MDBNavbarItem>
+          <Link to={`/editalbum`}>
+            <MDBNavbarLink>Edit Album</MDBNavbarLink>
+          </Link>
+        </MDBNavbarItem>
+        );
+    }
+
+    function DropdownWrapper(){
+      if(albums.length < 1) return;
+      return (
+          <MDBDropdown>
+            <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
+              Albums
+            </MDBDropdownToggle>
+            <MDBDropdownMenu >
+              {albums.map((album) => (
+                <MDBDropdownItem link onClick={() => {setSelectedAlbum(album)}}>{album.title}</MDBDropdownItem>
+                ))}
+            </MDBDropdownMenu>
+          </MDBDropdown>
+        );
     }
     return (
         <MDBNavbar expand='lg' light bgColor='light'>
@@ -59,7 +103,6 @@ export default function NavigationBar(){
               aria-label='Toggle navigation'
               onClick={() => setShowNav(!showNav)}
             >
-              {/*<MDBIcon icon='bars' fas />*/}
                 <i class="fas fa-bars text-dark m-2 "></i>
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
@@ -77,6 +120,9 @@ export default function NavigationBar(){
                     <MDBNavbarLink aria-disabled='true'>About Me</MDBNavbarLink>
                   </Link>                  
                 </MDBNavbarItem>
+                <MDBNavbarItem className="d-flex align-items-center">
+                  <DropdownWrapper/>
+                </MDBNavbarItem>
                 <MDBNavbarItem className = "ms-auto">
                   <SignInWrapper/>
                 </MDBNavbarItem>
@@ -84,7 +130,5 @@ export default function NavigationBar(){
             </MDBCollapse>
           </MDBContainer>
         </MDBNavbar>
-    // <Router>
-
     )
 }

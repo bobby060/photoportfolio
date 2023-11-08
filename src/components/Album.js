@@ -11,9 +11,10 @@ import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
+import { useOutletContext } from "react-router-dom";
 
-export default function Album({curAlbum}){
-  const [selectedAlbum, setSelectedAlbum] = useState(curAlbum);
+export default function Album(){
+  const [selectedAlbum, setSelectedAlbum] = useOutletContext();
 
   // for storing images in current album
   const [images, setImages] = useState([]);

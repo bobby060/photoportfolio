@@ -29,7 +29,10 @@ import EditAlbum from './EditAlbum'
 
 export default function Root() {
   const { signOut } = useAuthenticator((context) => [context.user]);
- const authStatus = useAuthenticator((context) => [context.authStatus]);
+  const authStatus = useAuthenticator((context) => [context.authStatus]);
+  const [selectedAlbum, setSelectedAlbum] = useState([]);
+  const [albums, setAlbums] = useState([]);
+
   function ShowLogOut() {
       if (authStatus.authStatus != 'authenticated') {
         return;
@@ -40,14 +43,19 @@ export default function Root() {
 
     <View className="App">
         <Headroom >
-            <NavigationBar />
+            <NavigationBar 
+              selectedAlbum={selectedAlbum}
+              setSelectedAlbum={setSelectedAlbum}
+              albums={albums}
+              setAlbums={setAlbums}/>
             <div>
               <br />
               <h1 style={{ color: "transparent" }}>_</h1>
             </div>
         </Headroom>
 
-        <Outlet/>
+        <Outlet
+          context={[selectedAlbum, setSelectedAlbum, setAlbums, albums]}/>
         <ShowLogOut/>
     </View>
   );

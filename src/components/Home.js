@@ -11,29 +11,18 @@ import {
 import { API, Storage } from 'aws-amplify';
 import {listAlbums} from '../graphql/queries';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-
+import { useOutletContext } from "react-router-dom";
 import Album from './Album';
 
 export default function Home(){
-	const [albums, setAlbums] = useState([])
-	const [selectedAlbum, selectAlbum] = useState(undefined)
+	const [selectedAlbum] = useOutletContext();
 
-	useEffect(() => {
-	    fetchAlbums();
-	  }, []);
-
-	async function fetchAlbums() {
-	const apiData = await API.graphql({ 
-		query: listAlbums,
-		authMode: 'API_KEY',
-	});
-	const albumsFromAPI = apiData.data.listAlbums.items;
-	setAlbums(albumsFromAPI);
-	}	
 
 	function AlbumWrapper() {
-		if(selectedAlbum===undefined){
-			return;
+		if(selectedAlbum.length<1){
+			return (<h2> 
+				Please select an album to view it!
+			</h2> );
 		}
 	  	return(<Album
 			curAlbum = {selectedAlbum}
@@ -42,21 +31,7 @@ export default function Home(){
 
 return(
 	<div>
-     <div>
-	    <MDBDropdown >
-	      <MDBDropdownToggle tag='a' className='btn btn-primary bg-dark'>
-	        Albums
-	      </MDBDropdownToggle>
-	      <MDBDropdownMenu >
-	      	{albums.map((album) => (
-	      		<MDBDropdownItem link onClick={() => {selectAlbum(album)}}>{album.title}</MDBDropdownItem>
-	      		))}
-	      </MDBDropdownMenu>
-	    </MDBDropdown>
-	</div>
-	<div>
 		<AlbumWrapper/>
-	</div>
 	</div>
 
 	);
