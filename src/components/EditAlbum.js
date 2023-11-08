@@ -22,6 +22,7 @@ import '../css/index.css'
 import ReactDOM from 'react-dom/client';
 
 
+import { useOutletContext } from "react-router-dom";
 import {createAlbums, updateAlbums, deleteAlbums, createImages, updateImages, deleteImages} from '../graphql/mutations'; 
 import {listAlbums, imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import AddImages from './AddImages';
@@ -31,10 +32,7 @@ import Album from './Album';
 
 export default function EditAlbum(){
 
-
-
-	const [albums, setAlbums] = useState([])
-	const [selectedAlbum, selectAlbum] = useState([])
+    const [selectedAlbum, setSelectedAlbum, setAlbums, albums] = useOutletContext();
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 
 	const [images, setImages] = useState([])
@@ -45,7 +43,7 @@ export default function EditAlbum(){
 	  }, []);
 
 	function updateAlbum(album) {
-		selectAlbum(album);
+		setSelectedAlbum(album);
 	}
 
 
@@ -60,12 +58,19 @@ export default function EditAlbum(){
 	      desc: form.get("desc"),
 	      date: date,
 	    };
-	    await API.graphql({
+	    const response = await API.graphql({
 	      query: createAlbums,
 	      variables: { input: data },
 	      authMode: 'AMAZON_COGNITO_USER_POOLS',
 	    });
+	    const new_id = response.data.createAlbums.id;
+	    const newAlbum = await API.graphql({
+	      	query: getAlbums,
+	       	variables: { id: new_id}
+	     });
 	    fetchAlbums();
+	    console.log(`Created new album named: ${newAlbum.data.title}`);
+	    setSelectedAlbum(newAlbum.data.getAlbums);
 	    event.target.reset();
 	 }
 
@@ -79,7 +84,8 @@ export default function EditAlbum(){
 	    // Put logic to pull urls for images here
 	 }
 
-	 async function deleteAlbum({ id, title}) {
+	 async function deleteAlbum(id) {
+
 	    const newAlbums = albums.filter((album) => album.id !== id);
 	    setAlbums(newAlbums);
 	    CanEditAlbum(false);
@@ -96,7 +102,7 @@ export default function EditAlbum(){
 	   		});
 	   		if (debug) {console.log(`${img.id} deleted`)}
 	   	})
-	    selectAlbum([])
+	    setSelectedAlbum([])
 	    // await Storage.remove(name);
 	    await API.graphql({
 	      query: deleteAlbums,
@@ -109,30 +115,29 @@ export default function EditAlbum(){
 
 
   	function ShowAlbum() {
-  		if (showEditAlbum){
-  			  return(
-				  <div>
-				  	<Album
-				  		curAlbum = {selectedAlbum}
-				  		/>
-				   <MDBRow className='d-flex justify-content-center'>
-				      <MDBCol lg='6'>
-				        <AddImages
-				        	curAlbum = {selectedAlbum}
-				        	setCurAlbum = {updateAlbum}
-				        />
-				      </MDBCol>
-				    </MDBRow>
-				   	<MDBRow  className='d-flex justify-content-center align-items-center' >
-					    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
-					        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
-					          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
-					        </MDBBtn>
-					    </MDBCol>
-				   </MDBRow>
-				  </div>
-				  );}
-  		return;
+  		if(selectedAlbum.length < 1) return;
+		  return(
+		  <div>
+		  	<Album
+		  		curAlbum = {selectedAlbum}
+		  		/>
+		   <MDBRow className='d-flex justify-content-center'>
+		      <MDBCol lg='6'>
+		        <AddImages
+		        	curAlbum = {selectedAlbum}
+		        	setCurAlbum = {updateAlbum}
+		        />
+		      </MDBCol>
+		    </MDBRow>
+		   	<MDBRow  className='d-flex justify-content-center align-items-center' >
+			    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
+			        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum.id)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
+			          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
+			        </MDBBtn>
+			    </MDBCol>
+		   </MDBRow>
+		  </div>
+		  );
   	}
 
 
@@ -146,7 +151,6 @@ export default function EditAlbum(){
 	return(
 		<div className=''>
 			<h2> Create new album </h2>
-
 			<form onSubmit={newAlbum}>
 				<MDBRow className='d-flex justify-content-center'>
 			      <MDBCol xl='3' lg='5' md ='6'>
@@ -164,17 +168,6 @@ export default function EditAlbum(){
 			    {/*View selected album*/}
 			     <MDBRow className='d-flex justify-content-center'>
 			      <MDBCol xl='2' lg='2'>
-				    <MDBDropdown >
-				      <MDBDropdownToggle tag='a' className='btn btn-primary bg-dark'>
-				        Albums
-				      </MDBDropdownToggle>
-				      <MDBDropdownMenu >
-				      	{albums.map((album) => (
-				      		<MDBDropdownItem link onClick={() => {selectAlbum(album); CanEditAlbum(true);}}>{album.title}</MDBDropdownItem>
-				      		))}
-				      </MDBDropdownMenu>
-				    </MDBDropdown>
-				
 				    </MDBCol>
 				</MDBRow>
 				<ShowAlbum/>
