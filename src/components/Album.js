@@ -50,6 +50,9 @@ export default function Album({curAlbum}){
 
     if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
     // Updates images to the new image objects that have urls
+    for (let i = 0 ; i < new_imgs.length; i++){
+      new_imgs[i].index = i;
+    }
     setImages(new_imgs);
     if (debug) {console.log(`images set`)};
    }
