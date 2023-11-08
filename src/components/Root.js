@@ -55,7 +55,7 @@ export default function Root() {
         </Headroom>
 
         <Outlet
-          context={[selectedAlbum, setSelectedAlbum, setAlbums, albums]}/>
+          context={[selectedAlbum, setSelectedAlbum, albums, setAlbums]}/>
         <ShowLogOut/>
     </View>
   );

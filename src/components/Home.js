@@ -15,7 +15,7 @@ import { useOutletContext } from "react-router-dom";
 import Album from './Album';
 
 export default function Home(){
-	const [selectedAlbum] = useOutletContext();
+	const [selectedAlbum, setSelectedAlbum, albums] = useOutletContext();
 
 
 	function AlbumWrapper() {
@@ -29,9 +29,27 @@ export default function Home(){
 			/>);
 	}
 
+	function DropdownWrapper(){
+		console.log(albums);
+      if(albums.length < 1) return;
+      return (
+          <MDBDropdown>
+            <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
+              Albums
+            </MDBDropdownToggle>
+            <MDBDropdownMenu >
+              {albums.map((album) => (
+                <MDBDropdownItem link onClick={() => {setSelectedAlbum(album)}}>{album.title}</MDBDropdownItem>
+                ))}
+            </MDBDropdownMenu>
+          </MDBDropdown>
+        );
+    }
+
 return(
 	<div>
-		<AlbumWrapper/>
+	<DropdownWrapper/>
+	<AlbumWrapper/>
 	</div>
 
 	);
