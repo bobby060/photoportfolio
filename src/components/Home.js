@@ -7,6 +7,8 @@ import {
 	MDBDropdownToggle,
 	MDBDropdownMenu,
 	MDBDropdownItem,
+	MDBCarousel,
+	MDBCarouselItem,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {listAlbums} from '../graphql/queries';
@@ -16,6 +18,9 @@ import Album from './Album';
 
 export default function Home(){
 	const [selectedAlbum, setSelectedAlbum, albums] = useOutletContext();
+
+	const featuredImgs = albums.map((album) => (album.featuredImage));
+	
 
 
 	function AlbumWrapper() {
@@ -30,7 +35,6 @@ export default function Home(){
 	}
 
 	function DropdownWrapper(){
-		console.log(albums);
       if(albums.length < 1) return;
       return (
           <MDBDropdown>

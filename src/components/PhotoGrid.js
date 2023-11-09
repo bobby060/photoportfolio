@@ -11,7 +11,7 @@ import "yet-another-react-lightbox/styles.css";
 
 // Photogrid items takes an array of Image objects as input
 // deleteImage callback allows authenticated users to delete images
-export default function PhotoGrid({ items, deleteImage }) {
+export default function PhotoGrid({ items, deleteImage, setFeaturedImg, featuredImage }) {
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
@@ -70,7 +70,7 @@ export default function PhotoGrid({ items, deleteImage }) {
   }
 
 
-    function DeleteImageWrapper(image) {
+  function DeleteImageWrapper(image) {
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
@@ -78,6 +78,23 @@ export default function PhotoGrid({ items, deleteImage }) {
               <MDBIcon fas icon="times text-dark" size='2x' />
             </MDBBtn>);
    }
+
+  function MakeFeaturedWrapper(image){
+
+      if (authStatus.authStatus != 'authenticated') {
+        return;
+      }
+
+      if (featuredImage && image.image.id===featuredImage.id) {
+              return (<MDBBtn className="position-absolute bottom-0 end-0 btn-light m-1" title='Make Featured Photo' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+              <MDBIcon fas icon="square text-dark" size='2x' />
+            </MDBBtn>);
+      }
+      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} MDBColor='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
+              <MDBIcon fas icon="square text-dark" size='2x' />
+            </MDBBtn>);
+  }
+
 
 
   return (
@@ -97,10 +114,10 @@ export default function PhotoGrid({ items, deleteImage }) {
                   </a>
                   <DeleteImageWrapper
                   image={image} />
+                  <MakeFeaturedWrapper
+                  image = {image}/>
                 </div>
-                
-      {/*          <MakeFeaturedWrapper
-                image = {image}/>*/}
+
                 </div>))}
               </MDBCol>
             ))}
