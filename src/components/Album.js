@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
+  MDBIcon,
   MDBRow,
   MDBCol,
-  MDBBtn,
-  MDBIcon,
-  MDBContainer,
+  MDBBtn
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
@@ -99,11 +98,11 @@ export default function Album(){
       }
       if (image.id==selectedAlbum.featuredImage) {
             console.log('found featured img')
-              return (<MDBBtn  title='Make Featured Photo' disabled color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+              return (<MDBBtn  title='Make Featured Photo' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
               <MDBIcon fas icon="times text-dark" size='2x' />
             </MDBBtn>);
       }
-      return (<MDBBtn  title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} color='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
+      return (<MDBBtn  title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} MDBColor='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
               <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
   }

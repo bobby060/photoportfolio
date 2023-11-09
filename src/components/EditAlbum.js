@@ -1,11 +1,8 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import {EXIF} from 'exif-js'
 import {
-	MDBContainer,
   MDBRow,
   MDBCol,
-  MDBCheckbox,
-  MDBSwitch,
   MDBBtn,
   MDBInput,
   MDBTextArea,
@@ -14,8 +11,6 @@ import {
   MDBDropdownMenu,
   MDBDropdownItem,
   MDBIcon,
-  MDBTooltip,
-  MDBFile,
 } from 'mdb-react-ui-kit';
 import { Auth, API, Storage } from 'aws-amplify';
 import '../css/index.css'
@@ -31,7 +26,7 @@ import Album from './Album';
 
 
 export default function EditAlbum(){
-    const [selectedAlbum, setSelectedAlbum, setAlbums, albums] = useOutletContext();
+    const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 
 	const [images, setImages] = useState([])
