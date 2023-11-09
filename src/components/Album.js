@@ -40,9 +40,8 @@ export default function Album(){
     const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
     // Waits until all images have been requested from storage
     const new_imgs = await Promise.all(
-      imgs.map( (img) => (addURL(img)))
+      imgs.map((img) => (addURL(img)))
     );
-    console.log(new_imgs);
 
     if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
     // Updates images to the new image objects that have urls
@@ -75,11 +74,12 @@ export default function Album(){
       variables: { input: data
     },
     })
-    const new_album = response.data.updateAlbums
-
+    const new_album = response.data.updateAlbums;
     setSelectedAlbum(new_album);
-    const newAlbums = albums.filter((album) => album.id !== new_album.id).push(new_album);
-    console.log(newAlbums);
+    const newAlbums = albums.map((album) => {
+      if (album.id === new_album.id) return new_album;
+      return album;
+    });
     setAlbums(newAlbums);
    }
 
@@ -102,7 +102,7 @@ export default function Album(){
       items = {images}
       deleteImage = {deleteImage}
       setFeaturedImg = {setFeaturedImg}
-      featuredImage = {selectedAlbum.featuredImage}
+      featuredImageID = {selectedAlbum.albumsFeaturedImageId}
       />
     </div>
     );

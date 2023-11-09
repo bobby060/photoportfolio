@@ -1,7 +1,6 @@
 import {React, useState, useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import {Link} from 'react-router-dom';
-import {listAlbums} from '../graphql/queries';
 import {
   MDBContainer,
   MDBNavbar,
@@ -34,20 +33,6 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
 
-  // Loads albums on render
-  useEffect(() => {
-      fetchAlbums();
-    }, []);
-
-  async function fetchAlbums() {
-    const apiData = await API.graphql({ 
-    query: listAlbums,
-    authMode: 'API_KEY',
-    });
-
-    const albumsFromAPI = apiData.data.listAlbums.items;
-    setAlbums(albumsFromAPI);
-  } 
 
     function SignInWrapper() {
       if (authStatus.authStatus != 'authenticated') {
