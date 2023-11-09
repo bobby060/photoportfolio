@@ -47,13 +47,27 @@ export default function Home(){
 	}
 
 	function CarouselWrapper(){
-		if(albums.length < 1 || featuredImgs.length < 1) return;
+		console.log(albums.length);
+		console.log(`featured alb length ${featuredImgs.length}`);
+		if(albums.length < 1) return(
+			<Carousel indicators={false} interval = {3000}>
+						<Carousel.Item itemId={1} className='w-100 overflow-hidden placeholder' style={{height: '600px'}}>
+								{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
+							<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
+								<span class="placeholder w-25"/>
+								<span class="placeholder w-25"/>
+							</Carousel.Caption>
+						</Carousel.Item>
+			</Carousel>
+			);
+		if(featuredImgs.length < 1) updateFeaturedImg();
 		return (	
 			<Carousel indicators={false} interval = {3000}>
 				{featuredImgs.map((album, i) =>
 					(
-						<Carousel.Item itemId={i} className='w-100 overflow-hidden' style={{height: '600px'}}>
-								<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />
+						<Carousel.Item itemId={i} className='w-100 ' style={{height: '600px'}}>
+								<img src = {album.featuredImage.filename} className='h-100 w-100 object-fit-cover' alt='...' 
+								 style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}/>
 							<Carousel.Caption className='' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
 								<h5>{album.title}</h5>
 								<p>{album.desc}</p>

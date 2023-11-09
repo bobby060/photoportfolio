@@ -102,7 +102,6 @@ export default function Album(){
       items = {images}
       deleteImage = {deleteImage}
       setFeaturedImg = {setFeaturedImg}
-      featuredImageID = {selectedAlbum.albumsFeaturedImageId}
       />
     </div>
     );
