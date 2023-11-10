@@ -23,11 +23,12 @@ import {
   MDBContainer,
 } from 'mdb-react-ui-kit';
 
-import Headroom from 'react-headroom'
-import NavigationBar from './NavigationBar'
-import EditAlbum from './EditAlbum'
+import Headroom from 'react-headroom';
+import NavigationBar from './NavigationBar';
+import EditAlbum from './EditAlbum';
+import addURL from '../helpers/addURL';
 
-import {listAlbums} from '../graphql/queries';
+import {listAlbums, getImages} from '../graphql/queries';
 
 export default function Root() {
   const { signOut } = useAuthenticator((context) => [context.user]);
@@ -48,8 +49,20 @@ export default function Root() {
     });
 
     const albumsFromAPI = apiData.data.listAlbums.items;
-    console.log(albumsFromAPI);
-    setAlbums(albumsFromAPI);
+    const a = await Promise.all(albumsFromAPI.map(async (album) => {
+      const data = {
+        id: album.albumsFeaturedImageId
+      }
+      const image = await API.graphql({
+        query: getImages,
+        variables: data,
+        authMode: 'API_KEY'
+      });
+      const featuredImage =  await addURL(image.data.getImages);
+      console.log(featuredImage);
+      return { ...album, featuredImage: featuredImage};
+      }));
+    setAlbums(a);
   } 
 
   function ShowLogOut() {
@@ -67,10 +80,6 @@ export default function Root() {
               setSelectedAlbum={setSelectedAlbum}
               albums={albums}
               setAlbums={setAlbums}/>
-{/*            <div>
-              <br />
-              <h1 style={{ color: "transparent" }}>_</h1>
-            </div>*/}
         </Headroom>
 
         <Outlet
