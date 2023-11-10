@@ -1,8 +1,10 @@
 import React, { useState, useEffect  } from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import {
   MDBBtn,
-  MDBFile,
-} from 'mdb-react-ui-kit';
+  MDBFile} from 'mdb-react-ui-kit';
+import Toast from 'react-bootstrap/Toast';
 import { API, Storage } from 'aws-amplify';
 import {createImages } from '../graphql/mutations';
 
@@ -18,11 +20,15 @@ export default function AddImages({curAlbum, setCurAlbum}){
 
      // Creates images and uploads
    async function handleFiles() {
-      const files = Array.from(selectedFiles)
-      console.log(`starting uploads`)
-      files.map((file) => newImage(file))
-      setCurAlbum(curAlbum);
-      console.log(`All images uploaded!`)
+      if (selectedFiles.length > 0){
+        const files = Array.from(selectedFiles)
+        console.log(`starting uploads`)
+        files.map((file) => newImage(file))
+        setCurAlbum(curAlbum);
+        console.log(`All images uploaded!`)
+        return;
+     }
+     // Error popup
    }
 
 
@@ -77,14 +83,26 @@ export default function AddImages({curAlbum, setCurAlbum}){
     console.log(`${image.name} uploaded`)
    }
 
+   // function UploadedToast(filename){
+   //    return (
+   //     <Toast>
+   //        <Toast.Header>
+   //          <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+   //          <strong className="me-auto">Bootstrap</strong>
+   //          <small>11 mins ago</small>
+   //        </Toast.Header>
+   //        <Toast.Body>{filename} has been uploaded</Toast.Body>
+   //      </Toast>
+   //    );
+   // }
+
   return(
   <div>
     {/*Implement Dropzone here*/}
-    <MDBFile
-      multiple
-      onChange={setFiles}
+      <MDBFile
+        multiple
+        onChange={setFiles}
       />
-
     <MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>
   </div>
   );

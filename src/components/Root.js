@@ -23,15 +23,47 @@ import {
   MDBContainer,
 } from 'mdb-react-ui-kit';
 
-import Headroom from 'react-headroom'
-import NavigationBar from './NavigationBar'
-import EditAlbum from './EditAlbum'
+import Headroom from 'react-headroom';
+import NavigationBar from './NavigationBar';
+import EditAlbum from './EditAlbum';
+import addURL from '../helpers/addURL';
+
+import {listAlbums, getImages} from '../graphql/queries';
 
 export default function Root() {
   const { signOut } = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [selectedAlbum, setSelectedAlbum] = useState([]);
   const [albums, setAlbums] = useState([]);
+
+
+  // Loads albums on render
+  useEffect(() => {
+      fetchAlbums();
+    }, []);
+
+  async function fetchAlbums() {
+    const apiData = await API.graphql({ 
+    query: listAlbums,
+    authMode: 'API_KEY',
+    });
+
+    const albumsFromAPI = apiData.data.listAlbums.items;
+    const a = await Promise.all(albumsFromAPI.map(async (album) => {
+      const data = {
+        id: album.albumsFeaturedImageId
+      }
+      const image = await API.graphql({
+        query: getImages,
+        variables: data,
+        authMode: 'API_KEY'
+      });
+      const featuredImage =  await addURL(image.data.getImages);
+      console.log(featuredImage);
+      return { ...album, featuredImage: featuredImage};
+      }));
+    setAlbums(a);
+  } 
 
   function ShowLogOut() {
       if (authStatus.authStatus != 'authenticated') {
@@ -48,14 +80,10 @@ export default function Root() {
               setSelectedAlbum={setSelectedAlbum}
               albums={albums}
               setAlbums={setAlbums}/>
-            <div>
-              <br />
-              <h1 style={{ color: "transparent" }}>_</h1>
-            </div>
         </Headroom>
 
         <Outlet
-          context={[selectedAlbum, setSelectedAlbum, setAlbums, albums]}/>
+          context={[selectedAlbum, setSelectedAlbum, albums, setAlbums]}/>
         <ShowLogOut/>
     </View>
   );
