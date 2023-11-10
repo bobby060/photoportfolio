@@ -22,33 +22,9 @@ import {getImages} from '../graphql/queries';
 
 export default function Home(){
 	const [selectedAlbum, setSelectedAlbum, albums] = useOutletContext();
-	const [featuredImgs, setFeaturedImg] = useState([]);
-
-
-	useEffect(() => {
-    	updateFeaturedImg();
-  	}, []);
-
-
-  	async function updateFeaturedImg() {
-			const new_feat_img = await Promise.all(albums.map(async (album) => {
-					const data = {
-						id: album.albumsFeaturedImageId
-					}
-					const image = await API.graphql({
-						query: getImages,
-						variables: data,
-						authMode: 'API_KEY'
-					});
-					const featuredImage =  await addURL(image.data.getImages);
-					return { ...album, featuredImage: featuredImage};
-			  	}));
-			setFeaturedImg(new_feat_img);
-	}
 
 	function CarouselWrapper(){
 		console.log(albums.length);
-		console.log(`featured alb length ${featuredImgs.length}`);
 		if(albums.length < 1) return(
 			<Carousel indicators={false} interval = {3000}>
 						<Carousel.Item itemId={1} className='w-100 overflow-hidden placeholder' style={{height: '600px'}}>
@@ -60,10 +36,9 @@ export default function Home(){
 						</Carousel.Item>
 			</Carousel>
 			);
-		if(featuredImgs.length < 1) updateFeaturedImg();
 		return (	
 			<Carousel indicators={false} interval = {3000}>
-				{featuredImgs.map((album, i) =>
+				{albums.map((album, i) =>
 					(
 						<Carousel.Item itemId={i} className='w-100 ' style={{height: '600px'}}>
 								<img src = {album.featuredImage.filename} className='h-100 w-100 object-fit-cover' alt='...' 
