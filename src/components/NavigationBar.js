@@ -68,7 +68,7 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
       return (
           <MDBDropdown>
             <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
-              Albums
+              {selectedAlbum.length < 1 ? 'Select Album': selectedAlbum.title } 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
