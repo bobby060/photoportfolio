@@ -59,8 +59,8 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
       }
       return (
         <MDBNavbarItem>
-          <Link to={`/editalbum`}>
-            <MDBNavbarLink>Edit Album</MDBNavbarLink>
+          <Link to={`/new`}>
+            <MDBNavbarLink>New Album</MDBNavbarLink>
           </Link>
         </MDBNavbarItem>
         );
@@ -75,7 +75,7 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
-                <MDBDropdownItem link ><Link to={`/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
+                <MDBDropdownItem link ><Link className='text-dark' to={`/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
           </MDBDropdown>

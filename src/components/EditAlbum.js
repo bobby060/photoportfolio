@@ -26,7 +26,7 @@ import Album from './Album';
 
 
 export default function EditAlbum(){
-    const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
+   const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 
 	const [images, setImages] = useState([])
@@ -42,31 +42,7 @@ export default function EditAlbum(){
 
 
 	// Album handler functions
-	async function newAlbum(event) {
-		event.preventDefault();
-	    const form = new FormData(event.target);
 
-	    const date = form.get("date") + 'T00:00:00.000Z';
-	    const data = {
-	      title: form.get("title"),
-	      desc: form.get("desc"),
-	      date: date,
-	    };
-	    const response = await API.graphql({
-	      query: createAlbums,
-	      variables: { input: data },
-	      authMode: 'AMAZON_COGNITO_USER_POOLS',
-	    });
-	    const new_id = response.data.createAlbums.id;
-	    const newAlbum = await API.graphql({
-	      	query: getAlbums,
-	       	variables: { id: new_id}
-	     });
-	    fetchAlbums();
-	    console.log(`Created new album named: ${newAlbum.data.title}`);
-	    setSelectedAlbum(newAlbum.data.getAlbums);
-	    event.target.reset();
-	 }
 
 	 async function fetchAlbums() {
 	    const apiData = await API.graphql({ 
@@ -137,7 +113,7 @@ export default function EditAlbum(){
 	return(
 		<div className=''>
 			<h2> Create new album </h2>
-			<form onSubmit={newAlbum}>
+			<form>
 				<MDBRow className='d-flex justify-content-center'>
 			      <MDBCol xl='3' lg='5' md ='6'>
 			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text'/>
