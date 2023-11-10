@@ -27,11 +27,30 @@ import Headroom from 'react-headroom'
 import NavigationBar from './NavigationBar'
 import EditAlbum from './EditAlbum'
 
+import {listAlbums} from '../graphql/queries';
+
 export default function Root() {
   const { signOut } = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [selectedAlbum, setSelectedAlbum] = useState([]);
   const [albums, setAlbums] = useState([]);
+
+
+  // Loads albums on render
+  useEffect(() => {
+      fetchAlbums();
+    }, []);
+
+  async function fetchAlbums() {
+    const apiData = await API.graphql({ 
+    query: listAlbums,
+    authMode: 'API_KEY',
+    });
+
+    const albumsFromAPI = apiData.data.listAlbums.items;
+    console.log(albumsFromAPI);
+    setAlbums(albumsFromAPI);
+  } 
 
   function ShowLogOut() {
       if (authStatus.authStatus != 'authenticated') {
@@ -48,10 +67,10 @@ export default function Root() {
               setSelectedAlbum={setSelectedAlbum}
               albums={albums}
               setAlbums={setAlbums}/>
-            <div>
+{/*            <div>
               <br />
               <h1 style={{ color: "transparent" }}>_</h1>
-            </div>
+            </div>*/}
         </Headroom>
 
         <Outlet

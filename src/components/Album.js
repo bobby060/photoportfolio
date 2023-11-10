@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
+  MDBIcon,
   MDBRow,
   MDBCol,
-  MDBBtn,
-  MDBIcon,
-  MDBContainer,
+  MDBBtn
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
@@ -12,9 +11,10 @@ import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/muta
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
 import { useOutletContext } from "react-router-dom";
+import addURL from '../helpers/addURL';
 
 export default function Album(){
-  const [selectedAlbum, setSelectedAlbum] = useOutletContext();
+  const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
 
   // for storing images in current album
   const [images, setImages] = useState([]);
@@ -40,13 +40,7 @@ export default function Album(){
     const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
     // Waits until all images have been requested from storage
     const new_imgs = await Promise.all(
-      imgs.map(async (img) => {
-        const real_name = `${img.id}-${img.filename}`
-        if (debug) {console.log(real_name)};
-        const url = await Storage.get(real_name, { level: 'public' });
-        img.filename = url;
-        return img;
-      })
+      imgs.map((img) => (addURL(img)))
     );
 
     if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
@@ -70,44 +64,24 @@ export default function Album(){
     setImages(newImages);
   }
 
-  async function setFeaturedImg(image){
+  async function setFeaturedImg(image){ 
     const data = {
       id: selectedAlbum.id,
-      albumsFeaturedImageId: image.id
+      albumsFeaturedImageId: image.image.id
     }
-    await API.graphql({
+    const response = await API.graphql({
       query: updateAlbums,
       variables: { input: data
     },
     })
-    console.log('album updated')
-    const updatedAlbum = await API.graphql({
-      query: getAlbums, 
-      variables:{ input: {id: selectedAlbum.id}}
+    const new_album = response.data.updateAlbums;
+    setSelectedAlbum(new_album);
+    const newAlbums = albums.map((album) => {
+      if (album.id === new_album.id) return new_album;
+      return album;
     });
-    // setSelectedAlbum(updatedAlbum);
-    // const new_imgs = images.filter((album) => album.id !== image.id).append(updatedAlbum);
+    setAlbums(newAlbums);
    }
-
-  // Component wrapper for deleting a photo
-
-
-  function MakeFeaturedWrapper(image){
-
-      if (authStatus.authStatus != 'authenticated') {
-        return;
-      }
-      if (image.id==selectedAlbum.featuredImage) {
-            console.log('found featured img')
-              return (<MDBBtn  title='Make Featured Photo' disabled color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
-              <MDBIcon fas icon="times text-dark" size='2x' />
-            </MDBBtn>);
-      }
-      return (<MDBBtn  title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} color='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
-              <MDBIcon fas icon="square text-dark" size='2x' />
-            </MDBBtn>);
-  }
-
 
   const date = new Date(selectedAlbum.date);
  // Image handler functions
@@ -127,6 +101,7 @@ export default function Album(){
     <PhotoGrid
       items = {images}
       deleteImage = {deleteImage}
+      setFeaturedImg = {setFeaturedImg}
       />
     </div>
     );
