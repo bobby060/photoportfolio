@@ -21,6 +21,7 @@ import ErrorPage from './ErrorPage';
 import SignIn from './Signin';
 import Home from './Home';
 import AboutPage from './AboutPage';
+import Album from './Album';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
     {
       path: "about",
       element: <AboutPage/>,
+    },
+    {
+      path:":album_id",
+      element: <Album/>
     }
     ]
   }

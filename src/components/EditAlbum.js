@@ -112,9 +112,9 @@ export default function EditAlbum(){
   		if(selectedAlbum.length < 1) return;
 		  return(
 		  <div>
-		  	<Album
+{/*		  	<Album
 		  		curAlbum = {selectedAlbum}
-		  		/>
+		  		/>*/}
 		   <MDBRow className='d-flex justify-content-center'>
 		      <MDBCol lg='6'>
 		        <AddImages

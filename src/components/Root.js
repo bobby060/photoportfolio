@@ -27,6 +27,9 @@ import Headroom from 'react-headroom';
 import NavigationBar from './NavigationBar';
 import EditAlbum from './EditAlbum';
 import addURL from '../helpers/addURL';
+import fetchAlbums from '../helpers/fetchAlbums';
+
+import {AlbumsContext} from '../helpers/AlbumsContext';
 
 import {listAlbums, getImages} from '../graphql/queries';
 
@@ -39,31 +42,39 @@ export default function Root() {
 
   // Loads albums on render
   useEffect(() => {
-      fetchAlbums();
+      fetchWrapper();
     }, []);
 
-  async function fetchAlbums() {
-    const apiData = await API.graphql({ 
-    query: listAlbums,
-    authMode: 'API_KEY',
-    });
+  async function fetchWrapper(){
+      const new_albums = await fetchAlbums();
+      console.log(new_albums);
+      setAlbums(new_albums);
+  }
 
-    const albumsFromAPI = apiData.data.listAlbums.items;
-    const a = await Promise.all(albumsFromAPI.map(async (album) => {
-      const data = {
-        id: album.albumsFeaturedImageId
-      }
-      const image = await API.graphql({
-        query: getImages,
-        variables: data,
-        authMode: 'API_KEY'
-      });
-      const featuredImage =  await addURL(image.data.getImages);
-      console.log(featuredImage);
-      return { ...album, featuredImage: featuredImage};
-      }));
-    setAlbums(a);
-  } 
+
+
+  // async function fetchAlbums() {
+  //   console.log('fetching albums')
+  //   const apiData = await API.graphql({ 
+  //   query: listAlbums,
+  //   authMode: 'API_KEY',
+  //   });
+
+  //   const albumsFromAPI = apiData.data.listAlbums.items;
+  //   const a = await Promise.all(albumsFromAPI.map(async (album) => {
+  //     const data = {
+  //       id: album.albumsFeaturedImageId
+  //     }
+  //     const image = await API.graphql({
+  //       query: getImages,
+  //       variables: data,
+  //       authMode: 'API_KEY'
+  //     });
+  //     const featuredImage =  await addURL(image.data.getImages);
+  //     return { ...album, featuredImage: featuredImage};
+  //     }));
+  //   setAlbums(a);
+  // } 
 
   function ShowLogOut() {
       if (authStatus.authStatus != 'authenticated') {
@@ -74,17 +85,20 @@ export default function Root() {
   return (
 
     <View className="App">
+      <AlbumsContext.Provider value={{
+        albums,
+        setAlbums
+      }}>
         <Headroom >
             <NavigationBar 
               selectedAlbum={selectedAlbum}
-              setSelectedAlbum={setSelectedAlbum}
-              albums={albums}
-              setAlbums={setAlbums}/>
+              setSelectedAlbum={setSelectedAlbum}/>
         </Headroom>
 
         <Outlet
-          context={[selectedAlbum, setSelectedAlbum, albums, setAlbums]}/>
+          context={[selectedAlbum, setSelectedAlbum]}/>
         <ShowLogOut/>
+      </AlbumsContext.Provider>
     </View>
   );
 }
