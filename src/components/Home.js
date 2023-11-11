@@ -24,42 +24,41 @@ import CarouselWrapper from './Carousel';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 
 export default function Home(){
-	const [selectedAlbum, setSelectedAlbum] = useOutletContext();
 	const {albums, setAlbums} = useContext(AlbumsContext);
 
 
-	function AlbumWrapper() {
-		if(selectedAlbum.length<1){
-			return (<h2> 
-				Please select an album to view it!
-			</h2> );
-		}
+	// function AlbumWrapper() {
+	// 	if(selectedAlbum.length<1){
+	// 		return (<h2> 
+	// 			Please select an album to view it!
+	// 		</h2> );
+	// 	}
 	  	// return(<Album
 			// curAlbum = {selectedAlbum}
 			// />);
-	}
+	// }
 
-	function DropdownWrapper(){
-      if(albums.length < 1) return;
-      return (
-          <MDBDropdown>
-            <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
-              Albums
-            </MDBDropdownToggle>
-            <MDBDropdownMenu >
-              {albums.map((album) => (
-                <MDBDropdownItem link onClick={() => {setSelectedAlbum(album)}}>{album.title}</MDBDropdownItem>
-                ))}
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        );
-    }
+	// function DropdownWrapper(){
+  //     if(albums.length < 1) return;
+  //     return (
+  //         <MDBDropdown>
+  //           <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
+  //             Albums
+  //           </MDBDropdownToggle>
+  //           <MDBDropdownMenu >
+  //             {albums.map((album) => (
+  //               <MDBDropdownItem> link onClick={() => {setSelectedAlbum(album)}}>{album.title}</MDBDropdownItem>
+  //               ))}
+  //           </MDBDropdownMenu>
+  //         </MDBDropdown>
+  //       );
+  //   }
 
 return(
 	<div>
 		<CarouselWrapper/>
 		{/*<DropdownWrapper/>*/}
-		<AlbumWrapper/>
+		{/*<AlbumWrapper/>*/}
 	</div>
 
 	);

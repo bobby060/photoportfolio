@@ -29,29 +29,34 @@ const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage/>,
     children: [
-    {
-      index: true,
-      element: <Home/>
-    },
-    {
-      path: "signin",
-      element: <SignIn/>
-    },
-    {
-      path: "new",
-      element: <CreateAlbum/>
-    },
-    {
-      path: "home",
-      element: <Home/>,
-    },
-    {
-      path: "about",
-      element: <AboutPage/>,
-    },
-    {
-      path:":album_id",
-      element: <Album/>
+      {
+        errorElement: <ErrorPage/>,
+        children: [
+          {
+            index: true,
+            element: <Home/>
+          },
+          {
+            path: "signin",
+            element: <SignIn/>
+          },
+          {
+            path: "new",
+            element: <CreateAlbum/>
+          },
+          {
+            path: "home",
+            element: <Home/>,
+          },
+          {
+            path: "about",
+            element: <AboutPage/>,
+          },
+          {
+            path:":album_id",
+            element: <Album/>
+          }
+      ]
     }
     ]
   }

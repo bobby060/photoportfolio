@@ -117,8 +117,6 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
                   <SignInWrapper/>
                 </MDBNavbarItem>
                 </MDBNavbarNav>
-
-
             </MDBCollapse>
           </MDBContainer>
         </MDBNavbar>

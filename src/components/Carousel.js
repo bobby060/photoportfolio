@@ -14,7 +14,7 @@ export default function CarouselWrapper(){
 
 	  useEffect(() => {
 	    updateFeatured();
-	  }, []);
+	  }, [albums]);
 
 
 	  async function updateFeatured(){
