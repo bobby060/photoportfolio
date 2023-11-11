@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useContext } from "react";
 import { API } from 'aws-amplify';
 import {
   MDBIcon,
@@ -11,10 +11,13 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import {createAlbums} from '../graphql/mutations';
 import { useNavigate } from "react-router-dom";
-
+import {urlhelperEncode} from '../helpers/urlhelper';
+import {AlbumsContext} from '../helpers/AlbumsContext';
+import fetchAlbums from '../helpers/fetchAlbums';
 
 export default function CreateAlbum(){
 	const authStatus = useAuthenticator((context) => [context.authStatus]);
+	const {albums, setAlbums} = useContext(AlbumsContext);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -36,9 +39,12 @@ export default function CreateAlbum(){
 	    const response = await API.graphql({
 	      query: createAlbums,
 	      variables: { input: data },
-	      authMode: 'AMAZON_COGNITO_USER_POOLS',
 	    });
+	    const newAlbum = response.data.createAlbums;
+		const updatedAlbums = await fetchAlbums();
+		setAlbums(updatedAlbums);
 	    console.log(`Created new album named: ${form.get("title")}`);
+	    navigate(urlhelperEncode(newAlbum));
 	    event.target.reset();
 	 }
 
