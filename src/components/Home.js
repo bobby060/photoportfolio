@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
 	MDBContainer,
 	MDBRow,
@@ -21,10 +21,11 @@ import Album from './Album';
 import addURL from '../helpers/addURL';
 import {getImages} from '../graphql/queries';
 import CarouselWrapper from './Carousel';
+import {AlbumsContext} from '../helpers/AlbumsContext';
 
 export default function Home(){
-	const [selectedAlbum, setSelectedAlbum, albums] = useOutletContext();
-
+	const [selectedAlbum, setSelectedAlbum] = useOutletContext();
+	const {albums, setAlbums} = useContext(AlbumsContext);
 
 
 	function AlbumWrapper() {
@@ -33,9 +34,9 @@ export default function Home(){
 				Please select an album to view it!
 			</h2> );
 		}
-	  	return(<Album
-			curAlbum = {selectedAlbum}
-			/>);
+	  	// return(<Album
+			// curAlbum = {selectedAlbum}
+			// />);
 	}
 
 	function DropdownWrapper(){

@@ -9,13 +9,11 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
-import { useOutletContext } from "react-router-dom";
 
 // Photogrid items takes an array of Image objects as input
 // deleteImage callback allows authenticated users to delete images
-export default function PhotoGrid({ items, deleteImage, setFeaturedImg }) {
+export default function PhotoGrid({ items, deleteImage, setFeaturedImg, selectedAlbum }) {
 
-  const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -83,7 +81,6 @@ export default function PhotoGrid({ items, deleteImage, setFeaturedImg }) {
    }
 
   function MakeFeaturedWrapper(image){
-
       if (authStatus.authStatus != 'authenticated') {
         return;
       }
