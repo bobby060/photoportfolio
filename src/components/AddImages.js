@@ -23,7 +23,7 @@ export default function AddImages({curAlbum, updateAlbum}){
       if (selectedFiles.length > 0){
         const files = Array.from(selectedFiles)
         console.log(`starting uploads`)
-        files.map(await Promise.all((file) => newImage(file)));
+        await Promise.all(files.map((file) => newImage(file)));
         updateAlbum();
         console.log(`All images uploaded!`)
         return;
