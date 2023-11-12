@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "../css/App.css";
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage, Auth } from 'aws-amplify';
 import { Authenticator} from '@aws-amplify/ui-react';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
-import { listNotes } from "../graphql/queries";
-import {
-  createNote as createNoteMutation,
-  deleteNote as deleteNoteMutation,
-} from "../graphql/mutations";
-import Headroom from 'react-headroom';
-import NavigationBar from './NavigationBar';
 import CreateAlbum from './CreateAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';
