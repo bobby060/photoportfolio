@@ -1,7 +1,6 @@
 import React, {useEffect, useContext } from "react";
 import { API } from 'aws-amplify';
 import {
-  MDBIcon,
   MDBRow,
   MDBCol,
   MDBBtn,
@@ -49,7 +48,7 @@ export default function CreateAlbum(){
 	 }
 
 
-	if (authStatus.authStatus != 'authenticated'){
+	if (authStatus.authStatus !== 'authenticated'){
 		return (<p> You don't have access, redirecting! </p>);
 
 	}

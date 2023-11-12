@@ -1,6 +1,5 @@
 import React,  { useState, useEffect }  from 'react';
 import {
-  MDBRow,
   MDBCol,
   MDBBtn,
   MDBIcon,
@@ -61,7 +60,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
   // Holds the columns for the photo grid 
   const columns = new Array(num_columns);
 
-  if (items.length==0) return;
+  if (items.length===0) return;
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const columnIndex = i % num_columns;
@@ -74,7 +73,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
 
 
   function DeleteImageWrapper(image) {
-      if (!deleteImage || authStatus.authStatus != 'authenticated'  || !editMode) {
+      if (!deleteImage || authStatus.authStatus !== 'authenticated'  || !editMode) {
         return;
       }
       return (<MDBBtn  className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
@@ -83,16 +82,16 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
    }
 
   function MakeFeaturedWrapper(image){
-      if (!setFeaturedImg || authStatus.authStatus != 'authenticated' || !editMode) {
+      if (!setFeaturedImg || authStatus.authStatus !== 'authenticated' || !editMode) {
         return;
       }
 
       if (selectedAlbum.albumsFeaturedImageId && image.image.id===selectedAlbum.albumsFeaturedImageId ) {
-              return (<MDBBtn className="position-absolute bottom-0 end-0 btn-light m-1" title='Make Featured Photo' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+              return (<MDBBtn className="position-absolute bottom-0 end-0 btn-light m-1" title='Set Featured' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" >
               <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
       }
-      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" title='Make Featured Photo' onClick={()=> setFeaturedImg(image)} MDBColor='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
+      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" onClick={()=> setFeaturedImg(image)} MDBColor='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
               <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
   }
@@ -111,7 +110,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
                     alt={`visual aid for ${image.name}`}
                     className='img-fluid shadow-4' 
                   />
-                  <a type="button" >
+                  <a type="button" href='' >
                     <div className='mask overlay' onClick={() => setOpen(true)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
                   </a>
                   <DeleteImageWrapper
