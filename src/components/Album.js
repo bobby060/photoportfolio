@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   MDBIcon,
   MDBRow,
@@ -10,11 +10,23 @@ import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import addURL from '../helpers/addURL';
+import {AlbumsContext} from '../helpers/AlbumsContext';
+import {urlhelperDecode} from '../helpers/urlhelper';
+
+import fetchAlbums from '../helpers/fetchAlbums';
+import EditAlbum from './EditAlbum';
+
 
 export default function Album(){
-  const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
+  const [selectedAlbum, setSelectedAlbum] = useState([]);
+  const {albums, setAlbums} = useContext(AlbumsContext);
+  // const[albums, setAlbums] = useState([]);
+  const [albumIndex, setAlbumIndex] = useState(-1);
+  const [canEdit, setCanEdit] = useState(false);
+  let {album_id} = useParams();
+
 
   // for storing images in current album
   const [images, setImages] = useState([]);
@@ -25,18 +37,39 @@ export default function Album(){
 
   // Initializes images after component render
   useEffect(() => {
-    updateAlbum();
-  }, []);
+    pullAlbum();
+  }, [album_id]);
+
+  // Helper that determines which album in the albums list the url album_id is triggering the component to pull
+  async function findIndex(albums){
+    for(let i = 0; i < albums.length; i++){
+      if (urlhelperDecode(albums[i], album_id)) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
   // Loads images associated with album being rendered
- async function updateAlbum(){
+ async function pullAlbum(){
+    setCanEdit(false);
+    setAlbumIndex(-1);
+    // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
+    const newA = (albums.length < 1) ? await fetchAlbums(): albums;
+      
+    const index = await findIndex(newA);
+    if (index < 0) {
+      throw new Error(`404. Album at url, ${album_id}, was not found!`);
+      return;
+    }// setSelectedAlbum(newA.at(index));
+
   // Pulls the image objects associated with the selected album
     const imgs_wrapper = await API.graphql({
       query: imagesByAlbumsID,
-       variables: { albumsID: selectedAlbum.id},
+       variables: { albumsID: newA[index].id},
        authMode: 'API_KEY',
       });
-
+    console.log('loading images');
     const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
     // Waits until all images have been requested from storage
     const new_imgs = await Promise.all(
@@ -49,6 +82,8 @@ export default function Album(){
       new_imgs[i].index = i;
     }
     setImages(new_imgs);
+    if(albums.length < 1) setAlbums(newA);
+    setAlbumIndex(index);
     if (debug) {console.log(`images set`)};
    }
 
@@ -66,7 +101,7 @@ export default function Album(){
 
   async function setFeaturedImg(image){ 
     const data = {
-      id: selectedAlbum.id,
+      id: albums[albumIndex].id,
       albumsFeaturedImageId: image.image.id
     }
     const response = await API.graphql({
@@ -75,7 +110,7 @@ export default function Album(){
     },
     })
     const new_album = response.data.updateAlbums;
-    setSelectedAlbum(new_album);
+    pullAlbum();
     const newAlbums = albums.map((album) => {
       if (album.id === new_album.id) return new_album;
       return album;
@@ -83,25 +118,64 @@ export default function Album(){
     setAlbums(newAlbums);
    }
 
-  const date = new Date(selectedAlbum.date);
+
  // Image handler functions
+
+  if(albumIndex<0){
+    return(
+      <p>loading</p>);
+  }
+
+  const date = new Date(albums[albumIndex].date);
+
+  function InfoWrapper(){
+
+  }
+
+  function ShowEditButton(){
+    if (authStatus.authStatus === 'authenticated'){
+      return (<MDBBtn onClick={()=>setCanEdit(true)} color='dark' className='m-2'>Edit Album</MDBBtn>);
+    }
+  }
+
+  function EditWrapper(){
+    if (canEdit){
+      return (
+        <EditAlbum
+          selectedAlbum={albums[albumIndex]}
+          pullAlbum={pullAlbum}
+          />
+        );
+
+    }
+
+    return(
+      <div>
+        <MDBRow className='d-flex justify-content-center align-items-center'>
+          <MDBCol className='d-flex justify-content-center align-items-center'>
+              <h2 className="p-2">{albums[albumIndex].title}</h2>
+              <div className="vr" style={{ height: '50px' }}></div>
+              <h5 className="p-2">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
+          </MDBCol>
+         </MDBRow>
+         <MDBRow className='d-flex align-items-center ps-4 pe-4'>
+            <p className=''>{albums[albumIndex].desc} </p> 
+
+         </MDBRow>
+        <ShowEditButton/>
+       </div>
+      );
+  }
 
   return(
     <div>
-      <MDBRow className='d-flex justify-content-center align-items-center'>
-        <MDBCol className='d-flex justify-content-center align-items-center'>
-            <h2 className="p-2">{selectedAlbum.title}</h2>
-            <div className="vr" style={{ height: '50px' }}></div>
-            <h5 className="p-2">{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</h5>
-        </MDBCol>
-       </MDBRow>
-       <MDBRow className='d-flex align-items-center ps-4 pe-4'>
-          <p className=''>{selectedAlbum.desc} </p> 
-       </MDBRow>        
+    <EditWrapper/>
     <PhotoGrid
       items = {images}
       deleteImage = {deleteImage}
       setFeaturedImg = {setFeaturedImg}
+      selectedAlbum = {albums[albumIndex]}
+      editMode = {canEdit}
       />
     </div>
     );

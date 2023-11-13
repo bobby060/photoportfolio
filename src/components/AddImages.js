@@ -9,7 +9,7 @@ import { API, Storage } from 'aws-amplify';
 import {createImages } from '../graphql/mutations';
 
 
-export default function AddImages({curAlbum, setCurAlbum}){
+export default function AddImages({curAlbum, updateAlbum}){
     // stores selected files
   const [selectedFiles, setSelectedFiles] = useState(null);
 
@@ -23,8 +23,8 @@ export default function AddImages({curAlbum, setCurAlbum}){
       if (selectedFiles.length > 0){
         const files = Array.from(selectedFiles)
         console.log(`starting uploads`)
-        files.map((file) => newImage(file))
-        setCurAlbum(curAlbum);
+        await Promise.all(files.map((file) => newImage(file)));
+        updateAlbum();
         console.log(`All images uploaded!`)
         return;
      }

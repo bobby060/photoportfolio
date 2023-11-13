@@ -15,12 +15,13 @@ import {
 } from "../graphql/mutations";
 import Headroom from 'react-headroom';
 import NavigationBar from './NavigationBar';
-import EditAlbum from './EditAlbum';
+import CreateAlbum from './CreateAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';
 import SignIn from './Signin';
 import Home from './Home';
 import AboutPage from './AboutPage';
+import Album from './Album';
 
 const router = createBrowserRouter([
   {
@@ -28,25 +29,34 @@ const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage/>,
     children: [
-    {
-      index: true,
-      element: <Home/>
-    },
-    {
-      path: "signin",
-      element: <SignIn/>
-    },
-    {
-      path: "editalbum",
-      element: <EditAlbum/>
-    },
-    {
-      path: "home",
-      element: <Home/>,
-    },
-    {
-      path: "about",
-      element: <AboutPage/>,
+      {
+        errorElement: <ErrorPage/>,
+        children: [
+          {
+            index: true,
+            element: <Home/>
+          },
+          {
+            path: "signin",
+            element: <SignIn/>
+          },
+          {
+            path: "new",
+            element: <CreateAlbum/>
+          },
+          {
+            path: "home",
+            element: <Home/>,
+          },
+          {
+            path: "about",
+            element: <AboutPage/>,
+          },
+          {
+            path:":album_id",
+            element: <Album/>
+          }
+      ]
     }
     ]
   }

@@ -9,13 +9,11 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
-import { useOutletContext } from "react-router-dom";
 
 // Photogrid items takes an array of Image objects as input
 // deleteImage callback allows authenticated users to delete images
-export default function PhotoGrid({ items, deleteImage, setFeaturedImg }) {
+export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = null, selectedAlbum, editMode = false }) {
 
-  const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -74,7 +72,7 @@ export default function PhotoGrid({ items, deleteImage, setFeaturedImg }) {
 
 
   function DeleteImageWrapper(image) {
-      if (authStatus.authStatus != 'authenticated') {
+      if (!deleteImage || authStatus.authStatus != 'authenticated'  || !editMode) {
         return;
       }
       return (<MDBBtn  className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> deleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
@@ -83,8 +81,7 @@ export default function PhotoGrid({ items, deleteImage, setFeaturedImg }) {
    }
 
   function MakeFeaturedWrapper(image){
-
-      if (authStatus.authStatus != 'authenticated') {
+      if (!setFeaturedImg || authStatus.authStatus != 'authenticated' || !editMode) {
         return;
       }
 

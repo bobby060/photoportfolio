@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
 import {EXIF} from 'exif-js'
 import {
   MDBRow,
@@ -6,79 +6,57 @@ import {
   MDBBtn,
   MDBInput,
   MDBTextArea,
-  MDBDropdown,
-  MDBDropdownToggle,
-  MDBDropdownMenu,
-  MDBDropdownItem,
-  MDBIcon,
+  // MDBDropdown,
+  // MDBDropdownToggle,
+  // MDBDropdownMenu,
+  // MDBDropdownItem,
+  // MDBIcon,
 } from 'mdb-react-ui-kit';
 import { Auth, API, Storage } from 'aws-amplify';
 import '../css/index.css'
 import ReactDOM from 'react-dom/client';
+import { useNavigate } from "react-router-dom";
 
+import {AlbumsContext} from '../helpers/AlbumsContext';
 
-import { useOutletContext } from "react-router-dom";
-import {createAlbums, updateAlbums, deleteAlbums, createImages, updateImages, deleteImages} from '../graphql/mutations'; 
+import {updateAlbums, deleteAlbums, updateImages, deleteImages} from '../graphql/mutations'; 
 import {listAlbums, imagesByAlbumsID, getAlbums} from '../graphql/queries';
 import AddImages from './AddImages';
-import Album from './Album';
+import Album from './Album'
+import ConfirmationDialog from './ConfirmationDialog';
+import {urlhelperEncode} from '../helpers/urlhelper';
 
+import fetchAlbums from '../helpers/fetchAlbums';
 
-
-export default function EditAlbum(){
-    const [selectedAlbum, setSelectedAlbum, albums, setAlbums] = useOutletContext();
+export default function EditAlbum({selectedAlbum, pullAlbum}){
 	const [showEditAlbum, CanEditAlbum] = useState(false);
-
-	const [images, setImages] = useState([])
+	const {albums, setAlbums} = useContext(AlbumsContext);
+	const navigate = useNavigate();
 	const debug = true;
 
-	useEffect(() => {
-	    fetchAlbums();
-	  }, []);
-
-	function updateAlbum(album) {
-		setSelectedAlbum(album);
-	}
-
-
-	// Album handler functions
-	async function newAlbum(event) {
-		event.preventDefault();
+	async function updateAlbum(event) {
+			event.preventDefault();
 	    const form = new FormData(event.target);
-
+	    console.log(form.get("title"));
 	    const date = form.get("date") + 'T00:00:00.000Z';
 	    const data = {
+	    	id: selectedAlbum.id,
 	      title: form.get("title"),
 	      desc: form.get("desc"),
 	      date: date,
 	    };
 	    const response = await API.graphql({
-	      query: createAlbums,
+	      query: updateAlbums,
 	      variables: { input: data },
-	      authMode: 'AMAZON_COGNITO_USER_POOLS',
 	    });
-	    const new_id = response.data.createAlbums.id;
-	    const newAlbum = await API.graphql({
-	      	query: getAlbums,
-	       	variables: { id: new_id}
-	     });
-	    fetchAlbums();
-	    console.log(`Created new album named: ${newAlbum.data.title}`);
-	    setSelectedAlbum(newAlbum.data.getAlbums);
-	    event.target.reset();
-	 }
-
-	 async function fetchAlbums() {
-	    const apiData = await API.graphql({ 
-	    	query: listAlbums,
-	    	authMode: 'API_KEY',
-	    });
-	    const albumsFromAPI = apiData.data.listAlbums.items;
-	    setAlbums(albumsFromAPI);
-	    // Put logic to pull urls for images here
-	 }
+	    const updatedAlbums = await fetchAlbums();
+			setAlbums(updatedAlbums);
+	    console.log(`Updated album: ${form.get("title")}`);
+	   	navigate('../'.concat(urlhelperEncode(response.data.updateAlbums)));
+	}
 
 	 async function deleteAlbum(id) {
+	 		if (!window.confirm("Are you sure you want to delete this album?")) return;
 
 	    const newAlbums = albums.filter((album) => album.id !== id);
 	    setAlbums(newAlbums);
@@ -87,6 +65,8 @@ export default function EditAlbum(){
 	      	query: imagesByAlbumsID,
 	       	variables: { albumsID: id}
 	     });
+
+	   	// Deletes albums associated with album
 	   	imgs.data.imagesByAlbumsID.items.map(async (img) => {
 	   		const i = img;
 	   		await Storage.remove(`${img.id}-${img.filename}`);
@@ -95,64 +75,55 @@ export default function EditAlbum(){
 	   			variables: {input: {id: img.id}},
 	   		});
 	   		if (debug) {console.log(`${img.id} deleted`)}
-	   	})
-	    setSelectedAlbum([])
-	    // await Storage.remove(name);
+	   	});
 	    await API.graphql({
 	      query: deleteAlbums,
 	      variables: { input: { id } },
 	    });
-
-	    // TODO delete all associated images
+	    navigate('/');
 	 }
 
-
-
-  	function ShowAlbum() {
-  		if(selectedAlbum.length < 1) return;
-		  return(
-		  <div>
-		  	<Album
-		  		curAlbum = {selectedAlbum}
-		  		/>
-		   <MDBRow className='d-flex justify-content-center'>
-		      <MDBCol lg='6'>
-		        <AddImages
-		        	curAlbum = {selectedAlbum}
-		        	setCurAlbum = {updateAlbum}
-		        />
-		      </MDBCol>
-		    </MDBRow>
-		   	<MDBRow  className='d-flex justify-content-center align-items-center' >
-			    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
-			        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum.id)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
-			          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
-			        </MDBBtn>
-			    </MDBCol>
-		   </MDBRow>
-		  </div>
-		  );
-  	}
+		const date = new Date(selectedAlbum.date);
+		const d = date.getDate();
+		const d2 = (d < 10)  ? '0'.concat(d): String(d);
+		const month = date.getMonth()+1;
+		const month2 = (month < 10)  ? '0'.concat(month): String(month);
+		const year = date.getFullYear();
+		const dateString = String(year).concat('-',month2,'-',d2);
 
 	return(
 		<div className=''>
-			<h2> Create new album </h2>
-			<form onSubmit={newAlbum}>
+			<h2> Edit album </h2>
+			<form onSubmit={updateAlbum}>
 				<MDBRow className='d-flex justify-content-center'>
 			      <MDBCol xl='3' lg='5' md ='6'>
-			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text'/>
-			        <MDBInput className='mb-3' label = 'Date' name='date' type ='date'/>
+			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text' defaultValue={selectedAlbum.title}/>
+			        <MDBInput className='mb-3' label = 'Date' name='date' type ='date'  defaultValue={dateString}/>
 			      </MDBCol>
 			      <MDBCol xl='3'  lg='5' md ='6'>
-			        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3}/>
+			        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3} defaultValue={selectedAlbum.desc}/>
 			      </MDBCol>
 			      <MDBCol xl ='12'>
-			        <MDBBtn type='submit' className="bg-dark mb-3">Create</MDBBtn>
+			        <MDBBtn type='submit' className="bg-dark mb-3">Save</MDBBtn>
 			      </MDBCol>
 			    </MDBRow>
 			</form>
 
-			<ShowAlbum/>
+			<MDBRow className='d-flex justify-content-center'>
+	      <MDBCol lg='6'>
+	        <AddImages
+	        	curAlbum = {selectedAlbum}
+	        	updateAlbum = {pullAlbum}
+	        />
+	      </MDBCol>
+		   </MDBRow>
+	   	<MDBRow  className='d-flex justify-content-center align-items-center' >
+		    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
+		        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum.id)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
+		          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
+		        </MDBBtn>
+		    </MDBCol>
+	   </MDBRow>
 		  </div>
 		)
 }

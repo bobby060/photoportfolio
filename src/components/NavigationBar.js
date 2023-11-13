@@ -1,4 +1,4 @@
-import {React, useState, useEffect} from 'react';
+import {React, useState, useEffect, useContext} from 'react';
 import ReactDOM from 'react-dom/client';
 import {Link} from 'react-router-dom';
 import {
@@ -22,16 +22,19 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 
 import { useOutletContext } from "react-router-dom";
+import { AlbumsContext } from '../helpers/AlbumsContext';
+import {urlhelperEncode} from '../helpers/urlhelper'
 // import AnchorLink from 'react-anchor-link-smooth-scroll'
 // **** ROUTES *****//
 // Add routes here
 
 
-export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, setAlbums}){
+export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
 
   const [showNav, setShowNav] = useState(false);
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
+  const {albums, setAlbums} = useContext(AlbumsContext);
 
 
     function SignInWrapper() {
@@ -56,8 +59,8 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
       }
       return (
         <MDBNavbarItem>
-          <Link to={`/editalbum`}>
-            <MDBNavbarLink>Edit Album</MDBNavbarLink>
+          <Link to={`/new`}>
+            <MDBNavbarLink>New Album</MDBNavbarLink>
           </Link>
         </MDBNavbarItem>
         );
@@ -72,7 +75,7 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
-                <MDBDropdownItem link onClick={() => {setSelectedAlbum(album)}}>{album.title}</MDBDropdownItem>
+                <MDBDropdownItem link ><Link className='text-dark' to={`/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
           </MDBDropdown>
@@ -91,7 +94,7 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
                 <i class="fas fa-bars text-dark m-2 "></i>
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
-              <MDBNavbarNav>
+              <MDBNavbarNav className='w-100'>
                 <MDBNavbarItem>
                   <Link to={`/home`}>
                     <MDBNavbarLink active>
@@ -110,10 +113,10 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum, albums, 
                   <DropdownWrapper/>
                   </MDBNavbarLink>
                 </MDBNavbarItem>
-                <MDBNavbarItem className = "ms-auto">
+                <MDBNavbarItem className = "ms-lg-auto">
                   <SignInWrapper/>
                 </MDBNavbarItem>
-              </MDBNavbarNav>
+                </MDBNavbarNav>
             </MDBCollapse>
           </MDBContainer>
         </MDBNavbar>
