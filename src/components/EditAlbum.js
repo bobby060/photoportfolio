@@ -1,25 +1,32 @@
-import React, { useContext, useState } from 'react';
-// import {EXIF} from 'exif-js';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
+import {EXIF} from 'exif-js'
 import {
   MDBRow,
   MDBCol,
   MDBBtn,
   MDBInput,
   MDBTextArea,
+  // MDBDropdown,
+  // MDBDropdownToggle,
+  // MDBDropdownMenu,
+  // MDBDropdownItem,
+  // MDBIcon,
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
-import '../css/index.css';
+import { Auth, API, Storage } from 'aws-amplify';
+import '../css/index.css'
+import ReactDOM from 'react-dom/client';
 import { useNavigate } from "react-router-dom";
-import {updateAlbums, deleteAlbums , deleteImages} from '../graphql/mutations'; 
-import {imagesByAlbumsID} from '../graphql/queries';
-import AddImages from './AddImages';
-// import ConfirmationDialog from './ConfirmationDialog';
 
-
-// Helpers
-import fetchAlbums from '../helpers/fetchAlbums';
-import {urlhelperEncode} from '../helpers/urlhelper';
 import {AlbumsContext} from '../helpers/AlbumsContext';
+
+import {updateAlbums, deleteAlbums, updateImages, deleteImages} from '../graphql/mutations'; 
+import {listAlbums, imagesByAlbumsID, getAlbums} from '../graphql/queries';
+import AddImages from './AddImages';
+import Album from './Album'
+import ConfirmationDialog from './ConfirmationDialog';
+import {urlhelperEncode} from '../helpers/urlhelper';
+
+import fetchAlbums from '../helpers/fetchAlbums';
 
 export default function EditAlbum({selectedAlbum, pullAlbum}){
 	const [showEditAlbum, CanEditAlbum] = useState(false);
@@ -61,6 +68,7 @@ export default function EditAlbum({selectedAlbum, pullAlbum}){
 
 	   	// Deletes albums associated with album
 	   	imgs.data.imagesByAlbumsID.items.map(async (img) => {
+	   		const i = img;
 	   		await Storage.remove(`${img.id}-${img.filename}`);
 	   		await API.graphql({
 	   			query: deleteImages,
@@ -111,8 +119,8 @@ export default function EditAlbum({selectedAlbum, pullAlbum}){
 		   </MDBRow>
 	   	<MDBRow  className='d-flex justify-content-center align-items-center' >
 		    <MDBCol className ='d-flex justify-content-center mt-3' lg='5'>
-		        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum.id)} color='dark' data-mdb-toggle="tooltip" >
-		          Delete Album
+		        <MDBBtn  title='Delete Album' onClick={()=>deleteAlbum(selectedAlbum.id)} color='dark' data-mdb-toggle="tooltip" title="Delete album"  >
+		          {/*<MDBIcon fas icon="times text-dark" size='4x' />*/}Delete Album
 		        </MDBBtn>
 		    </MDBCol>
 	   </MDBRow>

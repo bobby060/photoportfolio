@@ -1,4 +1,5 @@
-import {React, useState, useContext} from 'react';
+import {React, useState, useEffect, useContext} from 'react';
+import ReactDOM from 'react-dom/client';
 import {Link} from 'react-router-dom';
 import {
   MDBContainer,
@@ -9,19 +10,20 @@ import {
   MDBNavbarItem,
   MDBNavbarLink,
   MDBCollapse,
+  MDBIcon,
   MDBDropdown,
   MDBDropdownMenu,
   MDBDropdownToggle,
-  MDBDropdownItem,
-  MDBTooltip,
+  MDBDropdownItem
 } from 'mdb-react-ui-kit';
+
+import { API } from 'aws-amplify';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
-import logo from '../logo192.png';
 
 import { useOutletContext } from "react-router-dom";
 import { AlbumsContext } from '../helpers/AlbumsContext';
-import {urlhelperEncode} from '../helpers/urlhelper';
+import {urlhelperEncode} from '../helpers/urlhelper'
 // import AnchorLink from 'react-anchor-link-smooth-scroll'
 // **** ROUTES *****//
 // Add routes here
@@ -32,12 +34,11 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
   const [showNav, setShowNav] = useState(false);
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
-  const { signOut } = useAuthenticator((context) => [context.user]);
   const {albums, setAlbums} = useContext(AlbumsContext);
 
 
     function SignInWrapper() {
-      if (authStatus.authStatus !== 'authenticated') {
+      if (authStatus.authStatus != 'authenticated') {
         return (
         <Link to={`/signin`}>
         <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
@@ -46,14 +47,14 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
         );
       }
       return (
-        <MDBNavbarLink onClick={signOut} tabIndex={-1} aria-disabled='true'>
-            {user_item.user.username} | Sign Out
-        </MDBNavbarLink> 
+        <MDBNavbarLink disabled href='/' tabIndex={-1} aria-disabled='true'>
+          {user_item.user.username}
+        </MDBNavbarLink>
         );
     }
 
     function EditLinkWrapper(){
-      if (authStatus.authStatus !== 'authenticated') {
+      if (authStatus.authStatus != 'authenticated') {
         return;
       }
       return (
@@ -83,10 +84,7 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
     return (
         <MDBNavbar expand='lg' light bgColor='light'>
           <MDBContainer fluid>
-            <img src={logo} className = 'pe-2' style={{height:'40px'}}/>
-            <MDBNavbarBrand href='#'>
-            
-              Robert Norwood</MDBNavbarBrand>
+            <MDBNavbarBrand href='#'>Robert Norwood</MDBNavbarBrand>
             <MDBNavbarToggler
               type='button'
               aria-expanded='false'

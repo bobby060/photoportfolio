@@ -1,18 +1,15 @@
 import React, {useContext, useEffect, useState} from 'react';
 import Carousel from 'react-bootstrap/Carousel';
+import { useOutletContext } from "react-router-dom";
 import {getImages} from '../graphql/queries';
-import { API } from 'aws-amplify';
-import {Link} from 'react-router-dom';
-
-// Helpers
-import fetchAlbums from '../helpers/fetchAlbums';
-import {AlbumsContext} from '../helpers/AlbumsContext';
+import { API, Storage} from 'aws-amplify';
 import addURL from '../helpers/addURL';
-import {urlhelperEncode} from '../helpers/urlhelper';
+import {AlbumsContext} from '../helpers/AlbumsContext';
+import fetchAlbums from '../helpers/fetchAlbums';
 
 export default function CarouselWrapper(){
 
-	const {albums} = useContext(AlbumsContext);
+	const {albums, setAlbums} = useContext(AlbumsContext);
 	const [featuredAlbums, setFeaturedAlbums]= useState([]);
 
 	  useEffect(() => {
@@ -57,14 +54,12 @@ export default function CarouselWrapper(){
 			{featuredAlbums.map((album, i) =>
 				(
 					<Carousel.Item  itemId={i}  style={{height: '600px', cursor: 'pointer' }}>
-						<Link to={`/${urlhelperEncode(album)}`}>
 							<img src = {album.featuredImage.filename} className='h-100 w-100 ' alt='...' 
 							 style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}/>
 						<Carousel.Caption className='' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
 							<h5 >{album.title}</h5>
 							<p>{album.desc}</p>
 						</Carousel.Caption>
-						</Link>
 					</Carousel.Item>
 					))}
 		</Carousel>);
