@@ -7,7 +7,9 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-
+// import "animate.css/animate.min.css";
+// import { AnimationOnScroll } from 'react-animation-on-scroll';
+ 
 
 // Photogrid items takes an array of Image objects as input
 // deleteImage callback allows authenticated users to delete images
@@ -101,7 +103,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
       {columns.map((column) => (
         <MDBCol className="column">
           {column.map((image, i) => (
-              <div className= 'm-0 p-1'>        
+           <div className= 'm-0 p-1'>        
                 <div className='bg-image hover-overlay position-relative'>
                 <img
                     src={image.filename}
@@ -117,7 +119,8 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
                   image = {image}/>
                 </div>
 
-                </div>))}
+                </div>
+                ))}
               </MDBCol>
             ))}
       <Lightbox
