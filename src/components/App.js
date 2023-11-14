@@ -7,6 +7,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
+
+// Components
 import CreateAlbum from './CreateAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';

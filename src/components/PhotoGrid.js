@@ -71,6 +71,11 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
     columns[columnIndex].push(item);
   }
 
+  function openLightbox(index){
+    setIndex(index);
+    setOpen(true);
+  }
+
 
   function DeleteImageWrapper(image) {
       if (!deleteImage || authStatus.authStatus !== 'authenticated'  || !editMode) {
@@ -100,10 +105,10 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
 
   return (
     <div className=" d-flex photo-album">
-      {columns.map((column) => (
-        <MDBCol className="column">
+      {columns.map((column,n) => (
+        <MDBCol className="column" key={n}>
           {column.map((image, i) => (
-           <div className= 'm-0 p-1'>        
+           <div key = {i} className= 'm-0 p-1'>        
                 <div className='bg-image hover-overlay position-relative'>
                 <img
                     src={image.filename}
@@ -111,7 +116,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
                     className='img-fluid shadow-4' 
                   />
                   <a type="button" href='' >
-                    <div className='mask overlay' onClick={() => setOpen(true)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+                    <div className='mask overlay' onClick={() => openLightbox(image.index)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
                   </a>
                   <DeleteImageWrapper
                   image={image} />
