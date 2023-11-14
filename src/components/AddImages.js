@@ -1,10 +1,8 @@
-import React, { useState, useEffect  } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import React, { useState } from 'react';
 import {
   MDBBtn,
   MDBFile} from 'mdb-react-ui-kit';
-import Toast from 'react-bootstrap/Toast';
+// import Toast from 'react-bootstrap/Toast';
 import { API, Storage } from 'aws-amplify';
 import {createImages } from '../graphql/mutations';
 
@@ -80,6 +78,7 @@ export default function AddImages({curAlbum, updateAlbum}){
     const result = await Storage.put(`${img.id}-${image.name}`, image, {
         contentType: "image/png", // contentType is optional
       });
+    // Add error handling with result
     console.log(`${image.name} uploaded`)
    }
 
