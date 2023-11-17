@@ -11,7 +11,7 @@ import CreateAlbum from './CreateAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';
 import SignIn from './Signin';
-import Home from './Home';
+import Home from './Home2';
 import AboutPage from './AboutPage';
 import Album from './Album';
 
