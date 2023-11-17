@@ -1,27 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-	MDBContainer,
 	MDBRow,
 	MDBCol,
-	MDBDropdown,
-	MDBDropdownToggle,
-	MDBDropdownMenu,
-	MDBDropdownItem,
-	MDBCarousel,
-	MDBCarouselItem,
 	MDBBtn
-	// MDBCarouselCaption,
 } from 'mdb-react-ui-kit';
-import Carousel from 'react-bootstrap/Carousel';
 import { API, Storage } from 'aws-amplify';
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { useOutletContext } from "react-router-dom";
-import Album from './Album';
-import addURL from '../helpers/addURL';
 import {listImages} from '../graphql/queries';
-import CarouselWrapper from './Carousel';
 import {AlbumsContext} from '../helpers/AlbumsContext';
+
+// Components
 import PhotoGrid from './PhotoGrid';
+import CarouselWrapper from './Carousel';
+
+// Helpers
+import addURL from '../helpers/addURL';
 
 export default function Home(){
 	const [images, setImages] = useState([]);

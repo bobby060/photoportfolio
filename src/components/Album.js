@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-  MDBIcon,
   MDBRow,
   MDBCol,
   MDBBtn
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
-import {imagesByAlbumsID, getAlbums} from '../graphql/queries';
+import { imagesByAlbumsID } from '../graphql/queries';
 import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import addURL from '../helpers/addURL';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import {urlhelperDecode} from '../helpers/urlhelper';
@@ -20,7 +19,6 @@ import EditAlbum from './EditAlbum';
 
 
 export default function Album(){
-  const [selectedAlbum, setSelectedAlbum] = useState([]);
   const {albums, setAlbums} = useContext(AlbumsContext);
   // const[albums, setAlbums] = useState([]);
   const [albumIndex, setAlbumIndex] = useState(-1);
@@ -32,7 +30,6 @@ export default function Album(){
   const [images, setImages] = useState([]);
   const debug = false;
 
-  const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator((context) => [context.authStatus]);
 
   // Initializes images after component render
@@ -60,7 +57,6 @@ export default function Album(){
     const index = await findIndex(newA);
     if (index < 0) {
       throw new Error(`404. Album at url, ${album_id}, was not found!`);
-      return;
     }// setSelectedAlbum(newA.at(index));
 
   // Pulls the image objects associated with the selected album
@@ -127,10 +123,6 @@ export default function Album(){
   }
 
   const date = new Date(albums[albumIndex].date);
-
-  function InfoWrapper(){
-
-  }
 
   function ShowEditButton(){
     if (authStatus.authStatus === 'authenticated'){
