@@ -42,7 +42,7 @@ export default function CarouselWrapper(){
 		  }
 
 	if(featuredAlbums.length < 1) return(
-		<Carousel indicators={false} interval = {3000}>
+		<Carousel indicators={false} interval = {5000}>
 					<Carousel.Item itemId={1} className='w-100 overflow-hidden placeholder' style={{height: '600px'}}>
 							{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
 						<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
@@ -53,7 +53,7 @@ export default function CarouselWrapper(){
 		</Carousel>
 		);
 	return (	
-		<Carousel indicators={false} interval = {3000} className='w-100 pe-auto '>
+		<Carousel indicators={false} interval = {3000} className='w-100 pe-auto ' touch={true} >
 			{featuredAlbums.map((album, i) =>
 				(
 					<Carousel.Item  itemId={i}  style={{height: '600px', cursor: 'pointer' }}>
