@@ -81,8 +81,8 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
         );
     }
     return (
-        <MDBNavbar expand='lg' light bgColor='light' style={{zIndex: 1000}}>
-          <MDBContainer fluid>
+        <MDBNavbar expand='lg' light bgColor='light' >
+          <MDBContainer fluid >
             <img src={logo} className = 'pe-2' style={{height:'40px'}}/>
             <MDBNavbarBrand href='#'>
             

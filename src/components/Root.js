@@ -84,7 +84,7 @@ export default function Root() {
         albums,
         setAlbums
       }}>
-        <Headroom className="m-0">
+        <Headroom className="m-0" style={{zIndex: 1000}}>
             <NavigationBar 
               selectedAlbum={selectedAlbum}
               setSelectedAlbum={setSelectedAlbum}/>
