@@ -1,7 +1,6 @@
 import React, {useEffect, useContext } from "react";
 import { API } from 'aws-amplify';
 import {
-  MDBIcon,
   MDBRow,
   MDBCol,
   MDBBtn,
@@ -29,12 +28,18 @@ export default function CreateAlbum(){
 	async function newAlbum(event) {
 		event.preventDefault();
 	    const form = new FormData(event.target);
-
+	    // Date in format 2023-11-11T00:00:00.000Z
 	    const date = form.get("date") + 'T00:00:00.000Z';
+	    const cur_date = new Date();
+	   	const cleaned_date = (date==='T00:00:00.000Z') ? cur_date.toISOString(): date;
+	   	const title = form.get("title");
+	   	const cleaned_title = (title.length===0) ?
+	   		 `Album created at ${cur_date.getMonth()+1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}`:title;
+	   	console.log(cleaned_date);
 	    const data = {
-	      title: form.get("title"),
+	      title: cleaned_title,
 	      desc: form.get("desc"),
-	      date: date,
+	      date: cleaned_date,
 	    };
 	    const response = await API.graphql({
 	      query: createAlbums,
@@ -49,7 +54,7 @@ export default function CreateAlbum(){
 	 }
 
 
-	if (authStatus.authStatus != 'authenticated'){
+	if (authStatus.authStatus !== 'authenticated'){
 		return (<p> You don't have access, redirecting! </p>);
 
 	}
