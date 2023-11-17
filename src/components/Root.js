@@ -28,14 +28,14 @@ import NavigationBar from './NavigationBar';
 import EditAlbum from './EditAlbum';
 import addURL from '../helpers/addURL';
 import fetchAlbums from '../helpers/fetchAlbums';
+import Footer from './Footer';
 
 import {AlbumsContext} from '../helpers/AlbumsContext';
 
 import {listAlbums, getImages} from '../graphql/queries';
 
 export default function Root() {
-  const { signOut } = useAuthenticator((context) => [context.user]);
-  const authStatus = useAuthenticator((context) => [context.authStatus]);
+
   const [selectedAlbum, setSelectedAlbum] = useState([]);
   const [albums, setAlbums] = useState([]);
 
@@ -76,12 +76,7 @@ export default function Root() {
   //   setAlbums(a);
   // } 
 
-  function ShowLogOut() {
-      if (authStatus.authStatus != 'authenticated') {
-        return;
-      }
-      return (<MDBBtn className=' float-center mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn> );
-  }
+
   return (
 
     <View className="App">
@@ -89,15 +84,15 @@ export default function Root() {
         albums,
         setAlbums
       }}>
-        <Headroom >
+        <Headroom className="m-0">
             <NavigationBar 
               selectedAlbum={selectedAlbum}
               setSelectedAlbum={setSelectedAlbum}/>
-        </Headroom>
+        </Headroom >
 
         <Outlet
           context={[selectedAlbum, setSelectedAlbum]}/>
-        <ShowLogOut/>
+        <Footer/>
       </AlbumsContext.Provider>
     </View>
   );
