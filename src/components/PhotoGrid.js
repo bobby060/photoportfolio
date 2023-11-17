@@ -23,8 +23,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
 
-  // Slides object for lightbox doesn't hold full image object, just the url 
-  const slides = items.map( (image) => ({src: image.filename}));
+
 
   // Adds ability to adjust column layout after resize
  useEffect(() => {
@@ -60,9 +59,20 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
   // Holds the columns for the photo grid 
   const columns = new Array(num_columns);
 
+  // Ensures grid does not render if no items are in props
   if (items.length===0) return;
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
+
+  // Ensures each image has a unique index to map to the lightbox
+  const items_with_index = items.map((item,i) => {
+    item.index = i;
+    return item;});
+
+  // Slides object for lightbox doesn't hold full image object, just the url 
+  const slides = items.map( (image) => ({src: image.filename}));
+
+  // Splits the images into the right number of columns
+  for (let i = 0; i < items_with_index.length; i++) {
+    const item = items_with_index[i];
     const columnIndex = i % num_columns;
 
     if (!columns[columnIndex]) {
@@ -91,7 +101,11 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
               <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
       }
-      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" onClick={()=> setFeaturedImg(image)} MDBColor='text-dark' data-mdb-toggle="tooltip" title="Set Featured"  >
+      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" 
+        onClick={ ()=> (setFeaturedImg(image))}
+         MDBColor='text-dark' 
+         data-mdb-toggle="tooltip" 
+         title="Set Featured"  >
               <MDBIcon fas icon="square text-dark" size='2x' />
             </MDBBtn>);
   }
@@ -99,7 +113,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
 
 
   return (
-    <div className=" d-flex photo-album">
+    <div className="d-flex photo-album">
       {columns.map((column) => (
         <MDBCol className="column">
           {column.map((image, i) => (
@@ -110,8 +124,9 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
                     alt={`visual aid for ${image.name}`}
                     className='img-fluid shadow-4' 
                   />
-                  <a type="button" href='' >
-                    <div className='mask overlay' onClick={() => setOpen(true)} style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+                  <a type="button" >
+                    <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
                   </a>
                   <DeleteImageWrapper
                   image={image} />
