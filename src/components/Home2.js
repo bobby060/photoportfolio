@@ -89,7 +89,7 @@ export default function Home(){
 			</Carousel>
 			);
 		return (	
-			<Carousel indicators={false} interval = {3000}  touch={true} >
+			<Carousel fade indicators={false} interval = {3000}  touch={true} controls={false} >
 				{headerImgs.map((img, i) =>
 					(
 						<Carousel.Item  itemId={i}  >
@@ -112,7 +112,7 @@ export default function Home(){
 			      <MDBCardImage overlay src={album.featuredImage.filename} alt='...' />
 			      <MDBCardOverlay style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
-			        <MDBCardText>
+			        <MDBCardText className='text-truncate'>
 			          {album.desc}
 			        </MDBCardText>
 			        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
@@ -146,11 +146,10 @@ return(
       <MDBCardBody>
         <MDBCardTitle>Robert Norwood</MDBCardTitle>
         <MDBCardText>
-          I have created this website to highlight my photographs and my coding projects. It is a work in progress, but please explore!
         </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn disabled outline color='dark' className="m-1">Albums</MDBBtn>
-        	<MDBBtn disabled outline color='dark' className="m-1">About</MDBBtn>
+        	<MDBBtn disabled outline color='dark' className="m-1">Photos</MDBBtn>
+        	<MDBBtn disabled outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
     </MDBCard>
@@ -161,7 +160,7 @@ return(
           top: '90%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: 0.5,
+          zIndex:1,
         }}
     />
     </a>
