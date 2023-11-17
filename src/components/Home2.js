@@ -149,8 +149,8 @@ return(
           I have created this website to highlight my photographs and my coding projects. It is a work in progress, but please explore!
         </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn outline color='dark' className="m-1">Albums</MDBBtn>
-        	<MDBBtn outline color='dark' className="m-1">About</MDBBtn>
+        	<MDBBtn disabled outline color='dark' className="m-1">Albums</MDBBtn>
+        	<MDBBtn disabled outline color='dark' className="m-1">About</MDBBtn>
         </div>
       </MDBCardBody>
     </MDBCard>
