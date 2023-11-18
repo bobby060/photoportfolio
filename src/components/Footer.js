@@ -13,8 +13,8 @@ export default function Footer() {
   // }
 
   return (
-    <MDBFooter bgColor='light' className='text-center text-lg-start text-muted'>
-      <section className=''>
+    <MDBFooter bgColor='light' className='mt-auto text-center text-lg-start text-muted'>
+      <section className='w-100'>
         <MDBContainer className='text-center text-md-start mt-5 pt-2'>
           <MDBRow className='mt-3'>
             <MDBCol md="5" lg="4" xl="4" className='mx-auto mb-4'>
@@ -57,12 +57,12 @@ export default function Footer() {
             </MDBCol>
           </MDBRow>
         </MDBContainer>
+              <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
+        © 2023 Robert Norwood
+      </div>
       </section>
 
-      <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
-        © 2023 Robert Norwood
 
-      </div>
     </MDBFooter>
   );
 }

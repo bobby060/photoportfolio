@@ -5,7 +5,8 @@ import {
   MDBCol,
   MDBBtn,
   MDBInput,
-  MDBTextArea
+  MDBTextArea,
+  MDBContainer
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import {createAlbums} from '../graphql/mutations';
@@ -23,6 +24,10 @@ export default function CreateAlbum(){
 		console.log(authStatus);
 	    if (authStatus.authStatus === 'unauthenticated') navigate('/');
 	 }, [authStatus]);
+
+	function handleNew(){
+		document.getElementById("createAlbumForm").submit();
+	}
 
 
 	async function newAlbum(event) {
@@ -59,10 +64,10 @@ export default function CreateAlbum(){
 
 	}
 	return(
-	<div className=''>
-		<h2> Create new album </h2>
-		<form onSubmit={newAlbum}>
-			<MDBRow className='d-flex justify-content-center'>
+	<MDBContainer className=''>
+		<h2 className="mt-2"> Create new album </h2>
+		<form id="createAlbumForm">
+			<MDBRow className=' justify-content-center'>
 		      <MDBCol xl='3' lg='5' md ='6'>
 		        <MDBInput className='mb-3' label = 'Title' name='title' type ='text'/>
 		        <MDBInput className='mb-3' label = 'Date' name='date' type ='date'/>
@@ -70,12 +75,11 @@ export default function CreateAlbum(){
 		      <MDBCol xl='3'  lg='5' md ='6'>
 		        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3}/>
 		      </MDBCol>
-		      <MDBCol xl ='12'>
-		        <MDBBtn type='submit' className="bg-dark mb-3">Create</MDBBtn>
-		      </MDBCol>
 		    </MDBRow>
+		    <MDBBtn type='submit' className="bg-dark mb-3">Create</MDBBtn>
 		</form>
-	  </div>
+		
+	  </MDBContainer>
 	)
 
 }

@@ -58,7 +58,6 @@ export default function Home(){
 		})
 
 		const urls = await Promise.all(response.results.map((item) => Storage.get(item.key)));
-		console.log(urls);
 		setHeaderImgs(urls);
 	}
 
@@ -92,7 +91,7 @@ export default function Home(){
 			<Carousel fade indicators={false} interval = {3000}  touch={true} controls={false} >
 				{headerImgs.map((img, i) =>
 					(
-						<Carousel.Item  itemId={i}  >
+						<Carousel.Item  itemId={i} key={i}  >
 								<img src = {img} alt='...'
 								style={s} 
 								 />
@@ -126,7 +125,7 @@ export default function Home(){
 return(
 	<div>
 		<HeaderCarousel/>
-		<span id="top"/>
+		<span id="albums"/>
 		<MDBCol lg='10' className='me-auto ms-auto'>
 		<AlbumCards/>
 		</MDBCol>
@@ -148,12 +147,12 @@ return(
         <MDBCardText>
         </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn disabled outline color='dark' className="m-1">Photos</MDBBtn>
-        	<MDBBtn disabled outline color='dark' className="m-1">Coding</MDBBtn>
+        	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
+        	<MDBBtn href='https://github.com/bobby060' outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
     </MDBCard>
-    <a href="#top">
+    <a href="#albums">
     <MDBIcon fas icon="angle-down" size='4x' color='white-50'
     	style={{
           position: 'absolute',

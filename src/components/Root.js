@@ -78,12 +78,12 @@ export default function Root() {
 
 
   return (
+  <AlbumsContext.Provider value={{
+    albums,
+    setAlbums
+  }}>
+    <View className="App" style={{display: 'flex', 'flex-direction':'column', 'min-height':'100vh', margin: 'none'}}>
 
-    <View className="App">
-      <AlbumsContext.Provider value={{
-        albums,
-        setAlbums
-      }}>
         <Headroom className="m-0" style={{zIndex: 1000}}>
             <NavigationBar 
               selectedAlbum={selectedAlbum}
@@ -93,7 +93,8 @@ export default function Root() {
         <Outlet
           context={[selectedAlbum, setSelectedAlbum]}/>
         <Footer/>
-      </AlbumsContext.Provider>
+
     </View>
+</AlbumsContext.Provider>
   );
 }

@@ -3,29 +3,20 @@ import {
   MDBBtn,
   MDBFile} from 'mdb-react-ui-kit';
 // import Toast from 'react-bootstrap/Toast';
-import { API, Storage } from 'aws-amplify';
-import {createImages } from '../graphql/mutations';
 
-
-export default function AddImages({curAlbum, updateAlbum}){
+import uploadImages from '../helpers/uploadImages';
+// Args:
+// curAlbum is album to upload images to
+// onUpload is callback to call after upload is completed
+export default function AddImages({curAlbum, onUpload = {}}){
     // stores selected files
-  const [selectedFiles, setSelectedFiles] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // // Calls calback function to update selected album
-  // const setSelectedAlbum = () => {
-  //   setCurAlbum(curAlbum);
-  // }
 
      // Creates images and uploads
    async function handleFiles() {
-      if (selectedFiles.length > 0){
-        const files = Array.from(selectedFiles)
-        console.log(`starting uploads`)
-        await Promise.all(files.map((file) => newImage(file)));
-        updateAlbum();
-        console.log(`All images uploaded!`)
-        return;
-     }
+    uploadImages(curAlbum, selectedFiles);
+    onUpload();
      // Error popup
    }
 
@@ -36,51 +27,11 @@ export default function AddImages({curAlbum, updateAlbum}){
       setSelectedFiles(files);
    }
 
-  function getExifDate(photo) {
 
-    // if (photo.name.endsWith(".jpg" || ".jpeg")){
-    //   // Get the EXIF metadata of the photo.
-    //   const exifData = EXIF.getData(photo);
 
-    //   // Get the date and time the photo was taken.
-    //   const dateTaken = exifData.DateTimeOriginal;
-
-    //   // Convert the date and time to a Date object.
-    //   const date = new Date(dateTaken);
-
-    //   // Return the date of the photo.
-    //   return date.toISOString();
-    //    }
-
-      const date2 = new Date()
-
-      return date2.toISOString()
-
-  }
 
   // Creates new image object and uploads source to AWS
   // TODO: implement automatic resizing/saving for thumbnails, different sized photos
-  async function newImage(image){
-    const data = {
-      title: image.name,
-      desc: "",
-      filename: image.name,
-      date: getExifDate(image),
-      albumsID: curAlbum.id
-    }
-    const response = await API.graphql({
-      query: createImages,
-      variables: {input: data},
-    });
-    const img = response?.data?.createImages
-    if (!img) return;
-    // Combining id and image name ensures uniqueness while preserving information
-    const result = await Storage.put(`${img.id}-${image.name}`, image, {
-        contentType: "image/png", // contentType is optional
-      });
-    // Add error handling with result
-    console.log(`${image.name} uploaded`)
-   }
 
    // function UploadedToast(filename){
    //    return (
@@ -95,6 +46,13 @@ export default function AddImages({curAlbum, updateAlbum}){
    //    );
    // }
 
+   function UploadButtonWrapper(){
+    if (selectedFiles.length<1) return(
+        <MDBBtn className='bg-dark mt-3' disabled>Upload Photos</MDBBtn>
+      );
+    return(<MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>);
+   };
+
   return(
   <div>
     {/*Implement Dropzone here*/}
@@ -102,7 +60,7 @@ export default function AddImages({curAlbum, updateAlbum}){
         multiple
         onChange={setFiles}
       />
-    <MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>
+    <UploadButtonWrapper/>
   </div>
   );
 
