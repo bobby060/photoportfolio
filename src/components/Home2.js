@@ -112,7 +112,7 @@ export default function Home(){
 			      <MDBCardImage overlay
 			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
 			       alt='...'/>
-			      <MDBCardOverlay style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
+			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
 			        <MDBCardText className='text-truncate'>
 			          {album.desc}
