@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import {
   MDBRow,
   MDBCol,
-  MDBBtn
+  MDBBtn,
+  MDBContainer
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import { imagesByAlbumsID } from '../graphql/queries';
@@ -143,24 +144,21 @@ export default function Album(){
 
     return(
       <div>
-        <MDBRow className='d-flex justify-content-center align-items-center'>
-          <MDBCol className='d-flex justify-content-center align-items-center'>
-              <h2 className="p-2">{albums[albumIndex].title}</h2>
+        <MDBRow className=''>
+          <MDBCol className='d-flex m-3 align-items-baseline '>
+              <h2 className="me-2">{albums[albumIndex].title}</h2>
               <div className="vr" style={{ height: '50px' }}></div>
-              <h5 className="p-2">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
+              <h5 className="ms-2 float-bottom">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
           </MDBCol>
          </MDBRow>
-         <MDBRow className='d-flex align-items-center ps-4 pe-4'>
-            <p className=''>{albums[albumIndex].desc} </p> 
-
-         </MDBRow>
+            <p className='text-start ms-3 me-3'>{albums[albumIndex].desc} </p> 
         <ShowEditButton/>
        </div>
       );
   }
 
   return(
-    <div>
+    <MDBContainer>
     <EditWrapper/>
     <PhotoGrid
       items = {images}
@@ -169,7 +167,7 @@ export default function Album(){
       selectedAlbum = {albums[albumIndex]}
       editMode = {canEdit}
       />
-    </div>
+    </MDBContainer>
     );
 
 }

@@ -1,4 +1,4 @@
-import React,  { useState, useEffect }  from 'react';
+import React,  { lazy, useState, useEffect }  from 'react';
 import {
   MDBCol,
   MDBBtn,
@@ -45,7 +45,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
         Window with of 850 will have 2 columns. 2000 will have 4
 
   */}
-  const breakPoints = [0, 350, 750, 900, 1300];
+  const breakPoints = [0, 350, 750, 900];
 
   function getBreakpoint() {
     const cur_width = windowSize.width;
