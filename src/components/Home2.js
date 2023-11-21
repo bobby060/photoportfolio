@@ -12,6 +12,7 @@ import {
 	MDBCardSubTitle,
 	MDBCardLink,
 	MDBIcon,
+	MDBTypography
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {listImages} from '../graphql/queries';
@@ -145,8 +146,11 @@ return(
           'border-radius': 0,
         }}>
       <MDBCardBody>
-        <MDBCardTitle>Robert Norwood</MDBCardTitle>
+        <MDBCardTitle><h2>Robert Norwood</h2></MDBCardTitle>
         <MDBCardText>
+				      <MDBTypography className='lead' >
+				        <p>Through pictures we see the world not just for what it is, but for what it can be</p>
+				      </MDBTypography>
         </MDBCardText>
         <div className='text-center'>
         	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
