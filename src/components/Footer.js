@@ -30,7 +30,7 @@ export default function Footer() {
               <h6 className='text-uppercase fw-bold mb-4'>Find Me</h6>
               <MDBRow>
                 <MDBCol md="6">
-                  <div>
+                  <div className='mt-2'>
                     <MDBIcon fab icon="github" className="me-3" />
                     <a href="https://github.com/bobby060/" className='me-4 text-reset' >Github
                     </a>
@@ -42,7 +42,7 @@ export default function Footer() {
                   </div>
                 </MDBCol>
                 <MDBCol md="6">
-                  <div>
+                  <div className='mt-2'>
                     <MDBIcon fab icon="facebook" className="me-3" />
                     <a href="https://www.facebook.com/bobby.norwood.84/" className='me-4 text-reset'>Facebook
                     </a>
