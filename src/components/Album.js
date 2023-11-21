@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import {
   MDBRow,
   MDBCol,
-  MDBBtn
+  MDBBtn,
+  MDBContainer
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import { imagesByAlbumsID } from '../graphql/queries';
@@ -10,7 +11,6 @@ import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/muta
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
 import { useParams } from "react-router-dom";
-import addURL from '../helpers/addURL';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import {urlhelperDecode} from '../helpers/urlhelper';
 
@@ -67,17 +67,13 @@ export default function Album(){
       });
     console.log('loading images');
     const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
-    // Waits until all images have been requested from storage
-    const new_imgs = await Promise.all(
-      imgs.map((img) => (addURL(img)))
-    );
 
-    if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
+    if (debug){console.log(`retrieved imgs: ${imgs}`)};
     // Updates images to the new image objects that have urls
-    for (let i = 0 ; i < new_imgs.length; i++){
-      new_imgs[i].index = i;
+    for (let i = 0 ; i < imgs.length; i++){
+      imgs[i].index = i;
     }
-    setImages(new_imgs);
+    setImages(imgs);
     if(albums.length < 1) setAlbums(newA);
     setAlbumIndex(index);
     if (debug) {console.log(`images set`)};
@@ -143,24 +139,21 @@ export default function Album(){
 
     return(
       <div>
-        <MDBRow className='d-flex justify-content-center align-items-center'>
-          <MDBCol className='d-flex justify-content-center align-items-center'>
-              <h2 className="p-2">{albums[albumIndex].title}</h2>
+        <MDBRow className=''>
+          <MDBCol className='d-flex m-3 align-items-baseline '>
+              <h2 className="me-2">{albums[albumIndex].title}</h2>
               <div className="vr" style={{ height: '50px' }}></div>
-              <h5 className="p-2">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
+              <h5 className="ms-2 float-bottom">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
           </MDBCol>
          </MDBRow>
-         <MDBRow className='d-flex align-items-center ps-4 pe-4'>
-            <p className=''>{albums[albumIndex].desc} </p> 
-
-         </MDBRow>
+            <p className='text-start ms-3 me-3'>{albums[albumIndex].desc} </p> 
         <ShowEditButton/>
        </div>
       );
   }
 
   return(
-    <div>
+    <MDBContainer>
     <EditWrapper/>
     <PhotoGrid
       items = {images}
@@ -169,7 +162,7 @@ export default function Album(){
       selectedAlbum = {albums[albumIndex]}
       editMode = {canEdit}
       />
-    </div>
+    </MDBContainer>
     );
 
 }

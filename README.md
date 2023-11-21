@@ -3,10 +3,9 @@
 A full stack web app built with React, GraphQL, AWS Amplify, AWS AppSync, AWS Cognito, and AWS S3.
 
 ## Features
-Public:
-- Responsive photo albums with lightbox
-Private:
-- Create, edit, and delete photo albums
+#### Responsive photo albums with lightbox
+#### Create, edit, and delete photo albums
+#### Cloudfront content delivery network to rapidly deliver responsive images. Implementation is a vanilla version of [this AWS example](https://github.com/aws-samples/image-optimization)
 
 # Build instructions
 
@@ -58,3 +57,4 @@ This app is designed to use an Amplify Graphql API with primary mode set to Cogn
 - [mdb react components](https://mdbootstrap.com/docs/standard)
 - [react router quick start](https://reactrouter.com/en/main/start/tutorial)
 - [lightbox documentation](https://yet-another-react-lightbox.com/documentation)
+- [mozilla responsive images](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)

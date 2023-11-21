@@ -13,6 +13,6 @@ export function urlhelperDecode(album, url){
 	console.log(ending);
 	const name = url.slice(0,-3).replace('-', ' ');
 	console.log(name);
-	if (album.id.slice(-2) == ending && name == album.title.toLowerCase()) return true;
+	if (album.id.slice(-2) === ending && name === album.title.toLowerCase()) return true;
 	return false;
 }
