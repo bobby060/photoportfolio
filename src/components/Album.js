@@ -11,7 +11,6 @@ import {deleteImages as deleteImageMutation, updateAlbums} from '../graphql/muta
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import PhotoGrid from './PhotoGrid';
 import { useParams } from "react-router-dom";
-import addURL from '../helpers/addURL';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import {urlhelperDecode} from '../helpers/urlhelper';
 
@@ -68,17 +67,13 @@ export default function Album(){
       });
     console.log('loading images');
     const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
-    // Waits until all images have been requested from storage
-    const new_imgs = await Promise.all(
-      imgs.map((img) => (addURL(img)))
-    );
 
-    if (debug){console.log(`retrieved imgs: ${new_imgs}`)};
+    if (debug){console.log(`retrieved imgs: ${imgs}`)};
     // Updates images to the new image objects that have urls
-    for (let i = 0 ; i < new_imgs.length; i++){
-      new_imgs[i].index = i;
+    for (let i = 0 ; i < imgs.length; i++){
+      imgs[i].index = i;
     }
-    setImages(new_imgs);
+    setImages(imgs);
     if(albums.length < 1) setAlbums(newA);
     setAlbumIndex(index);
     if (debug) {console.log(`images set`)};

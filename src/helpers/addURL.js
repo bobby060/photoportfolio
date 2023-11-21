@@ -1,3 +1,5 @@
+// Depricated with cloudfront addition
+
 import { Storage } from 'aws-amplify';
 
 export default async function addURL(img){

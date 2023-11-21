@@ -73,8 +73,9 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
     {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
       alt: image.filename,
         srcSet:[
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?768`, width: 768}, 
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?1280`, width: 1280},
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=768`, width: 768}, 
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1280`, width: 1280},
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1920`, width: 1920},
           ]}
 ));
 
