@@ -105,7 +105,7 @@ export default function EditAlbum({selectedAlbum, pullAlbum}){
 	      <MDBCol lg='6'>
 	        <AddImages
 	        	curAlbum = {selectedAlbum}
-	        	updateAlbum = {pullAlbum}
+	        	onUpload = {pullAlbum}
 	        />
 	      </MDBCol>
 		   </MDBRow>

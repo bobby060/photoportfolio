@@ -1,4 +1,4 @@
-import React,  { useState, useEffect }  from 'react';
+import React,  { lazy, useState, useEffect }  from 'react';
 import {
   MDBCol,
   MDBBtn,
@@ -7,6 +7,7 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import Image from "./Image";
 // import "animate.css/animate.min.css";
 // import { AnimationOnScroll } from 'react-animation-on-scroll';
  
@@ -45,7 +46,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
         Window with of 850 will have 2 columns. 2000 will have 4
 
   */}
-  const breakPoints = [0, 350, 750, 900, 1300];
+  const breakPoints = [0, 350, 750, 900];
 
   function getBreakpoint() {
     const cur_width = windowSize.width;
@@ -68,7 +69,15 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
     return item;});
 
   // Slides object for lightbox doesn't hold full image object, just the url 
-  const slides = items.map( (image) => ({src: image.filename}));
+  const slides = items.map( (image) => (
+    {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
+      alt: image.filename,
+        srcSet:[
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=768`, width: 768}, 
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1280`, width: 1280},
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1920`, width: 1920},
+          ]}
+));
 
   // Splits the images into the right number of columns
   for (let i = 0; i < items_with_index.length; i++) {
@@ -119,10 +128,14 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
           {column.map((image, i) => (
            <div className= 'm-0 p-1'>        
                 <div className='bg-image hover-overlay position-relative'>
-                <img
+{/*                <img
                     src={image.filename}
                     alt={`visual aid for ${image.name}`}
                     className='img-fluid shadow-4' 
+                  />*/}
+                  <Image
+                    img_obj = {image }
+                    className = 'img-fluid shadow-4'
                   />
                   <a type="button" >
                     <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 

@@ -12,6 +12,7 @@ import {
 	MDBCardSubTitle,
 	MDBCardLink,
 	MDBIcon,
+	MDBTypography
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import {listImages} from '../graphql/queries';
@@ -20,9 +21,9 @@ import {Link} from 'react-router-dom';
 
 // Components
 import Carousel from 'react-bootstrap/Carousel';
+import Image from './Image';
 
 // Helpers
-import addURL from '../helpers/addURL';
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 
@@ -57,8 +58,7 @@ export default function Home(){
 			}
 		})
 
-		const urls = await Promise.all(response.results.map((item) => Storage.get(item.key)));
-		console.log(urls);
+		const urls = response.results.map((item) => `https://d2brh14yl9j2nl.cloudfront.net/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
 	}
 
@@ -92,7 +92,7 @@ export default function Home(){
 			<Carousel fade indicators={false} interval = {3000}  touch={true} controls={false} >
 				{headerImgs.map((img, i) =>
 					(
-						<Carousel.Item  itemId={i}  >
+						<Carousel.Item  itemId={i} key={i}  >
 								<img src = {img} alt='...'
 								style={s} 
 								 />
@@ -109,8 +109,10 @@ export default function Home(){
 			featuredAlbums.map( (album, i) => (
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
 				 <Link to={`/${urlhelperEncode(album)}`} className="text-light">
-			      <MDBCardImage overlay src={album.featuredImage.filename} alt='...' />
-			      <MDBCardOverlay style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
+			      <MDBCardImage overlay
+			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+			       alt='...'/>
+			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
 			        <MDBCardText className='text-truncate'>
 			          {album.desc}
@@ -126,7 +128,7 @@ export default function Home(){
 return(
 	<div>
 		<HeaderCarousel/>
-		<span id="top"/>
+		<span id="albums"/>
 		<MDBCol lg='10' className='me-auto ms-auto'>
 		<AlbumCards/>
 		</MDBCol>
@@ -144,16 +146,19 @@ return(
           'border-radius': 0,
         }}>
       <MDBCardBody>
-        <MDBCardTitle>Robert Norwood</MDBCardTitle>
+        <MDBCardTitle><h2>Robert Norwood</h2></MDBCardTitle>
         <MDBCardText>
+				      <MDBTypography className='lead' >
+				        <p>Through pictures we see the world not just for what it is, but for what it can be</p>
+				      </MDBTypography>
         </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn disabled outline color='dark' className="m-1">Photos</MDBBtn>
-        	<MDBBtn disabled outline color='dark' className="m-1">Coding</MDBBtn>
+        	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
+        	<MDBBtn href='https://github.com/bobby060' outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
     </MDBCard>
-    <a href="#top">
+    <a href="#albums">
     <MDBIcon fas icon="angle-down" size='4x' color='white-50'
     	style={{
           position: 'absolute',

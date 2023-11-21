@@ -13,8 +13,8 @@ export default function Footer() {
   // }
 
   return (
-    <MDBFooter bgColor='light' className='text-center text-lg-start text-muted'>
-      <section className=''>
+    <MDBFooter bgColor='light' className='mt-auto text-center text-lg-start text-muted'>
+      <section className='w-100'>
         <MDBContainer className='text-center text-md-start mt-5 pt-2'>
           <MDBRow className='mt-3'>
             <MDBCol md="5" lg="4" xl="4" className='mx-auto mb-4'>
@@ -30,7 +30,7 @@ export default function Footer() {
               <h6 className='text-uppercase fw-bold mb-4'>Find Me</h6>
               <MDBRow>
                 <MDBCol md="6">
-                  <div>
+                  <div className='mt-2'>
                     <MDBIcon fab icon="github" className="me-3" />
                     <a href="https://github.com/bobby060/" className='me-4 text-reset' >Github
                     </a>
@@ -42,7 +42,7 @@ export default function Footer() {
                   </div>
                 </MDBCol>
                 <MDBCol md="6">
-                  <div>
+                  <div className='mt-2'>
                     <MDBIcon fab icon="facebook" className="me-3" />
                     <a href="https://www.facebook.com/bobby.norwood.84/" className='me-4 text-reset'>Facebook
                     </a>
@@ -57,12 +57,12 @@ export default function Footer() {
             </MDBCol>
           </MDBRow>
         </MDBContainer>
+              <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
+        © 2023 Robert Norwood
+      </div>
       </section>
 
-      <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
-        © 2023 Robert Norwood
 
-      </div>
     </MDBFooter>
   );
 }
