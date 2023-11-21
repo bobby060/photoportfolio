@@ -66,7 +66,7 @@ export default function CreateAlbum(){
 	return(
 	<MDBContainer className=''>
 		<h2 className="mt-2"> Create new album </h2>
-		<form id="createAlbumForm">
+		<form id="createAlbumForm" onSubmit={newAlbum}>
 			<MDBRow className=' justify-content-center'>
 		      <MDBCol xl='3' lg='5' md ='6'>
 		        <MDBInput className='mb-3' label = 'Title' name='title' type ='text'/>

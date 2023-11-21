@@ -9,9 +9,7 @@ export function urlhelperEncode(album){
 // takes an album and a url and returns true or false. Use: validating if a specific path is the right one for a given album
 export function urlhelperDecode(album, url){
 	const ending = url.slice(-2);
-	console.log(ending);
 	const name = url.slice(0,-3).replace('-', ' ');
-	console.log(name);
 	if (album.id.slice(-2) === ending && name === album.title.toLowerCase()) return true;
 	return false;
 }
