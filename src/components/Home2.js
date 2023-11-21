@@ -20,9 +20,9 @@ import {Link} from 'react-router-dom';
 
 // Components
 import Carousel from 'react-bootstrap/Carousel';
+import Image from './Image';
 
 // Helpers
-import addURL from '../helpers/addURL';
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 
@@ -57,7 +57,7 @@ export default function Home(){
 			}
 		})
 
-		const urls = await Promise.all(response.results.map((item) => Storage.get(item.key)));
+		const urls = response.results.map((item) => `https://d2brh14yl9j2nl.cloudfront.net/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
 	}
 
@@ -108,7 +108,9 @@ export default function Home(){
 			featuredAlbums.map( (album, i) => (
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
 				 <Link to={`/${urlhelperEncode(album)}`} className="text-light">
-			      <MDBCardImage overlay src={album.featuredImage.filename} alt='...' />
+			      <MDBCardImage overlay
+			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+			       alt='...'/>
 			      <MDBCardOverlay style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
 			        <MDBCardText className='text-truncate'>
