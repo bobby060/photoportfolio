@@ -100,7 +100,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
       if (!deleteImage || authStatus.authStatus !== 'authenticated'  || !editMode) {
         return;
       }
-      return (<MDBBtn  className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> confirmDeleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
+      return (<MDBBtn floating className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> confirmDeleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
               <MDBIcon fas icon="times text-dark" size='2x' />
             </MDBBtn>);
    }
@@ -111,16 +111,16 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
       }
 
       if (selectedAlbum.albumsFeaturedImageId && image.image.id===selectedAlbum.albumsFeaturedImageId ) {
-              return (<MDBBtn className="position-absolute bottom-0 end-0 btn-light m-1" title='Set Featured' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" >
-              <MDBIcon fas icon="square text-dark" size='2x' />
+              return (<MDBBtn floating className="position-absolute bottom-0 end-0 btn-light m-1" title='Set Featured' disabled MDBColor='text-dark' data-mdb-toggle="tooltip" >
+              <MDBIcon fas icon="star text-dark" size='2x' />
             </MDBBtn>);
       }
-      return (<MDBBtn  className="position-absolute bottom-0 end-0 btn-light m-1" 
+      return (<MDBBtn  floating className="position-absolute bottom-0 end-0 btn-light m-1" 
         onClick={ ()=> (setFeaturedImg(image))}
          MDBColor='text-dark' 
          data-mdb-toggle="tooltip" 
          title="Set Featured"  >
-              <MDBIcon fas icon="square text-dark" size='2x' />
+              <MDBIcon far icon="star text-dark" size='2x' />
             </MDBBtn>);
   }
 

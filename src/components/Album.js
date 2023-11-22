@@ -21,6 +21,8 @@ import {urlhelperDecode} from '../helpers/urlhelper';
 
 import fetchAlbums from '../helpers/fetchAlbums';
 import EditAlbum from './EditAlbum';
+import {Outlet} from "react-router-dom";
+import {Link} from 'react-router-dom';
 
 
 export default function Album(){
@@ -127,21 +129,13 @@ export default function Album(){
 
   function ShowEditButton(){
     if (authStatus.authStatus === 'authenticated'){
-      return (<MDBBtn floating onClick={()=>setCanEdit(true)} color='light' className='m-2'><MDBIcon far icon="edit" /></MDBBtn>);
+      return (<MDBBtn floating  color='light' className='m-2'><Link to="edit"><MDBIcon far icon="edit" /></Link></MDBBtn>);
     }
   }
+  // onClick={()=>setCanEdit(true)}
 
   function AlbumHeader(){
-    if (canEdit){
-      return (
-        <EditAlbum
-          selectedAlbum={albums[albumIndex]}
-          pullAlbum={pullAlbum}
-          />
-        );
 
-    }
-    console.log(albums[albumIndex]);
     const featuredImage = images.find((image)=>image.id===albums[albumIndex].albumsFeaturedImageId);
     const featuredImageUrl = (featuredImage)?`https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImage.id}-${featuredImage.filename}?width=1920`:"";
 
@@ -180,6 +174,7 @@ export default function Album(){
   return(
     <>
     <AlbumHeader/>
+    <Outlet/>
     <MDBContainer>
     <PhotoGrid
       items = {images}
