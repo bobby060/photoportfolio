@@ -78,7 +78,7 @@ export default function Home(){
 	function HeaderCarousel(){
 		const s = { width:windowSize.width, height: windowSize.height,'object-fit': 'cover'};
 		if(headerImgs.length < 1) return(
-			<Carousel indicators={false} interval = {5000} style={s} controls={false}>
+			<Carousel indicators={false} interval = {2500} style={s} controls={false} hover={false}>
 						<Carousel.Item itemId={1} className='overflow-hidden placeholder' >
 								{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
 							<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
@@ -89,7 +89,7 @@ export default function Home(){
 			</Carousel>
 			);
 		return (	
-			<Carousel fade indicators={false} interval = {3000}  touch={true} controls={false} >
+			<Carousel fade indicators={false} interval = {3000} controls={false} hover={false} >
 				{headerImgs.map((img, i) =>
 					(
 						<Carousel.Item  itemId={i} key={i}  >
@@ -108,7 +108,7 @@ export default function Home(){
 		return (
 			featuredAlbums.map( (album, i) => (
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-				 <Link to={`/${urlhelperEncode(album)}`} className="text-light">
+				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
 			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
 			       alt='...'/>
@@ -154,7 +154,7 @@ return(
         </MDBCardText>
         <div className='text-center'>
         	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
-        	<MDBBtn href='https://github.com/bobby060' outline color='dark' className="m-1">Coding</MDBBtn>
+        	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
     </MDBCard>
@@ -162,7 +162,7 @@ return(
     <MDBIcon fas icon="angle-down" size='4x' color='white-50'
     	style={{
           position: 'absolute',
-          top: '90%',
+          top: '95%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex:1,

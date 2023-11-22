@@ -3,7 +3,12 @@ import {
   MDBRow,
   MDBCol,
   MDBBtn,
-  MDBContainer
+  MDBContainer,
+  MDBCard,
+  MDBCardBody,
+  MDBCardTitle,
+  MDBCardText,
+  MDBIcon,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import { imagesByAlbumsID } from '../graphql/queries';
@@ -16,6 +21,8 @@ import {urlhelperDecode} from '../helpers/urlhelper';
 
 import fetchAlbums from '../helpers/fetchAlbums';
 import EditAlbum from './EditAlbum';
+import {Outlet, useLocation} from "react-router-dom";
+import {Link} from 'react-router-dom';
 
 
 export default function Album(){
@@ -31,11 +38,12 @@ export default function Album(){
   const debug = false;
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
+  let location = useLocation();
 
   // Initializes images after component render
   useEffect(() => {
     pullAlbum();
-  }, [album_id]);
+  }, [album_id, location]);
 
   // Helper that determines which album in the albums list the url album_id is triggering the component to pull
   async function findIndex(albums){
@@ -49,7 +57,12 @@ export default function Album(){
 
   // Loads images associated with album being rendered
  async function pullAlbum(){
-    setCanEdit(false);
+    if(location.pathname.endsWith('edit')){
+      setCanEdit(true);
+    }
+    else{
+      setCanEdit(false);
+    }
     setAlbumIndex(-1);
     // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
     const newA = (albums.length < 1) ? await fetchAlbums(): albums;
@@ -121,40 +134,53 @@ export default function Album(){
   const date = new Date(albums[albumIndex].date);
 
   function ShowEditButton(){
-    if (authStatus.authStatus === 'authenticated'){
-      return (<MDBBtn onClick={()=>setCanEdit(true)} color='dark' className='m-2'>Edit Album</MDBBtn>);
+    if (authStatus.authStatus === 'authenticated' && !canEdit){
+      return (<MDBBtn floating onClick={()=>setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
     }
   }
 
-  function EditWrapper(){
-    if (canEdit){
-      return (
-        <EditAlbum
-          selectedAlbum={albums[albumIndex]}
-          pullAlbum={pullAlbum}
-          />
-        );
+  function AlbumHeader(){
 
+    const featuredImage = images.find((image)=>image.id===albums[albumIndex].albumsFeaturedImageId);
+    const featuredImageUrl = (featuredImage)?`https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImage.id}-${featuredImage.filename}?width=1920`:"";
+
+    const parallaxStyle = {
+      'background-image':`url(${featuredImageUrl})`,
+      'background-attachment':'fixed',
+      'background-position':' bottom',
+      'background-repeat': 'no-repeat',
+      'min-height': '500px', 
+      'background-size':'cover',
     }
 
     return(
-      <div>
-        <MDBRow className=''>
-          <MDBCol className='d-flex m-3 align-items-baseline '>
-              <h2 className="me-2">{albums[albumIndex].title}</h2>
-              <div className="vr" style={{ height: '50px' }}></div>
-              <h5 className="ms-2 float-bottom">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
-          </MDBCol>
-         </MDBRow>
-            <p className='text-start ms-3 me-3'>{albums[albumIndex].desc} </p> 
-        <ShowEditButton/>
+      <div className='d-flex align-items-end' style={parallaxStyle}>
+        <div 
+        style={{background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0) 20%, hsla(0, 0%, 0%, 0.5))', width:'100%'}}
+        className="d-flex align-items-end">
+          <ShowEditButton/>
+          <MDBContainer >
+            <div className='text-justify-start text-light'>
+              <div className='ms-3 d-flex justify-items-start align-items-end'>
+                <h2 className="p-0 d-inline-block text-start ">{albums[albumIndex].title}</h2>
+                <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
+                <h5 className="p-1 d-inline-block text-start">{date.getMonth()+1}/{date.getDate()}/{date.getFullYear()}</h5>
+              </div>
+
+              <p className='text-start ms-3 me-3'>{albums[albumIndex].desc} </p> 
+              </div>
+          </MDBContainer>
+
+        </div>
        </div>
       );
   }
 
   return(
+    <>
+    <AlbumHeader/>
+    <Outlet/>
     <MDBContainer>
-    <EditWrapper/>
     <PhotoGrid
       items = {images}
       deleteImage = {deleteImage}
@@ -163,6 +189,7 @@ export default function Album(){
       editMode = {canEdit}
       />
     </MDBContainer>
+    </>
     );
 
 }

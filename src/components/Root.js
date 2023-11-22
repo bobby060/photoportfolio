@@ -85,9 +85,7 @@ export default function Root() {
     <View className="App" style={{display: 'flex', 'flex-direction':'column', 'min-height':'100vh', margin: 'none'}}>
 
         <Headroom className="m-0" style={{zIndex: 1000}}>
-            <NavigationBar 
-              selectedAlbum={selectedAlbum}
-              setSelectedAlbum={setSelectedAlbum}/>
+            <NavigationBar/>
         </Headroom >
 
         <Outlet
