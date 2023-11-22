@@ -8,6 +8,38 @@ export default function Image({img_obj, className}) {
   const delivery_domain = 'https://d2brh14yl9j2nl.cloudfront.net/public';
   const img_url = `${delivery_domain}/${img_key}`;
 
+  // function image_loader(url){
+  //   let retries = 0;
+  //   const maxRetries = 4;
+
+  //   const loadImage =  () => {
+  //   fetch(imageUrl)
+  //     .then(response => {
+  //       if (response.status === 429 && retries < maxRetries) {
+  //         console.warn(`Image request failed with 429 status code. Retrying...`);
+  //         retries++;
+  //         setTimeout(loadImage, 1000);
+  //       } else if (response.ok) {
+  //         return response.blob();
+  //       } else {
+  //         throw new Error(`Image request failed with status code ${response.status}`);
+  //       }
+  //     })
+  //     .then(blob => {
+  //       const image = new Image();
+  //       image.src = URL.createObjectURL(blob);
+  //       return image;
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //       return null;
+  //     });
+  // };
+
+  // return loadImage();
+
+  // }
+
   return (
       <picture>
        <source
@@ -20,7 +52,7 @@ export default function Image({img_obj, className}) {
          srcSet={ `${img_url}?width=300&format=jpeg 300w, ${img_url}?width=768&format=jpeg 768w,  ${img_url}?width=1280&format=jpeg 1280w`}
          sizes="(max-width: 300px) 300px, (max-width: 768px) 768px, 1280px"
        />
-       <img src={`${img_url}?width=1920`}  className = {className} />
+       <img src={`${img_url}?width=1920`}  className = {className} loading='lazy' />
      </picture>
      );
 
