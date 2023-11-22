@@ -21,7 +21,7 @@ import {urlhelperDecode} from '../helpers/urlhelper';
 
 import fetchAlbums from '../helpers/fetchAlbums';
 import EditAlbum from './EditAlbum';
-import {Outlet} from "react-router-dom";
+import {Outlet, useLocation} from "react-router-dom";
 import {Link} from 'react-router-dom';
 
 
@@ -38,11 +38,12 @@ export default function Album(){
   const debug = false;
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
+  let location = useLocation();
 
   // Initializes images after component render
   useEffect(() => {
     pullAlbum();
-  }, [album_id]);
+  }, [album_id, location]);
 
   // Helper that determines which album in the albums list the url album_id is triggering the component to pull
   async function findIndex(albums){
@@ -56,7 +57,12 @@ export default function Album(){
 
   // Loads images associated with album being rendered
  async function pullAlbum(){
-    setCanEdit(false);
+    if(location.pathname.endsWith('edit')){
+      setCanEdit(true);
+    }
+    else{
+      setCanEdit(false);
+    }
     setAlbumIndex(-1);
     // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
     const newA = (albums.length < 1) ? await fetchAlbums(): albums;
@@ -128,11 +134,10 @@ export default function Album(){
   const date = new Date(albums[albumIndex].date);
 
   function ShowEditButton(){
-    if (authStatus.authStatus === 'authenticated'){
-      return (<MDBBtn floating  color='light' className='m-2'><Link to="edit"><MDBIcon far icon="edit" /></Link></MDBBtn>);
+    if (authStatus.authStatus === 'authenticated' && !canEdit){
+      return (<MDBBtn floating onClick={()=>setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
     }
   }
-  // onClick={()=>setCanEdit(true)}
 
   function AlbumHeader(){
 
@@ -142,9 +147,9 @@ export default function Album(){
     const parallaxStyle = {
       'background-image':`url(${featuredImageUrl})`,
       'background-attachment':'fixed',
-      'background-position':'bottom',
+      'background-position':' bottom',
       'background-repeat': 'no-repeat',
-      'min-height': '400px', 
+      'min-height': '500px', 
       'background-size':'cover',
     }
 
