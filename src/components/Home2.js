@@ -162,7 +162,7 @@ return(
     <MDBIcon fas icon="angle-down" size='4x' color='white-50'
     	style={{
           position: 'absolute',
-          top: '90%',
+          top: '95%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex:1,

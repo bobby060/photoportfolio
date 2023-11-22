@@ -143,7 +143,7 @@ export default function Album(){
     }
     console.log(albums[albumIndex]);
     const featuredImage = images.find((image)=>image.id===albums[albumIndex].albumsFeaturedImageId);
-    const featuredImageUrl = `https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImage.id}-${featuredImage.filename}?width=1920`;
+    const featuredImageUrl = (featuredImage)?`https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImage.id}-${featuredImage.filename}?width=1920`:"";
 
     const parallaxStyle = {
       'background-image':`url(${featuredImageUrl})`,
@@ -151,7 +151,7 @@ export default function Album(){
       'background-position':'bottom',
       'background-repeat': 'no-repeat',
       'min-height': '400px', 
-      // 'background-size':'cover',
+      'background-size':'cover',
     }
 
     return(
