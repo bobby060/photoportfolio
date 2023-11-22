@@ -48,9 +48,9 @@ export default function AddImages({curAlbum, onUpload = {}}){
 
    function UploadButtonWrapper(){
     if (selectedFiles.length<1) return(
-        <MDBBtn className='bg-dark mt-3' disabled>Upload Photos</MDBBtn>
+        <MDBBtn className='bg-dark m-1' disabled>Upload Photos</MDBBtn>
       );
-    return(<MDBBtn className='bg-dark mt-3' onClick={handleFiles}>Upload Photos</MDBBtn>);
+    return(<MDBBtn className='bg-dark mm-1' onClick={handleFiles}>Upload Photos</MDBBtn>);
    };
 
   return(
@@ -59,6 +59,7 @@ export default function AddImages({curAlbum, onUpload = {}}){
       <MDBFile
         multiple
         onChange={setFiles}
+        className='m-1'
       />
     <UploadButtonWrapper/>
   </div>

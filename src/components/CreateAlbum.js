@@ -52,9 +52,9 @@ export default function CreateAlbum(){
 	    });
 	    const newAlbum = response.data.createAlbums;
 		const updatedAlbums = await fetchAlbums();
-		setAlbums(updatedAlbums);
+			setAlbums(updatedAlbums);
 	    console.log(`Created new album named: ${form.get("title")}`);
-	    navigate('../'.concat(urlhelperEncode(newAlbum)));
+	    navigate(`../albums/${urlhelperEncode(newAlbum)}`);
 	    event.target.reset();
 	 }
 

@@ -14,6 +14,7 @@ import SignIn from './Signin';
 import Home from './Home2';
 import AboutPage from './AboutPage';
 import Album from './Album';
+import EditAlbum from './EditAlbum';
 
 const router = createBrowserRouter([
   {
@@ -45,8 +46,13 @@ const router = createBrowserRouter([
             element: <AboutPage/>,
           },
           {
-            path:":album_id",
-            element: <Album/>
+            path:"album/:album_id",
+            element: <Album/>,
+            children: [
+            {
+              path: "edit",
+              element: <EditAlbum/>
+            }]
           }
       ]
     }
