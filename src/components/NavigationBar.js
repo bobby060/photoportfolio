@@ -1,4 +1,4 @@
-import {React, useState, useContext} from 'react';
+import {React, useState, useContext, useEffect} from 'react';
 import {Link} from 'react-router-dom';
 import {
   MDBContainer,
@@ -19,22 +19,40 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 import logo from '../logo192.png';
 
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useLocation } from "react-router-dom";
 import { AlbumsContext } from '../helpers/AlbumsContext';
-import {urlhelperEncode} from '../helpers/urlhelper';
-// import AnchorLink from 'react-anchor-link-smooth-scroll'
-// **** ROUTES *****//
-// Add routes here
+import {urlhelperEncode, urlhelperDecode} from '../helpers/urlhelper';
 
 
-export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
+export default function NavigationBar(){
 
   const [showNav, setShowNav] = useState(false);
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
   const { signOut } = useAuthenticator((context) => [context.user]);
   const {albums, setAlbums} = useContext(AlbumsContext);
+  const[currentAlbum,setCurrentAlbum] = useState("");
 
+  let location = useLocation();
+
+    useEffect(() => {
+      setCurrentAlbumState();
+
+    }, [location]);
+
+    function setCurrentAlbumState(){
+      if(location.pathname.startsWith('/album/')){
+        for(let i = 0; i < albums.length; i++){
+          console.log(location.pathname);
+          if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
+            setCurrentAlbum(albums[i].title);
+            return;
+        }
+      }
+    }
+
+      setCurrentAlbum("");
+    }
 
     function SignInWrapper() {
       if (authStatus.authStatus !== 'authenticated') {
@@ -70,11 +88,11 @@ export default function NavigationBar({selectedAlbum, setSelectedAlbum}){
       return (
           <MDBDropdown>
             <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
-              {selectedAlbum.length < 1 ? 'Select Album': selectedAlbum.title } 
+              {currentAlbum==="" ? 'Select Album': currentAlbum } 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
-                <MDBDropdownItem link ><Link className='text-dark' to={`/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
+                <MDBDropdownItem link ><Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
           </MDBDropdown>
