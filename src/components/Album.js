@@ -180,7 +180,7 @@ export default function Album(){
     <>
     <AlbumHeader/>
     <Outlet/>
-    <MDBContainer>
+    <MDBContainer breakpoint='xl'>
     <PhotoGrid
       items = {images}
       deleteImage = {deleteImage}
