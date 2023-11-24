@@ -1,5 +1,5 @@
 import {React, useState, useContext, useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, NavLink} from 'react-router-dom';
 import {
   MDBContainer,
   MDBNavbar,
@@ -54,6 +54,16 @@ export default function NavigationBar(){
       setCurrentAlbum("");
     }
 
+    function activeStyle(isActive){
+      if (isActive){
+        return ({
+          'font-weight':'bold'
+        });
+      };
+      return ({});
+    }
+
+
     function SignInWrapper() {
       if (authStatus.authStatus !== 'authenticated') {
         return (
@@ -76,9 +86,13 @@ export default function NavigationBar(){
       }
       return (
         <MDBNavbarItem>
-          <Link to={`/new`}>
-            <MDBNavbarLink>New Album</MDBNavbarLink>
-          </Link>
+        
+            <MDBNavbarLink aria-disabled='true'>
+            <NavLink to={`/new`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
+              New Album
+            </NavLink>
+            </MDBNavbarLink>
+
         </MDBNavbarItem>
         );
     }
@@ -87,7 +101,7 @@ export default function NavigationBar(){
       if(albums.length < 1) return;
       return (
           <MDBDropdown>
-            <MDBDropdownToggle tag='a' className='btn-tertiary text-dark'>
+            <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
               {currentAlbum==="" ? 'Select Album': currentAlbum } 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
@@ -116,17 +130,18 @@ export default function NavigationBar(){
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav className='w-100'>
                 <MDBNavbarItem>
-                  <Link to={`/home`}>
-                    <MDBNavbarLink active>
+                    <MDBNavbarLink>
+                    <NavLink to={`/home`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
                       Home
+                      </NavLink>
                     </MDBNavbarLink>
-                  </Link>
                 </MDBNavbarItem>
                 <EditLinkWrapper/>
                 <MDBNavbarItem>
-                  <Link to={`/about`}>
-                    <MDBNavbarLink aria-disabled='true'>About Me</MDBNavbarLink>
-                  </Link>                  
+                  <MDBNavbarLink aria-disabled='true'>
+                    <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
+                    </NavLink>
+                  </MDBNavbarLink>            
                 </MDBNavbarItem>
                 <MDBNavbarItem >
                   <MDBNavbarLink>
