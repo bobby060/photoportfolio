@@ -5,16 +5,24 @@ import {
   MDBIcon,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { API } from 'aws-amplify';
+import { imagesByAlbumsID } from '../graphql/queries';
+import {deleteImages as deleteImageMutation} from '../graphql/mutations';
+
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+
+
 import Image from "./Image";
 // import "animate.css/animate.min.css";
 // import { AnimationOnScroll } from 'react-animation-on-scroll';
+
+
  
 
 // Photogrid items takes an array of Image objects as input
 // deleteImage callback allows authenticated users to delete images
-export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = null, selectedAlbum, editMode = false }) {
+export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
@@ -23,6 +31,7 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
   });
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
+  const [items, setItems] = useState([]);
 
 
 
@@ -40,6 +49,10 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+ useEffect(() => {
+   getImages();
+ }, []);
+
   {/*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
   Example  breakpoints = [0 ,  350, 750, 900, 1300]
         number columns = [0 ,   1 ,  2 , 3  ,   4 ]
@@ -54,6 +67,37 @@ export default function PhotoGrid({items, deleteImage = null, setFeaturedImg = n
         if (breakPoints[i] < cur_width ) return i;
     }
   }
+
+
+  async function getImages(){
+    // Pulls the image objects associated with the selected album
+    const imgs_wrapper = await API.graphql({
+      query: imagesByAlbumsID,
+       variables: { albumsID: selectedAlbum.id},
+       authMode: 'API_KEY',
+      });
+    console.log('loading images');
+    const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
+
+    // Updates images to the new image objects that have urls
+    for (let i = 0 ; i < imgs.length; i++){
+      imgs[i].index = i;
+    }
+    setItems(imgs);
+  }
+
+  // Deletes image object and source image on AWS
+  async function deleteImage(image){
+    const newImages = items.filter((img) => img.id !== image.id);
+    await Storage.remove(`${image.id}-${image.name}`)
+    await API.graphql({
+      query: deleteImageMutation,
+      variables: { input: {id: image.id}},
+    });
+    console.log(`image with ID ${image.id} is deleted from album`);
+    setItems(newImages);
+  }
+
 
   const num_columns = getBreakpoint();
 
