@@ -1,4 +1,4 @@
-import React,  { lazy, useState, useEffect }  from 'react';
+import React,  { lazy, useState, useEffect, useRef, useCallback }  from 'react';
 import {
   MDBCol,
   MDBBtn,
@@ -32,8 +32,62 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   const [open, setOpen] = React.useState(false);
   const [index, setIndex] = React.useState(0);
   const [items, setItems] = useState([]);
+  const observerTarget = useRef(null);
+  // Holds next token for data
+  const [nextToken, setNextToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+  // async function fetchData(){
+    if (isLoading) return;
+    if (!nextToken) return;
+
+    setIsLoading(true);
+
+    const res = await API.graphql({
+      query: imagesByAlbumsID,
+       variables: { 
+        albumsID: selectedAlbum.id,
+        limit: 10,
+        nextToken: nextToken },
+       authMode: 'API_KEY',
+      });
+
+    setNextToken(res.data.imagesByAlbumsID.nextToken);
+    const new_items = [...items, ...res.data.imagesByAlbumsID.items].map((img, i) => {
+     img.index = i;
+      return img});
+    setItems(new_items);
 
 
+    setIsLoading(false);
+  // }
+  }, [nextToken, isLoading]);
+
+
+  // Initalizes intersection observer to call each time observer enters view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          fetchData();
+        }
+      },
+      // { threshold: 1 }
+    );
+
+    if (observerTarget.current && !isLoading) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [fetchData]);
+
+// https://dev.to/vishnusatheesh/exploring-infinite-scroll-techniques-in-react-1bn0
 
   // Adds ability to adjust column layout after resize
  useEffect(() => {
@@ -49,7 +103,9 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+ // 
  useEffect(() => {
+  // fetchData();
    getImages();
  }, []);
 
@@ -59,7 +115,8 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         Window with of 850 will have 2 columns. 2000 will have 4
 
   */}
-  const breakPoints = [0, 350, 750, 900];
+  const breakPoints = [0, 350, 750, 1200];
+ // const breakPoints = [0,0];
 
   function getBreakpoint() {
     const cur_width = windowSize.width;
@@ -68,22 +125,34 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     }
   }
 
+  // Fetches subsequent images
+  
 
+  // Requests the first 10 images
   async function getImages(){
+    setIsLoading(true);
     // Pulls the image objects associated with the selected album
-    const imgs_wrapper = await API.graphql({
+    const res = await API.graphql({
       query: imagesByAlbumsID,
-       variables: { albumsID: selectedAlbum.id},
+       variables: { 
+        albumsID: selectedAlbum.id,
+        limit: 10},
        authMode: 'API_KEY',
       });
     console.log('loading images');
-    const imgs = imgs_wrapper.data.imagesByAlbumsID.items;
+    const imgs = res.data.imagesByAlbumsID.items.map((img, i) => {
+     img.index = i;
+      return img});
+    const nextT = res.data.imagesByAlbumsID.nextToken;
+    setNextToken(nextT);
 
-    // Updates images to the new image objects that have urls
-    for (let i = 0 ; i < imgs.length; i++){
-      imgs[i].index = i;
-    }
+    // sets index for lightbox purposes
+    // for (let i = 0 ; i < imgs.length; i++){
+    //   imgs[i].index = i;
+    // }
+
     setItems(imgs);
+    setIsLoading(false);
   }
 
   // Deletes image object and source image on AWS
@@ -196,8 +265,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
                 </div>
                 ))}
+            <div ref={observerTarget}></div>
               </MDBCol>
             ))}
+
       <Lightbox
         index={index}
         slides={slides}
