@@ -78,7 +78,7 @@ export default function Home(){
 	function HeaderCarousel(){
 		const s = { width:windowSize.width, height: windowSize.height,'object-fit': 'cover'};
 		if(headerImgs.length < 1) return(
-			<Carousel indicators={false} interval = {2500} style={s} controls={false} hover={false}>
+			<Carousel indicators={false} interval = {2500} style={s} controls={false} pause={false}>
 						<Carousel.Item itemId={1} className='overflow-hidden placeholder' >
 								{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
 							<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
@@ -89,7 +89,7 @@ export default function Home(){
 			</Carousel>
 			);
 		return (	
-			<Carousel fade indicators={false} interval = {3000} controls={false} hover={false} >
+			<Carousel fade indicators={false} interval = {3000} controls={false} pause={false} >
 				{headerImgs.map((img, i) =>
 					(
 						<Carousel.Item  itemId={i} key={i}  >
@@ -148,8 +148,8 @@ return(
       <MDBCardBody>
         <MDBCardTitle><h2>Robert Norwood</h2></MDBCardTitle>
         <MDBCardText>
-				      <MDBTypography className='lead' >
-				        <p>Through pictures we see the world not just for what it is, but for what it can be</p>
+				      <MDBTypography className='lead d-none d-sm-block' >
+				        <p >Through pictures we see the world not just for what it is, but for what it can be</p>
 				      </MDBTypography>
         </MDBCardText>
         <div className='text-center'>

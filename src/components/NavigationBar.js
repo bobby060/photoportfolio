@@ -68,8 +68,9 @@ export default function NavigationBar(){
       if (authStatus.authStatus !== 'authenticated') {
         return (
         <Link to={`/signin`}>
-        <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
-          Sign In</MDBNavbarLink>
+          <MDBNavbarLink   tabIndex={-1} aria-disabled='true'>
+            Sign In
+          </MDBNavbarLink>
         </Link>
         );
       }
@@ -86,13 +87,11 @@ export default function NavigationBar(){
       }
       return (
         <MDBNavbarItem>
-        
-            <MDBNavbarLink aria-disabled='true'>
+          <MDBNavbarLink aria-disabled='true'>
             <NavLink to={`/new`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
               New Album
             </NavLink>
-            </MDBNavbarLink>
-
+          </MDBNavbarLink>
         </MDBNavbarItem>
         );
     }
@@ -116,9 +115,11 @@ export default function NavigationBar(){
         <MDBNavbar expand='lg' light bgColor='light' >
           <MDBContainer fluid >
             <img src={logo} className = 'pe-2' style={{height:'40px'}}/>
-            <MDBNavbarBrand href='#'>
-            
-              Robert Norwood</MDBNavbarBrand>
+            <Link to="/home">
+              <MDBNavbarBrand href='#'>
+                Robert Norwood              
+              </MDBNavbarBrand>
+            </Link>
             <MDBNavbarToggler
               type='button'
               aria-expanded='false'

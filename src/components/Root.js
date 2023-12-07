@@ -14,7 +14,8 @@ import {
   useAuthenticator,
 } from '@aws-amplify/ui-react';
 import {
-  Outlet
+  Outlet,
+  ScrollRestoration
 } from "react-router-dom";
 
 import ReactDOM from 'react-dom/client';
@@ -91,7 +92,7 @@ export default function Root() {
         <Outlet
           context={[selectedAlbum, setSelectedAlbum]}/>
         <Footer/>
-
+        <ScrollRestoration/>
     </View>
 </AlbumsContext.Provider>
   );
