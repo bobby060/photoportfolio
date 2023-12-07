@@ -6,24 +6,24 @@ import {
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { API } from 'aws-amplify';
+
+// Database
 import { imagesByAlbumsID } from '../graphql/queries';
 import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 
+// Components
 import Lightbox from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
 // import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-
-
 import Image from "./Image";
 // import "animate.css/animate.min.css";
 // import { AnimationOnScroll } from 'react-animation-on-scroll';
 
-
- 
-
-// Photogrid items takes an array of Image objects as input
-// deleteImage callback allows authenticated users to delete images
+// Inputs:
+// setFeaturedImg - callback to set an image as the albums featured image
+// editMode - lets photogrid know if it is in edit mode
+// selectedAlbum - where photogrid is pulling photos from
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
 
   const authStatus = useAuthenticator((context) => [context.authStatus]);
@@ -32,13 +32,17 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     height: window.innerHeight,
   });
   const [open, setOpen] = React.useState(false);
+  // Tracks index for Lightbox
   const [index, setIndex] = React.useState(0);
+  // Stores items to display in grid/lightbox
   const [items, setItems] = useState([]);
+  // Observer for infinite scroll
   const observerTarget = useRef(null);
   // Holds next token for data
   const [nextToken, setNextToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+// Fetches next set of items when bottom of scroll is reached
   const fetchData = useCallback(async () => {
   // async function fetchData(){
     if (isLoading) return;
@@ -60,8 +64,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
      img.index = i;
       return img});
     setItems(new_items);
-
-
     setIsLoading(false);
   // }
   }, [nextToken, isLoading]);
@@ -107,7 +109,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
  // 
  useEffect(() => {
-  // fetchData();
    getImages();
  }, []);
 
@@ -120,6 +121,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   const breakPoints = [0, 350, 750, 1200];
  // const breakPoints = [0,0];
 
+  // Gets breakpoint for current width
   function getBreakpoint() {
     const cur_width = windowSize.width;
     for (let i = breakPoints.length-1; i >= 0; i--){
@@ -127,8 +129,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     }
   }
 
-  // Fetches subsequent images
-  
 
   // Requests the first 10 images
   async function getImages(){
@@ -147,11 +147,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
       return img});
     const nextT = res.data.imagesByAlbumsID.nextToken;
     setNextToken(nextT);
-
-    // sets index for lightbox purposes
-    // for (let i = 0 ; i < imgs.length; i++){
-    //   imgs[i].index = i;
-    // }
 
     setItems(imgs);
     setIsLoading(false);

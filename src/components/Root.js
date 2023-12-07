@@ -24,13 +24,15 @@ import {
   MDBContainer,
 } from 'mdb-react-ui-kit';
 
+// Components
 import Headroom from 'react-headroom';
 import NavigationBar from './NavigationBar';
 import EditAlbum from './EditAlbum';
-import addURL from '../helpers/addURL';
-import fetchAlbums from '../helpers/fetchAlbums';
 import Footer from './Footer';
 
+// Helpers
+import addURL from '../helpers/addURL';
+import fetchAlbums from '../helpers/fetchAlbums';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 
 import {listAlbums, getImages} from '../graphql/queries';
