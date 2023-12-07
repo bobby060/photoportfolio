@@ -35,11 +35,13 @@ export default function NavigationBar(){
 
   let location = useLocation();
 
+    // Updates current album each time location changes
     useEffect(() => {
       setCurrentAlbumState();
 
     }, [location]);
 
+    // Decodes the current album from the current path
     function setCurrentAlbumState(){
       if(location.pathname.startsWith('/album/')){
         for(let i = 0; i < albums.length; i++){
@@ -63,7 +65,7 @@ export default function NavigationBar(){
       return ({});
     }
 
-
+    // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
       if (authStatus.authStatus !== 'authenticated') {
         return (
@@ -81,7 +83,8 @@ export default function NavigationBar(){
         );
     }
 
-    function EditLinkWrapper(){
+    // Component that displays new album link if user is authorized to create albums
+    function NewAlbumWrapper(){
       if (authStatus.authStatus !== 'authenticated') {
         return;
       }
@@ -100,12 +103,15 @@ export default function NavigationBar(){
       if(albums.length < 1) return;
       return (
           <MDBDropdown>
+          {/*Dropdown toggle shows current album if at one*/}
             <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
               {currentAlbum==="" ? 'Select Album': currentAlbum } 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
-                <MDBDropdownItem link ><Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
+                <MDBDropdownItem link onClick={()=>setShowNav(false)}>
+                  <Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link>
+                </MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
           </MDBDropdown>
@@ -137,7 +143,7 @@ export default function NavigationBar(){
                       </NavLink>
                     </MDBNavbarLink>
                 </MDBNavbarItem>
-                <EditLinkWrapper/>
+                <NewAlbumWrapper/>
                 <MDBNavbarItem>
                   <MDBNavbarLink aria-disabled='true'>
                     <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me

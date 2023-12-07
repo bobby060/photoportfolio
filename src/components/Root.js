@@ -55,38 +55,12 @@ export default function Root() {
   }
 
 
-
-  // async function fetchAlbums() {
-  //   console.log('fetching albums')
-  //   const apiData = await API.graphql({ 
-  //   query: listAlbums,
-  //   authMode: 'API_KEY',
-  //   });
-
-  //   const albumsFromAPI = apiData.data.listAlbums.items;
-  //   const a = await Promise.all(albumsFromAPI.map(async (album) => {
-  //     const data = {
-  //       id: album.albumsFeaturedImageId
-  //     }
-  //     const image = await API.graphql({
-  //       query: getImages,
-  //       variables: data,
-  //       authMode: 'API_KEY'
-  //     });
-  //     const featuredImage =  await addURL(image.data.getImages);
-  //     return { ...album, featuredImage: featuredImage};
-  //     }));
-  //   setAlbums(a);
-  // } 
-
-
   return (
   <AlbumsContext.Provider value={{
     albums,
     setAlbums
   }}>
     <View className="App" style={{display: 'flex', 'flex-direction':'column', 'min-height':'100vh', margin: 'none'}}>
-
         <Headroom className="m-0" style={{zIndex: 1000}}>
             <NavigationBar/>
         </Headroom >
@@ -94,6 +68,7 @@ export default function Root() {
         <Outlet
           context={[selectedAlbum, setSelectedAlbum]}/>
         <Footer/>
+        {/*Brings scroll back to top on new route*/}
         <ScrollRestoration/>
     </View>
 </AlbumsContext.Provider>

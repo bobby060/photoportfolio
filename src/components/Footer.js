@@ -5,13 +5,6 @@ import  { useAuthenticator } from '@aws-amplify/ui-react';
 
 export default function Footer() {
 
-  // function ShowLogOut() {
-  //     if (authStatus.authStatus != 'authenticated') {
-  //       return;
-  //     }
-  //     return (<MDBBtn className=' float-center mt-3 bg-dark' onClick={signOut}>Sign Out</MDBBtn> );
-  // }
-
   return (
     <MDBFooter bgColor='light' className='mt-auto text-center text-lg-start text-muted'>
       <section className='w-100'>
