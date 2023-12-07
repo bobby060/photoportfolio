@@ -30,6 +30,7 @@ export default function EditAlbum(){
 	const [showEditAlbum, CanEditAlbum] = useState(false);
 	const [selectedFiles, setSelectedFiles] = useState([]);
 	const {albums, setAlbums} = useContext(AlbumsContext);
+	const [deleting, setDeleting] = useState(false);
 	const navigate = useNavigate();
 	const debug = true;
 
@@ -37,7 +38,7 @@ export default function EditAlbum(){
 	let {album_id} = useParams();
 
 	useEffect(() => {
-    getAlbum();
+    	getAlbum();
   }, [album_id]);
 
 
@@ -77,6 +78,7 @@ export default function EditAlbum(){
   // Doesn't error handle if user deletes date and title, need to fix
 	async function updateAlbum(event) {
 			event.preventDefault();
+			if(deleting) return;
 	    const form = new FormData(event.target);
 	    const date = form.get("date") + 'T00:00:00.000Z';
 	    const data = {
@@ -96,13 +98,14 @@ export default function EditAlbum(){
 			setAlbums(updatedAlbums);
 	    console.log(`Updated album: ${form.get("title")}`);
 	    // After save, navigates to album
-	   	navigate('../../'.concat(urlhelperEncode(response.data.updateAlbums)));
+	   	navigate('../../album/'.concat(urlhelperEncode(response.data.updateAlbums)));
 	}
 
 	 async function deleteAlbum(id) {
+	 		setDeleting(true);
 	 	// Make sure you really want to delete...
 	 		if (!window.confirm("Are you sure you want to delete this album?")) return;
-
+	 		// setAlbumIndex(-1);
 	 		// Remove album being deleted from the current list of albums
 	    const newAlbums = albums.filter((album) => album.id !== id);
 	    setAlbums(newAlbums);
@@ -128,7 +131,7 @@ export default function EditAlbum(){
 	    });
 	    console.log('album successfully deleted')
 	    // Go to root after deleting album
-	    navigate('/');
+	    navigate('../../');
 	 }
 
 	 if(albumIndex<0){

@@ -14,7 +14,9 @@ import { useNavigate } from "react-router-dom";
 
 // Database
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import {createAlbums} from '../graphql/mutations';
+import {createAlbums, updateAlbums} from '../graphql/mutations';
+import { imagesByAlbumsID } from '../graphql/queries';
+
 
 // Helpers
 import {urlhelperEncode} from '../helpers/urlhelper';
@@ -70,10 +72,32 @@ export default function CreateAlbum(){
 	    const newAlbum = response.data.createAlbums;
 	    await uploadImages(newAlbum, selectedFiles);
 
-		const updatedAlbums = await fetchAlbums();
+	    const res = await API.graphql({
+      query: imagesByAlbumsID,
+       variables: { 
+        albumsID: newAlbum.id,
+        limit: 1},
+       authMode: 'API_KEY',
+      });
+
+      const img = res.data.imagesByAlbumsID.items[0]
+      console.log(img)
+
+	    const featured_img_query_data = {
+	      id: newAlbum.id,
+	      albumsFeaturedImageId: img.id
+	    }
+	    const updateAlbumResponse = await API.graphql({
+	      query: updateAlbums,
+	      variables: { input: featured_img_query_data
+	    },
+	    })
+	    const new_album = updateAlbumResponse.data.updateAlbums;
+	    console.log(new_album.albumsFeaturedImageId);
+			const updatedAlbums = await fetchAlbums();
 			setAlbums(updatedAlbums);
 	    console.log(`Created new album named: ${form.get("title")}`);
-	    navigate(`../albums/${urlhelperEncode(newAlbum)}`);
+	    navigate(`../album/${urlhelperEncode(new_album)}`);
 	    event.target.reset();
 	 }
 

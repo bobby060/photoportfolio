@@ -45,7 +45,6 @@ export default function NavigationBar(){
     function setCurrentAlbumState(){
       if(location.pathname.startsWith('/album/')){
         for(let i = 0; i < albums.length; i++){
-          console.log(location.pathname);
           if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
             setCurrentAlbum(albums[i].title);
             return;
@@ -90,7 +89,7 @@ export default function NavigationBar(){
       }
       return (
         <MDBNavbarItem>
-          <MDBNavbarLink aria-disabled='true'>
+          <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
             <NavLink to={`/new`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
               New Album
             </NavLink>
@@ -137,7 +136,7 @@ export default function NavigationBar(){
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav className='w-100'>
                 <MDBNavbarItem>
-                    <MDBNavbarLink>
+                    <MDBNavbarLink onClick={()=>setShowNav(false)}>
                     <NavLink to={`/home`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
                       Home
                       </NavLink>
@@ -145,7 +144,7 @@ export default function NavigationBar(){
                 </MDBNavbarItem>
                 <NewAlbumWrapper/>
                 <MDBNavbarItem>
-                  <MDBNavbarLink aria-disabled='true'>
+                  <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
                     <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
                     </NavLink>
                   </MDBNavbarLink>            
@@ -155,7 +154,7 @@ export default function NavigationBar(){
                   <DropdownWrapper/>
                   </MDBNavbarLink>
                 </MDBNavbarItem>
-                <MDBNavbarItem className = "ms-lg-auto">
+                <MDBNavbarItem className = "ms-lg-auto" onClick={()=>setShowNav(false)}>
                   <SignInWrapper/>
                 </MDBNavbarItem>
                 </MDBNavbarNav>

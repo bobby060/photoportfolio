@@ -83,6 +83,7 @@ export default function Album(){
     if(albums.length < 1) setAlbums(newA);
     const data = {
           id: newA[index].albumsFeaturedImageId
+          // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
     const image = await API.graphql({
       query: getImages,
