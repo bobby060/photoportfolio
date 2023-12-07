@@ -10,6 +10,8 @@ import { imagesByAlbumsID } from '../graphql/queries';
 import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 
 import Lightbox from "yet-another-react-lightbox";
+import Download from "yet-another-react-lightbox/plugins/download";
+// import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 
 
@@ -185,11 +187,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   const slides = items.map( (image) => (
     {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
       alt: image.filename,
-        srcSet:[
+      srcSet:[
           { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=768`, width: 768}, 
           { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1280`, width: 1280},
           { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1920`, width: 1920},
-          ]}
+          ],
+      downloadUrl: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`}
 ));
 
   // Splits the images into the right number of columns
@@ -276,6 +279,8 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         open={open}
         controller={{closeonBackDropClick: true}}
         styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
+        plugins={[Download]}
+        // zoom={{maxZoomPixelRatio: 3}}
         />
     </div>
   );
