@@ -1,4 +1,4 @@
-import React, {useEffect, useContext } from "react";
+import React, {useEffect, useContext, useState } from "react";
 import { API } from 'aws-amplify';
 import {
   MDBRow,
@@ -6,19 +6,29 @@ import {
   MDBBtn,
   MDBInput,
   MDBTextArea,
-  MDBContainer
+  MDBContainer,
+  MDBFile
 } from 'mdb-react-ui-kit';
+
+import { useNavigate } from "react-router-dom";
+
+// Database
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import {createAlbums} from '../graphql/mutations';
-import { useNavigate } from "react-router-dom";
+
+// Helpers
 import {urlhelperEncode} from '../helpers/urlhelper';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import fetchAlbums from '../helpers/fetchAlbums';
+import uploadImages from '../helpers/uploadImages';
+
 
 export default function CreateAlbum(){
 	const authStatus = useAuthenticator((context) => [context.authStatus]);
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const navigate = useNavigate();
+	const [selectedFiles, setSelectedFiles] = useState([]);
+
 
 	useEffect(() => {
 		console.log(authStatus);
@@ -30,17 +40,24 @@ export default function CreateAlbum(){
 	}
 
 
+   // tracks files uploaded by clicker, sets state object
+  async function setFiles(event){
+    const files = event.target.files;
+    setSelectedFiles(files);
+  }
+
 	async function newAlbum(event) {
 		event.preventDefault();
 	    const form = new FormData(event.target);
 	    // Date in format 2023-11-11T00:00:00.000Z
 	    const date = form.get("date") + 'T00:00:00.000Z';
 	    const cur_date = new Date();
+	    // Sets default date to current time if not set by user
 	   	const cleaned_date = (date==='T00:00:00.000Z') ? cur_date.toISOString(): date;
 	   	const title = form.get("title");
+	   	// Ensures album has a name...
 	   	const cleaned_title = (title.length===0) ?
 	   		 `Album created at ${cur_date.getMonth()+1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}`:title;
-	   	console.log(cleaned_date);
 	    const data = {
 	      title: cleaned_title,
 	      desc: form.get("desc"),
@@ -51,6 +68,8 @@ export default function CreateAlbum(){
 	      variables: { input: data },
 	    });
 	    const newAlbum = response.data.createAlbums;
+	    await uploadImages(newAlbum, selectedFiles);
+
 		const updatedAlbums = await fetchAlbums();
 			setAlbums(updatedAlbums);
 	    console.log(`Created new album named: ${form.get("title")}`);
@@ -58,11 +77,23 @@ export default function CreateAlbum(){
 	    event.target.reset();
 	 }
 
-
+	 // Ensures only authenticated users can view this route
 	if (authStatus.authStatus !== 'authenticated'){
 		return (<p> You don't have access, redirecting! </p>);
 
 	}
+
+	 function SubmitButtonWrapper(){
+    if (selectedFiles.length<1) return(
+    	<>
+        <MDBBtn type='submit' className='bg-dark m-1' disabled>Create</MDBBtn>
+        <p>Select photos to enable create button</p>
+       </>
+      );
+    return(<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
+   };
+
+
 	return(
 	<MDBContainer className=''>
 		<h2 className="mt-2"> Create new album </h2>
@@ -76,7 +107,16 @@ export default function CreateAlbum(){
 		        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3}/>
 		      </MDBCol>
 		    </MDBRow>
-		    <MDBBtn type='submit' className="bg-dark mb-3">Create</MDBBtn>
+		    <MDBRow className=' justify-content-center'>
+		   		<MDBCol xl='3' lg='5' md ='6'>
+		   		<MDBFile
+	        multiple
+	        onChange={setFiles}
+	        className='m-1 mb-3'
+	      	/>
+      	</MDBCol>
+      	</MDBRow>
+		    <SubmitButtonWrapper/>
 		</form>
 		
 	  </MDBContainer>
