@@ -20,6 +20,9 @@ export const getAlbums = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename
@@ -63,6 +66,9 @@ export const getImages = /* GraphQL */ `
       date
       albumsID
       index
+      width
+      height
+      url
       createdAt
       updatedAt
       __typename
@@ -84,6 +90,9 @@ export const listImages = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename
@@ -116,6 +125,9 @@ export const imagesByAlbumsID = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename

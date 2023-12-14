@@ -1,0 +1,75 @@
+// Helper that allows you to update all existing items in the database 
+
+import { API } from 'aws-amplify';
+import {listImages} from '../graphql/queries';
+import {updateImages} from '../graphql/mutations';
+
+const getMeta = async (url) => {
+	const img = new Image();
+	img.src = url;
+	await img.decode();
+	return [img.naturalHeight, img.naturalWidth];
+};
+
+async function upgradeImage(img) {
+	const url = `${img.id}-${img.filename}`
+	console.log(`upgrading image ${img.filename}`)
+
+	// Get the image and update height/width
+	const dims = await getMeta(`https://d2brh14yl9j2nl.cloudfront.net/public/${url}`);
+
+	const data = {
+	    	id: img.id,
+	      	url: url,
+	      	height: dims[0],
+	      	width: dims[1]
+	    };
+    const response = await API.graphql({
+      query: updateImages,
+      variables: { input: data },
+    });
+
+    if(response){
+    	console.log(response);
+    	console.log(`upgraded ${img.filename}`)
+    }
+
+}
+
+// Loops through all images in groups of ten and applies upgrade function
+export async function upgradeDB() {
+
+	var next = null;
+
+// Get initial 1-
+	 const res = await API.graphql({
+      query: listImages,
+       variables: { 
+        limit: 10,},
+       authMode: 'API_KEY',
+      });
+
+	next = res.data.listImages.nextToken;
+
+	await Promise.all(res.data.listImages.items.map((image) => upgradeImage(image)));
+
+	while (next) {
+		const res = await API.graphql({
+	      query: listImages,
+	       variables: { 
+	        limit: 10,
+	    	nextToken: next},
+	       authMode: 'API_KEY',
+	      });
+
+		next = res.data.listImages.nextToken;
+
+		await Promise.all(res.data.listImages.items.map((image) => upgradeImage(image)));
+	};
+
+	console.log('all images upgraded')
+
+
+
+
+}

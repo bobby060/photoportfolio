@@ -7,7 +7,8 @@ import {
   MDBInput,
   MDBTextArea,
   MDBContainer,
-  MDBFile
+  MDBFile,
+  MDBSpinner
 } from 'mdb-react-ui-kit';
 
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ export default function CreateAlbum(){
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const navigate = useNavigate();
 	const [selectedFiles, setSelectedFiles] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
 
 
 	useEffect(() => {
@@ -50,6 +52,7 @@ export default function CreateAlbum(){
 
 	async function newAlbum(event) {
 		event.preventDefault();
+			setIsLoading(true);
 	    const form = new FormData(event.target);
 	    // Date in format 2023-11-11T00:00:00.000Z
 	    const date = form.get("date") + 'T00:00:00.000Z';
@@ -117,6 +120,14 @@ export default function CreateAlbum(){
     return(<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
    };
 
+   function Loading(){
+   	
+   	return(<>
+   	 <MDBSpinner className="mt-3"></MDBSpinner>
+   	 <p className='fw-light'>Creating album and uploading photos</p>
+   	</>);
+   }
+
 
 	return(
 	<MDBContainer className=''>
@@ -142,7 +153,7 @@ export default function CreateAlbum(){
       	</MDBRow>
 		    <SubmitButtonWrapper/>
 		</form>
-		
+		{isLoading?<Loading/>:<></>}
 	  </MDBContainer>
 	)
 

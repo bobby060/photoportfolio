@@ -23,6 +23,9 @@ export const createAlbums = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename
@@ -56,6 +59,9 @@ export const updateAlbums = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename
@@ -89,6 +95,9 @@ export const deleteAlbums = /* GraphQL */ `
         date
         albumsID
         index
+        width
+        height
+        url
         createdAt
         updatedAt
         __typename
@@ -113,6 +122,9 @@ export const createImages = /* GraphQL */ `
       date
       albumsID
       index
+      width
+      height
+      url
       createdAt
       updatedAt
       __typename
@@ -132,6 +144,9 @@ export const updateImages = /* GraphQL */ `
       date
       albumsID
       index
+      width
+      height
+      url
       createdAt
       updatedAt
       __typename
@@ -151,6 +166,9 @@ export const deleteImages = /* GraphQL */ `
       date
       albumsID
       index
+      width
+      height
+      url
       createdAt
       updatedAt
       __typename

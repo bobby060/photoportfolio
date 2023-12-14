@@ -31,6 +31,7 @@ export default function EditAlbum(){
 	const [selectedFiles, setSelectedFiles] = useState([]);
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const [deleting, setDeleting] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 	const debug = true;
 
@@ -78,6 +79,7 @@ export default function EditAlbum(){
   // Doesn't error handle if user deletes date and title, need to fix
 	async function updateAlbum(event) {
 			event.preventDefault();
+			setIsLoading(true);
 			if(deleting) return;
 	    const form = new FormData(event.target);
 	    const date = form.get("date") + 'T00:00:00.000Z';
@@ -134,12 +136,21 @@ export default function EditAlbum(){
 	    navigate('../../');
 	 }
 
+
+  function Loading(){
+   	return(<>
+   	 <MDBSpinner className="mt-3"></MDBSpinner>
+   	 (files.length>0)?<p className='fw-light'>Saving album and uploading photos</p>:<p className='fw-light'>Saving album</p>
+   	</>);
+   }
+
 	 if(albumIndex<0){
     return(
       <MDBSpinner className='m-3'>
 
       </MDBSpinner>);
   }
+
 
   // Ensures the date is formatted correctly
 		const date = new Date(albums[albumIndex].date);
@@ -179,6 +190,7 @@ export default function EditAlbum(){
 		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/album/${urlhelperEncode(albums[albumIndex])}`}>Cancel</Link></MDBBtn>
 		    </MDBCol>
 	   </MDBRow>
+	   {(isLoading)?<Loading/>:<></>}
 		</form>
 
 		)

@@ -26,6 +26,7 @@ import Image from './Image';
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
+// import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home(){
 	const {albums} = useContext(AlbumsContext);
@@ -154,6 +155,7 @@ return(
         </MDBCardText>
         <div className='text-center'>
         	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
+        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
