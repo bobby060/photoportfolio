@@ -1,7 +1,7 @@
 import {listAlbums, getImages} from '../graphql/queries';
 import { API, Storage, Auth } from 'aws-amplify';
-import addURL from './addURL';
 
+// Gets list of current albums from the server
 export default async function fetchAlbums() {
     const apiData = await API.graphql({ 
     query: listAlbums,
@@ -14,6 +14,7 @@ export default async function fetchAlbums() {
         const bDate = new Date(b.date);
         return bDate - aDate;
     });
+    console.log(sortedAlbums);
 
     return sortedAlbums;
   } 

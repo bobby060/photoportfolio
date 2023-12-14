@@ -4,10 +4,9 @@ import { API } from 'aws-amplify';
 import {getImages} from '../graphql/queries';
 
 import fetchAlbums from '../helpers/fetchAlbums';
-import addURL from '../helpers/addURL';
 import {urlhelperEncode} from '../helpers/urlhelper';
 
-
+// puts image objects in albums and returns them
 export default async function getFeaturedImgs(albums){ 
 
   	const newA = (albums.length < 1) ? await fetchAlbums(): albums;
