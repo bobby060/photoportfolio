@@ -1,5 +1,5 @@
 import { API, Storage } from 'aws-amplify';
-import {createImages } from '../graphql/mutations';
+import {createImages, updateImages } from '../graphql/mutations';
 
 
 export default async function uploadImages(targetAlbum, files){
@@ -26,6 +26,13 @@ export default async function uploadImages(targetAlbum, files){
 
   }
 
+  const getMeta = async (url) => {
+		const img = new Image();
+		img.src = url;
+		await img.decode();
+		return [img.naturalHeight, img.naturalWidth];
+	};
+
 	async function newImage(image){
 	    const data = {
 	      title: image.name,
@@ -39,14 +46,32 @@ export default async function uploadImages(targetAlbum, files){
 	      variables: {input: data},
 	    });
 	    const img = response?.data?.createImages
+
+	    // Need to add error handling here
 	    if (!img) return;
+
+	    const url = `${img.id}-${image.name}`;
 	    // Combining id and image name ensures uniqueness while preserving information
-	    const result = await Storage.put(`${img.id}-${image.name}`, image, {
+	    const result = await Storage.put(url, image, {
 	        contentType: "image/png", // contentType is optional
 	      });
 	    // Add error handling with result
 	    console.log(`${image.name} uploaded`)
-	   }
+	   
+
+	   // Adds dimensions and url to the image object that was just created
+	   	const dims = await getMeta(`https://d2brh14yl9j2nl.cloudfront.net/public/${url}`);
+			const update_data = {
+			    	id: img.id,
+			      	url: url,
+			      	height: dims[0],
+			      	width: dims[1]
+			    };
+	    const update_response = await API.graphql({
+	      query: updateImages,
+	      variables: { input: update_data },
+	    });
+	  };
 
 	  if (files.length > 0){
         const files_array = Array.from(files)
