@@ -143,12 +143,12 @@ export default function NavigationBar(){
                     </MDBNavbarLink>
                 </MDBNavbarItem>
                 <NewAlbumWrapper/>
-                <MDBNavbarItem>
+{/*                <MDBNavbarItem>
                   <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
                     <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
                     </NavLink>
                   </MDBNavbarLink>            
-                </MDBNavbarItem>
+                </MDBNavbarItem>*/}
                 <MDBNavbarItem >
                   <MDBNavbarLink>
                   <DropdownWrapper/>
