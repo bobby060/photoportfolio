@@ -21,8 +21,8 @@ export default async function getFeaturedImgs(albums){
 	        variables: data,
 	        authMode: 'API_KEY'
 	      });
-	      const featuredImage =  await addURL(image.data.getImages);
-	      return { ...album, featuredImage: featuredImage};
+	      // const featuredImage =  await addURL(image.data.getImages);
+	      return { ...album, featuredImage: image.data.getImages};
 	      }));
   		return (a.filter(value => value !== null));
 }

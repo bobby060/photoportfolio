@@ -31,7 +31,6 @@ import EditAlbum from './EditAlbum';
 import Footer from './Footer';
 
 // Helpers
-import addURL from '../helpers/addURL';
 import fetchAlbums from '../helpers/fetchAlbums';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 

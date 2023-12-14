@@ -111,7 +111,7 @@ export default function Home(){
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
 				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
-			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
 			       alt='...'/>
 			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>

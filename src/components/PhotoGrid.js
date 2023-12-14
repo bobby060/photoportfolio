@@ -183,11 +183,11 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
       alt: image.filename,
       srcSet:[
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=768`, width: 768}, 
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1280`, width: 1280},
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}?width=1920`, width: 1920},
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=768`, width: 768}, 
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1280`, width: 1280},
+          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1920`, width: 1920},
           ],
-      downloadUrl: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`}
+      downloadUrl: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}`}
 ));
 
   // Splits the images into the right number of columns
