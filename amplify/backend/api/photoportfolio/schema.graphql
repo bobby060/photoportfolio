@@ -15,6 +15,9 @@ type Images @model @auth(rules: [{allow: private, provider: userPools}, {allow: 
   date: AWSDateTime
   albumsID: ID! @index(name: "byAlbums")
   index: Int
+  width: Int
+  height: Int
+  url: String
 }
 
 type Todo @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {

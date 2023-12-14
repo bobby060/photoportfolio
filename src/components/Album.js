@@ -12,18 +12,23 @@ import {
   MDBSpinner,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
-import { imagesByAlbumsID, getImages } from '../graphql/queries';
-import {updateAlbums} from '../graphql/mutations';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import PhotoGrid from './PhotoGrid';
-import { useParams } from "react-router-dom";
-import {AlbumsContext} from '../helpers/AlbumsContext';
-import {urlhelperDecode} from '../helpers/urlhelper';
-
-import fetchAlbums from '../helpers/fetchAlbums';
-import EditAlbum from './EditAlbum';
 import {Outlet, useLocation} from "react-router-dom";
 import {Link} from 'react-router-dom';
+import { useParams } from "react-router-dom";
+
+// Database
+import { imagesByAlbumsID, getImages } from '../graphql/queries';
+import {updateAlbums} from '../graphql/mutations';
+
+// Helper functions
+import {urlhelperDecode} from '../helpers/urlhelper';
+import fetchAlbums from '../helpers/fetchAlbums';
+import {AlbumsContext} from '../helpers/AlbumsContext';
+
+// Components
+import EditAlbum from './EditAlbum';
+import PhotoGrid from './PhotoGrid';
 
 
 export default function Album(){
@@ -78,6 +83,7 @@ export default function Album(){
     if(albums.length < 1) setAlbums(newA);
     const data = {
           id: newA[index].albumsFeaturedImageId
+          // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
     const image = await API.graphql({
       query: getImages,
@@ -89,7 +95,7 @@ export default function Album(){
     if (debug) {console.log(`images set`)};
    }
 
-
+   // Sets a selected image as the album featured image
   async function updateFeaturedImg(image){ 
     const data = {
       id: albums[albumIndex].id,
@@ -108,8 +114,6 @@ export default function Album(){
     });
     setAlbums(newAlbums);
    }
-
-
 
  // Image handler functions
 

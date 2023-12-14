@@ -1,4 +1,4 @@
-
+// Not used anymore
 import React, {useContext, useEffect, useState} from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import {getImages} from '../graphql/queries';

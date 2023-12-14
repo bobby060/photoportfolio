@@ -1,12 +1,11 @@
 import React from 'react';
 
 export default function Image({img_obj, className}) {
-  const img_key =  `${img_obj.id}-${img_obj.filename}`;
   const small = 300;
   const md = 768;
   const lg = 1280;
   const delivery_domain = 'https://d2brh14yl9j2nl.cloudfront.net/public';
-  const img_url = `${delivery_domain}/${img_key}`;
+  const img_url = `${delivery_domain}/${img_obj.url}`;
 
   // function image_loader(url){
   //   let retries = 0;

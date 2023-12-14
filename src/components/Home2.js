@@ -26,6 +26,7 @@ import Image from './Image';
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
+// import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home(){
 	const {albums} = useContext(AlbumsContext);
@@ -110,7 +111,7 @@ export default function Home(){
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
 				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
-			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
 			       alt='...'/>
 			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
@@ -154,6 +155,7 @@ return(
         </MDBCardText>
         <div className='text-center'>
         	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
+        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>

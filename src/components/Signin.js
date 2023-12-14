@@ -1,6 +1,7 @@
 // components/signin.js
 import { useEffect } from "react";
 
+import  '../css/auth_css.css';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
@@ -16,9 +17,12 @@ export default function SignIn() {
       navigate(from, { replace: true });
     }
   }, [route, navigate, from]);
+
   return (
     <View className="auth-wrapper">
-      <Authenticator></Authenticator>
+      <Authenticator className="pt-3 ">
+
+      </Authenticator>
     </View>
   );
 }

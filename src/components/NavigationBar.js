@@ -35,15 +35,16 @@ export default function NavigationBar(){
 
   let location = useLocation();
 
+    // Updates current album each time location changes
     useEffect(() => {
       setCurrentAlbumState();
 
     }, [location]);
 
+    // Decodes the current album from the current path
     function setCurrentAlbumState(){
       if(location.pathname.startsWith('/album/')){
         for(let i = 0; i < albums.length; i++){
-          console.log(location.pathname);
           if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
             setCurrentAlbum(albums[i].title);
             return;
@@ -63,7 +64,7 @@ export default function NavigationBar(){
       return ({});
     }
 
-
+    // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
       if (authStatus.authStatus !== 'authenticated') {
         return (
@@ -81,13 +82,14 @@ export default function NavigationBar(){
         );
     }
 
-    function EditLinkWrapper(){
+    // Component that displays new album link if user is authorized to create albums
+    function NewAlbumWrapper(){
       if (authStatus.authStatus !== 'authenticated') {
         return;
       }
       return (
         <MDBNavbarItem>
-          <MDBNavbarLink aria-disabled='true'>
+          <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
             <NavLink to={`/new`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
               New Album
             </NavLink>
@@ -100,12 +102,15 @@ export default function NavigationBar(){
       if(albums.length < 1) return;
       return (
           <MDBDropdown>
+          {/*Dropdown toggle shows current album if at one*/}
             <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
               {currentAlbum==="" ? 'Select Album': currentAlbum } 
             </MDBDropdownToggle>
             <MDBDropdownMenu >
               {albums.map((album) => (
-                <MDBDropdownItem link ><Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link></MDBDropdownItem>
+                <MDBDropdownItem link onClick={()=>setShowNav(false)}>
+                  <Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link>
+                </MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
           </MDBDropdown>
@@ -131,25 +136,25 @@ export default function NavigationBar(){
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav className='w-100'>
                 <MDBNavbarItem>
-                    <MDBNavbarLink>
+                    <MDBNavbarLink onClick={()=>setShowNav(false)}>
                     <NavLink to={`/home`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
                       Home
                       </NavLink>
                     </MDBNavbarLink>
                 </MDBNavbarItem>
-                <EditLinkWrapper/>
-                <MDBNavbarItem>
-                  <MDBNavbarLink aria-disabled='true'>
+                <NewAlbumWrapper/>
+{/*                <MDBNavbarItem>
+                  <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
                     <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
                     </NavLink>
                   </MDBNavbarLink>            
-                </MDBNavbarItem>
+                </MDBNavbarItem>*/}
                 <MDBNavbarItem >
                   <MDBNavbarLink>
                   <DropdownWrapper/>
                   </MDBNavbarLink>
                 </MDBNavbarItem>
-                <MDBNavbarItem className = "ms-lg-auto">
+                <MDBNavbarItem className = "ms-lg-auto" onClick={()=>setShowNav(false)}>
                   <SignInWrapper/>
                 </MDBNavbarItem>
                 </MDBNavbarNav>
