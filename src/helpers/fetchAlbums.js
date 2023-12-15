@@ -14,7 +14,6 @@ export default async function fetchAlbums() {
         const bDate = new Date(b.date);
         return bDate - aDate;
     });
-    console.log(sortedAlbums);
 
     return sortedAlbums;
   } 
