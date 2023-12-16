@@ -29,7 +29,7 @@ export default function AllAlbums(){
 	const {albums} = useContext(AlbumsContext);
 	const [featuredAlbums, setFeaturedAlbums]= useState([]);
 
-	 const [windowSize, setWindowSize] = useState({
+	const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   	});
@@ -81,7 +81,19 @@ export default function AllAlbums(){
     }
   }
 
-  const num_columns = getBreakpoint()
+  const num_columns = getBreakpoint();
+  function getImgHeight() {
+  	if (windowSize.width < 750) {
+  		return -1
+  	} if (windowSize.width <= 992) {
+  		return (windowSize.width*2/6);
+  	} else {
+  		return (windowSize.width*0.833*0.6667/num_columns)
+  	}
+  }
+  const imgHeight = getImgHeight();
+  console.log(`img height: ${imgHeight}`)
+  const height_style = imgHeight<0?{}:{'height':imgHeight, 'object-fit':'cover'}
 
    // Holds the columns for the photo grid 
   const columns = new Array(num_columns);
@@ -98,19 +110,23 @@ export default function AllAlbums(){
   }
 
 
+
 	function AlbumCards() {
 		if (featuredAlbums.length < 1) return;
 
 		return (
 			<div className="d-flex">
 				{columns.map((column) => (
-					<MDBCol>
+					<MDBCol className='mt-2'>
 						{column.map( (album, i) => (
-							 <MDBCard background='dark' className='text-white m-1' alignment='end'>
-							 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+							<Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+							 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+							 
 						      <MDBCardImage overlay
 						       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
-						       alt='...'/>
+						       alt='...'
+						       style={height_style}
+						       className=''/>
 						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 						        <MDBCardTitle>{album.title}</MDBCardTitle>
 						        <MDBCardText className='text-truncate'>
@@ -118,8 +134,10 @@ export default function AllAlbums(){
 						        </MDBCardText>
 						        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
 						      </MDBCardOverlay>
-						      </Link>
-						    </MDBCard>))}
+						      <div className='mask overlay'
+                      			style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
+						      </MDBCard>
+						    </Link>))}
 						</MDBCol>
 
 			))}
