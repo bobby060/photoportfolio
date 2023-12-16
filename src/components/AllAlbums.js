@@ -64,27 +64,67 @@ export default function AllAlbums(){
 	    return () => window.removeEventListener('resize', handleResize);
 	  }, []);
 
+ 	{/*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
+  Example  breakpoints = [0 ,  350, 750, 900, 1300]
+        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
+        Window with of 850 will have 2 columns. 2000 will have 4
+
+  */}
+  const breakPoints = [0, 350, 750, 1200];
+ // const breakPoints = [0,0];
+
+  // Gets breakpoint for current width
+  function getBreakpoint() {
+    const cur_width = windowSize.width;
+    for (let i = breakPoints.length-1; i >= 0; i--){
+        if (breakPoints[i] < cur_width ) return i;
+    }
+  }
+
+  const num_columns = getBreakpoint()
+
+   // Holds the columns for the photo grid 
+  const columns = new Array(num_columns);
+
+    // Splits the images into the right number of columns
+  for (let i = 0; i < featuredAlbums.length; i++) {
+    const item = featuredAlbums[i];
+    const columnIndex = i % num_columns;
+
+    if (!columns[columnIndex]) {
+      columns[columnIndex] = [];
+    }
+    columns[columnIndex].push(item);
+  }
+
+
 	function AlbumCards() {
 		if (featuredAlbums.length < 1) return;
 
 		return (
-			featuredAlbums.map( (album, i) => (
-				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
-			      <MDBCardImage overlay
-			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
-			       alt='...'/>
-			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
-			        <MDBCardTitle>{album.title}</MDBCardTitle>
-			        <MDBCardText className='text-truncate'>
-			          {album.desc}
-			        </MDBCardText>
-			        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-			      </MDBCardOverlay>
-			      </Link>
-			    </MDBCard>
+			<div className="d-flex">
+				{columns.map((column) => (
+					<MDBCol>
+						{column.map( (album, i) => (
+							 <MDBCard background='dark' className='text-white m-1' alignment='end'>
+							 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+						      <MDBCardImage overlay
+						       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
+						       alt='...'/>
+						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
+						        <MDBCardTitle>{album.title}</MDBCardTitle>
+						        <MDBCardText className='text-truncate'>
+						          {album.desc}
+						        </MDBCardText>
+						        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+						      </MDBCardOverlay>
+						      </Link>
+						    </MDBCard>))}
+						</MDBCol>
 
-			)));
+			))}
+		</div>
+		);
 	}
 
 
