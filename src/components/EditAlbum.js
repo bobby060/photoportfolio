@@ -100,7 +100,7 @@ export default function EditAlbum(){
 			setAlbums(updatedAlbums);
 	    console.log(`Updated album: ${form.get("title")}`);
 	    // After save, navigates to album
-	   	navigate('../../album/'.concat(urlhelperEncode(response.data.updateAlbums)));
+	   	navigate('../../albums/'.concat(urlhelperEncode(response.data.updateAlbums)));
 	}
 
 	 async function deleteAlbum(id) {

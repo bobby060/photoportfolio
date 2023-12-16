@@ -109,7 +109,7 @@ export default function Home(){
 		return (
 			featuredAlbums.map( (album, i) => (
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
+				 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
 			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
 			       alt='...'/>

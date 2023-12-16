@@ -43,7 +43,7 @@ export default function NavigationBar(){
 
     // Decodes the current album from the current path
     function setCurrentAlbumState(){
-      if(location.pathname.startsWith('/album/')){
+      if(location.pathname.startsWith('/albums/')){
         for(let i = 0; i < albums.length; i++){
           if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
             setCurrentAlbum(albums[i].title);
@@ -123,7 +123,7 @@ export default function NavigationBar(){
             <MDBDropdownMenu >
               {albums.map((album) => (
                 <MDBDropdownItem link onClick={()=>setShowNav(false)}>
-                  <Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link>
+                  <Link className='text-dark' to={`/albums/${urlhelperEncode(album)}`}>{album.title}</Link>
                 </MDBDropdownItem>
                 ))}
             </MDBDropdownMenu>
@@ -156,6 +156,13 @@ export default function NavigationBar(){
                       </NavLink>
                     </MDBNavbarLink>
                 </MDBNavbarItem>
+                  <MDBNavbarItem>
+                    <MDBNavbarLink onClick={()=>setShowNav(false)}>
+                    <NavLink to={`/albums`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
+                      Albums
+                      </NavLink>
+                    </MDBNavbarLink>
+                </MDBNavbarItem>
                 <NewAlbumWrapper/>
 {/*                <MDBNavbarItem>
                   <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
@@ -163,6 +170,7 @@ export default function NavigationBar(){
                     </NavLink>
                   </MDBNavbarLink>            
                 </MDBNavbarItem>*/}
+
                 <MDBNavbarItem >
                   <MDBNavbarLink>
                   <DropdownWrapper/>

@@ -67,8 +67,7 @@ export default function Album(){
  async function pullAlbum(){
     if(location.pathname.endsWith('edit')){
       setCanEdit(true);
-    }
-    else{
+    } else{
       setCanEdit(false);
     }
     setAlbumIndex(-1);

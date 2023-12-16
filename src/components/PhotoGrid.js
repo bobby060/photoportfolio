@@ -43,7 +43,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   const [nextToken, setNextToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-// Fetches next set of items when bottom of scroll is reached
+  // Fetches next set of items when bottom of scroll is reached
   const fetchData = useCallback(async () => {
   // async function fetchData(){
 
