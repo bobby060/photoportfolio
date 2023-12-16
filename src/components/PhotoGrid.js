@@ -12,7 +12,7 @@ import { imagesByAlbumsID } from '../graphql/queries';
 import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 
 // Components
-import Lightbox from "yet-another-react-lightbox";
+import {Lightbox} from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
 // import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
@@ -24,9 +24,10 @@ import Image from "./Image";
 // setFeaturedImg - callback to set an image as the albums featured image
 // editMode - lets photogrid know if it is in edit mode
 // selectedAlbum - where photogrid is pulling photos from
+
+
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
 
-  const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -45,8 +46,8 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 // Fetches next set of items when bottom of scroll is reached
   const fetchData = useCallback(async () => {
   // async function fetchData(){
-    if (isLoading) return;
-    if (!nextToken) return;
+
+    if (isLoading || !nextToken ) return;
 
     setIsLoading(true);
 
@@ -66,7 +67,14 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     setItems(new_items);
     setIsLoading(false);
   // }
-  }, [nextToken, isLoading]);
+  }, [nextToken, isLoading, index]);
+
+  useEffect(() => {
+    if (index < items.length -1){
+      fetchData();
+   }
+  }, [index]);
+
 
 
   // Initalizes intersection observer to call each time observer enters view
@@ -208,7 +216,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   }
 
   function DeleteImageWrapper(image) {
-      if (!deleteImage || authStatus.authStatus !== 'authenticated'  || !editMode) {
+      if (!deleteImage || !editMode) {
         return;
       }
       return (<MDBBtn floating className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> confirmDeleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
@@ -217,7 +225,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
    }
 
   function MakeFeaturedWrapper(image){
-      if (!setFeaturedImg || authStatus.authStatus !== 'authenticated' || !editMode) {
+      if (!setFeaturedImg || !editMode) {
         return;
       }
 
@@ -275,8 +283,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         controller={{closeonBackDropClick: true}}
         styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
         plugins={[Download]}
+        on={{ view: ({ index: currentIndex }) => setIndex(currentIndex) }}
         // zoom={{maxZoomPixelRatio: 3}}
         />
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
 projects:
   photoportfolio:
-    schemaPath: src/graphql/schema.json
+    schemaPath: amplify/backend/api/photoportfolio/build/schema.graphql
     includes:
       - src/graphql/**/*.js
     excludes:

@@ -29,6 +29,7 @@ export default function NavigationBar(){
   const [showNav, setShowNav] = useState(false);
   const user_item = useAuthenticator((context) => [context.user]);
   const authStatus = useAuthenticator(context => [context.authStatus]);
+  // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
   const { signOut } = useAuthenticator((context) => [context.user]);
   const {albums, setAlbums} = useContext(AlbumsContext);
   const[currentAlbum,setCurrentAlbum] = useState("");
@@ -38,7 +39,6 @@ export default function NavigationBar(){
     // Updates current album each time location changes
     useEffect(() => {
       setCurrentAlbumState();
-
     }, [location]);
 
     // Decodes the current album from the current path
@@ -64,6 +64,20 @@ export default function NavigationBar(){
       return ({});
     }
 
+    function isAdminGroup(){
+      if (authStatus.authStatus==='configuring' 
+        || !user_item.user 
+        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin'){
+        return false;
+      }
+      if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin')
+        {
+          return true;
+        }
+      return false;
+    }
+
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
       if (authStatus.authStatus !== 'authenticated') {
@@ -84,7 +98,7 @@ export default function NavigationBar(){
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper(){
-      if (authStatus.authStatus !== 'authenticated') {
+      if (!isAdminGroup()) {
         return;
       }
       return (
