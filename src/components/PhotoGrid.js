@@ -26,7 +26,7 @@ import Image from "./Image";
 // selectedAlbum - where photogrid is pulling photos from
 
 
-export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
+export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -282,7 +282,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         open={open}
         controller={{closeonBackDropClick: true}}
         styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
-        plugins={[Download]}
+        plugins={ signedIn ? [Download]: []}
         on={{ view: ({ index: currentIndex }) => setIndex(currentIndex) }}
         // zoom={{maxZoomPixelRatio: 3}}
         />

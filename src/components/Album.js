@@ -45,6 +45,7 @@ export default function Album(){
   const debug = false;
 
   const user_item = useAuthenticator((context) => [context.user]);
+  const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
   let location = useLocation();
 
   // Initializes images after component render
@@ -204,6 +205,8 @@ export default function Album(){
       setFeaturedImg ={updateFeaturedImg}
       selectedAlbum = {albums[albumIndex]}
       editMode = {canEdit}
+      signedIn = {authStatus.authStatus==="authenticated"}
+
       />
     </MDBContainer>
     </>

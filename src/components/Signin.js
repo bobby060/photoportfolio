@@ -23,6 +23,10 @@ export default function SignIn() {
       <Authenticator className="pt-3 ">
 
       </Authenticator>
+
+      <p className="fw-lighter m-2">An account allows you to download images. </p>
+      <p className="fw-lighter m-2">Right now, that is all it does! </p>
+      <p className="fw-lighter m-2">Public account creation is currently disabled, so please reach out if you would like an account</p>
     </View>
   );
 }
