@@ -1,4 +1,4 @@
-type Albums @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
+type Albums @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   title: String
   desc: String
@@ -7,7 +7,7 @@ type Albums @model @auth(rules: [{allow: private, provider: userPools}, {allow: 
   featuredImage: Images @hasOne
 }
 
-type Images @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
+type Images @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   title: String
   desc: String

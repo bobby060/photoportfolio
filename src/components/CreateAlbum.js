@@ -27,7 +27,7 @@ import uploadImages from '../helpers/uploadImages';
 
 
 export default function CreateAlbum(){
-	const authStatus = useAuthenticator((context) => [context.authStatus]);
+	const user_item = useAuthenticator((context) => [context.user]);
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const navigate = useNavigate();
 	const [selectedFiles, setSelectedFiles] = useState([]);
@@ -35,9 +35,10 @@ export default function CreateAlbum(){
 
 
 	useEffect(() => {
-		console.log(authStatus);
-	    if (authStatus.authStatus === 'unauthenticated') navigate('/');
-	 }, [authStatus]);
+	    if (!user_item.user 
+	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') navigate('/');
+	 }, [user_item]);
 
 	function handleNew(){
 		document.getElementById("createAlbumForm").submit();
@@ -105,7 +106,9 @@ export default function CreateAlbum(){
 	 }
 
 	 // Ensures only authenticated users can view this route
-	if (authStatus.authStatus !== 'authenticated'){
+	if (!user_item.user 
+	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin'){
 		return (<p> You don't have access, redirecting! </p>);
 
 	}

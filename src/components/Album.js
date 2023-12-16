@@ -44,7 +44,7 @@ export default function Album(){
 
   const debug = false;
 
-  const authStatus = useAuthenticator((context) => [context.authStatus]);
+  const user_item = useAuthenticator((context) => [context.user]);
   let location = useLocation();
 
   // Initializes images after component render
@@ -144,8 +144,17 @@ export default function Album(){
 
   const date = new Date(albums[albumIndex].date);
 
+  function isAdminGroup(){
+    if (!user_item.user 
+       || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+       || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin'){
+      return false;
+    }
+    return true;
+  }
+
   function ShowEditButton(){
-    if (authStatus.authStatus === 'authenticated' && !canEdit){
+    if (isAdminGroup() && !canEdit){
       return (<MDBBtn floating onClick={()=>setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
     }
   }

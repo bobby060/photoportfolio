@@ -28,7 +28,6 @@ import Image from "./Image";
 
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
 
-  const authStatus = useAuthenticator((context) => [context.authStatus]);
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -217,7 +216,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   }
 
   function DeleteImageWrapper(image) {
-      if (!deleteImage || authStatus.authStatus !== 'authenticated'  || !editMode) {
+      if (!deleteImage || !editMode) {
         return;
       }
       return (<MDBBtn floating className="position-absolute top-0 end-0 btn-light m-1" onClick={()=> confirmDeleteImage(image.image)} color='text-dark' data-mdb-toggle="tooltip" title="Delete photo"  >
@@ -226,7 +225,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
    }
 
   function MakeFeaturedWrapper(image){
-      if (!setFeaturedImg || authStatus.authStatus !== 'authenticated' || !editMode) {
+      if (!setFeaturedImg || !editMode) {
         return;
       }
 
