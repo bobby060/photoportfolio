@@ -7,19 +7,21 @@ import {
   MDBInput,
   MDBTextArea,
   MDBSpinner,
-  MDBFile
+  MDBFile,
+  MDBCheckbox,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import {Link} from 'react-router-dom';
+import Tag from './Tag';
 
 // Database
-import {updateAlbums, deleteAlbums , deleteImages} from '../graphql/mutations'; 
+import {updateAlbums, deleteAlbums , deleteImages, createAlbumTags} from '../graphql/mutations'; 
 import {imagesByAlbumsID} from '../graphql/queries';
 
 // Helpers
-import fetchAlbums from '../helpers/fetchAlbums';
+import {fetchAlbums, fetchAllAlbumTags} from '../helpers/loaders';
 import {urlhelperEncode, urlhelperDecode} from '../helpers/urlhelper';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
@@ -32,6 +34,7 @@ export default function EditAlbum(){
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const [deleting, setDeleting] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [albumTags, setAlbumTags] = useState([]);
 	const navigate = useNavigate();
 	const debug = true;
 
@@ -40,8 +43,13 @@ export default function EditAlbum(){
 
 	useEffect(() => {
     	getAlbum();
+    	fetchTags();
   }, [album_id]);
 
+	async function fetchTags(){
+		  const tags = await fetchAllAlbumTags();
+    	setAlbumTags(tags);
+	}
 
   // Helper that determines which album in the albums list the url album_id is triggering the component to pull
   async function findIndex(albums){
@@ -137,6 +145,31 @@ export default function EditAlbum(){
 	 }
 
 
+	 const handleCreateTagEnter = event => {
+	 		// event.preventDefault();
+	 		if (event.key === 'Enter'){
+	 			console.log(`enter key pressed, tag name is ${event.target.value}`);
+	 			createTag(event.target.value);
+
+	 		}
+
+	 }
+
+	 async function createTag(name){
+	 		const data = {
+	      title: name,
+	      privacy: 'public',
+	    };
+	    const response = await API.graphql({
+	      query: createAlbumTags,
+	      variables: { input: data },
+	    });
+	    console.log(response);
+	    fetchTags();
+	 }
+
+
+
   function Loading(){
    	return(<>
    	 <MDBSpinner className="mt-3"></MDBSpinner>
@@ -162,6 +195,7 @@ export default function EditAlbum(){
 		const dateString = String(year).concat('-',month2,'-',d2);
 
 	return(
+		<>
 			<form onSubmit={updateAlbum}>
 				<MDBRow className='mt-3 d-flex justify-content-center'>
 			      <MDBCol xl='3' lg='5' md ='6'>
@@ -178,20 +212,34 @@ export default function EditAlbum(){
 			        multiple
 			        onChange={setFiles}
 			        className='m-1 mb-3'
+			        label='Add more photos to album'
 			      	/>
 			      </MDBCol>
 		   </MDBRow>
-		   	   	<MDBRow  className='d-flex justify-content-center align-items-center' >
+		 <MDBRow  className='d-flex justify-content-center align-items-center' >
 		    <MDBCol className ='d-flex justify-content-center' lg='5'>
 		        <MDBBtn className='m-1' title='Delete Album' onClick={()=>deleteAlbum(albums[albumIndex].id)} color='dark' data-mdb-toggle="tooltip" >
 		          Delete Album
 		        </MDBBtn>
 		        <MDBBtn type='submit' className="bg-dark m-1">Save</MDBBtn>
 		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/album/${urlhelperEncode(albums[albumIndex])}`}>Cancel</Link></MDBBtn>
-		    </MDBCol>
+		   </MDBCol>
 	   </MDBRow>
+
 	   {(isLoading)?<Loading/>:<></>}
 		</form>
+			   <MDBRow  className='d-flex justify-content-center align-items-center' >
+		    <MDBCol className ='d-flex justify-content-center flex-wrap' lg='5'>
+		    	{albumTags.map((tag) => <Tag 
+		    		selected={false}
+		    		name={tag.title}
+		    	/> )}
+		    	<div className='m-1' style={{'min-width':'60px'}}>
+		    	<MDBInput label='New Tag' id='newTag' type='text' className='' size='sm' onKeyDown={handleCreateTagEnter}/>
+		    	</div>
+		    </MDBCol>
+	   </MDBRow>
+	   </>
 
 		)
 }

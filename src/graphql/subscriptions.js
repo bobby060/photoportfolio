@@ -1,6 +1,60 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const onCreateAlbumTags = /* GraphQL */ `
+  subscription OnCreateAlbumTags(
+    $filter: ModelSubscriptionAlbumTagsFilterInput
+  ) {
+    onCreateAlbumTags(filter: $filter) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateAlbumTags = /* GraphQL */ `
+  subscription OnUpdateAlbumTags(
+    $filter: ModelSubscriptionAlbumTagsFilterInput
+  ) {
+    onUpdateAlbumTags(filter: $filter) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteAlbumTags = /* GraphQL */ `
+  subscription OnDeleteAlbumTags(
+    $filter: ModelSubscriptionAlbumTagsFilterInput
+  ) {
+    onDeleteAlbumTags(filter: $filter) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
 export const onCreateAlbums = /* GraphQL */ `
   subscription OnCreateAlbums($filter: ModelSubscriptionAlbumsFilterInput) {
     onCreateAlbums(filter: $filter) {
@@ -25,6 +79,10 @@ export const onCreateAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        nextToken
         __typename
       }
       createdAt
@@ -60,6 +118,10 @@ export const onUpdateAlbums = /* GraphQL */ `
         updatedAt
         __typename
       }
+      albumtagss {
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -91,6 +153,10 @@ export const onDeleteAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        nextToken
         __typename
       }
       createdAt
@@ -157,36 +223,96 @@ export const onDeleteImages = /* GraphQL */ `
     }
   }
 `;
-export const onCreateTodo = /* GraphQL */ `
-  subscription OnCreateTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onCreateTodo(filter: $filter) {
+export const onCreateAlbumTagsAlbums = /* GraphQL */ `
+  subscription OnCreateAlbumTagsAlbums(
+    $filter: ModelSubscriptionAlbumTagsAlbumsFilterInput
+  ) {
+    onCreateAlbumTagsAlbums(filter: $filter) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onUpdateTodo = /* GraphQL */ `
-  subscription OnUpdateTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onUpdateTodo(filter: $filter) {
+export const onUpdateAlbumTagsAlbums = /* GraphQL */ `
+  subscription OnUpdateAlbumTagsAlbums(
+    $filter: ModelSubscriptionAlbumTagsAlbumsFilterInput
+  ) {
+    onUpdateAlbumTagsAlbums(filter: $filter) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onDeleteTodo = /* GraphQL */ `
-  subscription OnDeleteTodo($filter: ModelSubscriptionTodoFilterInput) {
-    onDeleteTodo(filter: $filter) {
+export const onDeleteAlbumTagsAlbums = /* GraphQL */ `
+  subscription OnDeleteAlbumTagsAlbums(
+    $filter: ModelSubscriptionAlbumTagsAlbumsFilterInput
+  ) {
+    onDeleteAlbumTagsAlbums(filter: $filter) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename

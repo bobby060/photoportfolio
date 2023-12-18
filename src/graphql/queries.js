@@ -1,6 +1,42 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const getAlbumTags = /* GraphQL */ `
+  query GetAlbumTags($id: ID!) {
+    getAlbumTags(id: $id) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listAlbumTags = /* GraphQL */ `
+  query ListAlbumTags(
+    $filter: ModelAlbumTagsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listAlbumTags(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        title
+        privacy
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
 export const getAlbums = /* GraphQL */ `
   query GetAlbums($id: ID!) {
     getAlbums(id: $id) {
@@ -25,6 +61,10 @@ export const getAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        nextToken
         __typename
       }
       createdAt
@@ -137,29 +177,103 @@ export const imagesByAlbumsID = /* GraphQL */ `
     }
   }
 `;
-export const getTodo = /* GraphQL */ `
-  query GetTodo($id: ID!) {
-    getTodo(id: $id) {
+export const getAlbumTagsAlbums = /* GraphQL */ `
+  query GetAlbumTagsAlbums($id: ID!) {
+    getAlbumTagsAlbums(id: $id) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const listTodos = /* GraphQL */ `
-  query ListTodos(
-    $filter: ModelTodoFilterInput
+export const listAlbumTagsAlbums = /* GraphQL */ `
+  query ListAlbumTagsAlbums(
+    $filter: ModelAlbumTagsAlbumsFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listAlbumTagsAlbums(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        description
+        albumTagsId
+        albumsId
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
+  query AlbumTagsAlbumsByAlbumTagsId(
+    $albumTagsId: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelAlbumTagsAlbumsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    albumTagsAlbumsByAlbumTagsId(
+      albumTagsId: $albumTagsId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        albumTagsId
+        albumsId
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const albumTagsAlbumsByAlbumsId = /* GraphQL */ `
+  query AlbumTagsAlbumsByAlbumsId(
+    $albumsId: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelAlbumTagsAlbumsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    albumTagsAlbumsByAlbumsId(
+      albumsId: $albumsId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        albumTagsId
+        albumsId
         createdAt
         updatedAt
         __typename

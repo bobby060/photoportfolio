@@ -18,7 +18,7 @@ import {
 
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import {Link} from 'react-router-dom';
-
+import Tag from './Tag';
 
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
@@ -81,6 +81,8 @@ export default function AllAlbums(){
     }
   }
 
+
+  // Responsiveness functions
   const num_columns = getBreakpoint();
   function getImgHeight() {
   	if (windowSize.width < 750) {
@@ -109,15 +111,14 @@ export default function AllAlbums(){
     columns[columnIndex].push(item);
   }
 
-
-
 	function AlbumCards() {
 		if (featuredAlbums.length < 1) return;
 
 		return (
+
 			<div className="d-flex">
 				{columns.map((column) => (
-					<MDBCol className='mt-2'>
+					<MDBCol className=''>
 						{column.map( (album, i) => (
 							<Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
 							 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
@@ -129,9 +130,7 @@ export default function AllAlbums(){
 						       className=''/>
 						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 						        <MDBCardTitle>{album.title}</MDBCardTitle>
-						        <MDBCardText className='text-truncate'>
-						          {album.desc}
-						        </MDBCardText>
+						        {(album.desc.length > 0)?<MDBCardText className='text-truncate'>{album.desc}</MDBCardText>:<></>}
 						        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
 						      </MDBCardOverlay>
 						      <div className='mask overlay'
@@ -140,14 +139,30 @@ export default function AllAlbums(){
 						    </Link>))}
 						</MDBCol>
 
-			))}
-		</div>
+				))}
+			</div>
+
 		);
 	}
 
-
 	return(
 		<MDBCol lg='10' className="me-auto ms-auto">
+				<MDBRow className='mt-1'>
+					<MDBCol>
+					<Tag 
+		    		selected={true}
+		    		name={'Korea'}
+		    	/>
+		    	<Tag 
+		    		selected={false}
+		    		name={'Night'}
+		    	/>
+		    	<Tag 
+		    		selected={false}
+		    		name={'NYC'}
+		    	/>
+		    	</MDBCol>
+		    	</MDBRow>
 			<AlbumCards/>
 		</MDBCol>
 		);
