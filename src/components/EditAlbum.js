@@ -201,19 +201,17 @@ export default function EditAlbum(){
 	 async function addTagToAlbum(tag){
 	 		const data = {
 	 			albumsId: currentAlbum.id,
-	 			allTagsId: tag.id,
+	 			albumTagsId: tag.id,
 	 		}
 	 		const response = await API.graphql({
 	 			query: createAlbumTagsAlbums,
 	 			variables:{ input: data},
 	 		})
-	 		console.log(response);
 
 	 	}
 
 	 async function removeTagFromAlbum(tag){
 	 	const relationIdToRemove = currentAlbum.albumtagss.items[currentTags[tag.id]];
-	 	console.log(relationIdToRemove);
  		 const data = {
  			id: relationIdToRemove.id
  		}
@@ -221,7 +219,6 @@ export default function EditAlbum(){
  			query: deleteAlbumTagsAlbums,
  			variables:{ input: data},
  		})
-	 	// Delete allTagsalbums connection
 	 }
 
 	 async function deleteTag(id){
@@ -288,7 +285,7 @@ export default function EditAlbum(){
 		          Delete Album
 		        </MDBBtn>
 		        <MDBBtn type='submit' className="bg-dark m-1">Save</MDBBtn>
-		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/album/${urlhelperEncode(currentAlbum)}`}>Cancel</Link></MDBBtn>
+		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/albums/${urlhelperEncode(currentAlbum)}`}>Cancel</Link></MDBBtn>
 		   </MDBCol>
 	   </MDBRow>
 

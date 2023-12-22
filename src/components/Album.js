@@ -41,6 +41,7 @@ export default function Album(){
   const [featuredImg, setFeaturedImg] = useState([]);
 
 
+
   // for storing images in current album
 
   const debug = false;

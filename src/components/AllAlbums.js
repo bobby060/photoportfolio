@@ -20,27 +20,27 @@ import {AlbumsContext} from '../helpers/AlbumsContext';
 import {Link} from 'react-router-dom';
 import Tag from './Tag';
 
+import {albumTagsAlbumsByAlbumsId} from '../graphql/queries';
+
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 import {IMAGEDELIVERYHOST} from './App';
+import {fetchAllAlbumTags} from '../helpers/loaders';
 
 
 export default function AllAlbums(){
 
 	const {albums} = useContext(AlbumsContext);
-	const [featuredAlbums, setFeaturedAlbums]= useState([]);
+	const [allTags, setAllTags] = useState([]);
+	const [currentVisibleAlbums, setCurrentVisibleAlbums] = useState([]);
+	const [nextToken, setNextToken] = useState([]);
+	const [selectedTags, setSelectedTags] = useState([]);
 
 	const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   	});
-
-
-	async function updateFeatured(){
-  		const a = await getFeaturedImgs(albums);
-  		setFeaturedAlbums(a);
-	}
 
 	function dateFormat(date){
 		const d = new Date(date);
@@ -48,7 +48,8 @@ export default function AllAlbums(){
 	}
 
 	useEffect(()=> {
-		updateFeatured();
+		fetchTags();
+		setCurrentVisibleAlbums(albums);
 	}, []);
 
 
@@ -96,15 +97,14 @@ export default function AllAlbums(){
   	}
   }
   const imgHeight = getImgHeight();
-  console.log(`img height: ${imgHeight}`)
   const height_style = imgHeight<0?{}:{'height':imgHeight, 'object-fit':'cover'}
 
    // Holds the columns for the photo grid 
   const columns = new Array(num_columns);
 
     // Splits the images into the right number of columns
-  for (let i = 0; i < featuredAlbums.length; i++) {
-    const item = featuredAlbums[i];
+  for (let i = 0; i < currentVisibleAlbums.length; i++) {
+    const item = currentVisibleAlbums[i];
     const columnIndex = i % num_columns;
 
     if (!columns[columnIndex]) {
@@ -113,8 +113,34 @@ export default function AllAlbums(){
     columns[columnIndex].push(item);
   }
 
+  // ///////////////////
+  // TAGS
+  // //////////////////
+  async function fetchTags(){
+		  const tags = await fetchAllAlbumTags();
+    	setAllTags(tags);
+	}
+
+	async function getFilteredAlbums(){
+		// gets filtered albums based on the current tag
+	}
+
+	async function onSelectTag(tag){
+		const newTags = {...selectedTags, tag}
+		setSelectedTags(newTags);
+		console.log(selectedTags);
+	}
+
+	async function onDeselectTag(tag){
+		const newTags = selectedTags.filter((t) => t.id !== tag.id);
+		setSelectedTags(newTags);
+		console.log(selectedTags);
+	}
+
+
+
 	function AlbumCards() {
-		if (featuredAlbums.length < 1) return;
+		if (currentVisibleAlbums.length < 1) return;
 
 		return (
 
@@ -151,20 +177,16 @@ export default function AllAlbums(){
 		<MDBCol lg='10' className="me-auto ms-auto">
 				<MDBRow className='mt-1'>
 					<MDBCol>
+					{allTags.map((tag, i ) => (
 					<Tag 
-		    		selected={true}
-		    		name={'Korea'}
-		    	/>
-		    	<Tag 
 		    		selected={false}
-		    		name={'Night'}
+		    		name={tag.title}
+		    		onSelect={() => onSelectTag(tag)}
+		    		onDeselect={() => onDeselectTag(tag)}
 		    	/>
-		    	<Tag 
-		    		selected={false}
-		    		name={'NYC'}
-		    	/>
+						))}
 		    	</MDBCol>
-		    	</MDBRow>
+		    </MDBRow>
 			<AlbumCards/>
 		</MDBCol>
 		);
