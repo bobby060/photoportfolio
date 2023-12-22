@@ -52,6 +52,11 @@ export default function AllAlbums(){
 		setCurrentVisibleAlbums(albums);
 	}, []);
 
+	useEffect(()=> {
+		getFilteredAlbums();
+
+	}, [selectedTags]);
+
 
 	// Adds ability to adjust column layout after resize
  	useEffect(() => {
@@ -126,15 +131,13 @@ export default function AllAlbums(){
 	}
 
 	async function onSelectTag(tag){
-		const newTags = {...selectedTags, tag}
+		const newTags = [...selectedTags, tag];
 		setSelectedTags(newTags);
-		console.log(selectedTags);
 	}
 
 	async function onDeselectTag(tag){
 		const newTags = selectedTags.filter((t) => t.id !== tag.id);
 		setSelectedTags(newTags);
-		console.log(selectedTags);
 	}
 
 
