@@ -1,5 +1,6 @@
 import { API, Storage } from 'aws-amplify';
 import {createImages, updateImages } from '../graphql/mutations';
+import {IMAGEDELIVERYHOST} from '../components/App';
 
 
 export default async function uploadImages(targetAlbum, files){
@@ -60,7 +61,7 @@ export default async function uploadImages(targetAlbum, files){
 	   
 
 	   // Adds dimensions and url to the image object that was just created
-	   	const dims = await getMeta(`https://d2brh14yl9j2nl.cloudfront.net/public/${url}`);
+	   	const dims = await getMeta(`https://${IMAGEDELIVERYHOST}/public/${url}`);
 			const update_data = {
 			    	id: img.id,
 			      	url: url,

@@ -1,18 +1,30 @@
+import React, { useState } from 'react';
 import {
   MDBBtn,
   MDBIcon
 } from 'mdb-react-ui-kit';
 
 
-export default function Tag({selected, onSelect, onDeselect, name}){
+export default function Tag({selected, onSelect = () => {}, onDeselect = () => {}, name}){
+  const [isSelected, setIsSeleted] = useState(selected);
 
-  if (selected){
+  function handleClick(){
+    if(isSelected){
+      setIsSeleted(false);
+      onDeselect();
+    } else {
+      setIsSeleted(true);
+      onSelect();
+    }
+  }
+
+  if (isSelected){
     return (
-        <MDBBtn rounded toggle className='text-light m-1' size='sm' color='dark'><MDBIcon fas icon="times" /> {name}</MDBBtn>
+        <MDBBtn rounded toggle className='text-light m-1' size='sm' color='dark' onClick={()=>handleClick()}>{name}  <MDBIcon className="text-white-50" icon="times" /></MDBBtn>
               );
   } else {
     return (
-      <MDBBtn rounded toggle outline className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
+      <MDBBtn rounded toggle outline onClick={()=>handleClick()} className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
       );
   }
 

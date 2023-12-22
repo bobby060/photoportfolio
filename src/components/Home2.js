@@ -26,6 +26,8 @@ import Image from './Image';
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
+import {IMAGEDELIVERYHOST} from './App';
+
 // import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home(){
@@ -59,7 +61,7 @@ export default function Home(){
 			}
 		})
 
-		const urls = response.results.map((item) => `https://d2brh14yl9j2nl.cloudfront.net/public/${item.key}?width=1280`);
+		const urls = response.results.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
 	}
 
@@ -111,7 +113,7 @@ export default function Home(){
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
 				 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
-			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
+			       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
 			       alt='...'/>
 			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>

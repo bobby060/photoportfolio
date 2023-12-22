@@ -36,8 +36,12 @@ export default function CreateAlbum(){
 
 	useEffect(() => {
 	    if (!user_item.user 
-	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') navigate('/');
+	     || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin'){ 
+	    	console.log('redirecting...');
+
+	    	navigate('/');
+	  }
 	 }, [user_item]);
 
 	function handleNew(){
@@ -101,13 +105,13 @@ export default function CreateAlbum(){
 			const updatedAlbums = await fetchAlbums();
 			setAlbums(updatedAlbums);
 	    console.log(`Created new album named: ${form.get("title")}`);
-	    navigate(`../album/${urlhelperEncode(new_album)}`);
+	    navigate(`../albums/${urlhelperEncode(new_album)}`);
 	    event.target.reset();
 	 }
 
 	 // Ensures only authenticated users can view this route
 	if (!user_item.user 
-	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+	     || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
 	     || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin'){
 		return (<p> You don't have access, redirecting! </p>);
 

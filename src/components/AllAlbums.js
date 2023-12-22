@@ -23,6 +23,8 @@ import Tag from './Tag';
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
+import {IMAGEDELIVERYHOST} from './App';
+
 
 export default function AllAlbums(){
 
@@ -124,7 +126,7 @@ export default function AllAlbums(){
 							 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
 							 
 						      <MDBCardImage overlay
-						       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
+						       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
 						       alt='...'
 						       style={height_style}
 						       className=''/>

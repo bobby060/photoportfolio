@@ -17,11 +17,13 @@ import {Link} from 'react-router-dom';
 import Tag from './Tag';
 
 // Database
-import {updateAlbums, deleteAlbums , deleteImages, createAlbumTags} from '../graphql/mutations'; 
-import {imagesByAlbumsID} from '../graphql/queries';
+import {updateAlbums, deleteAlbums , deleteImages, 
+createAlbumTags, deleteAlbumTags, updateAlbumTags,
+createAlbumTagsAlbums, deleteAlbumTagsAlbums} from '../graphql/mutations'; 
+import {imagesByAlbumsID, albumTagsAlbumsByAlbumsId} from '../graphql/queries';
 
 // Helpers
-import {fetchAlbums, fetchAllAlbumTags} from '../helpers/loaders';
+import {fetchAlbums, fetchAllAlbumTags, fetchAlbum} from '../helpers/loaders';
 import {urlhelperEncode, urlhelperDecode} from '../helpers/urlhelper';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
@@ -38,7 +40,7 @@ export default function EditAlbum(){
 	const navigate = useNavigate();
 	const debug = true;
 
-	const [albumIndex, setAlbumIndex] = useState(-1);
+	const [currentAlbum, setCurrentAlbum] = useState(null);
 	let {album_id} = useParams();
 
 	useEffect(() => {
@@ -46,10 +48,7 @@ export default function EditAlbum(){
     	fetchTags();
   }, [album_id]);
 
-	async function fetchTags(){
-		  const tags = await fetchAllAlbumTags();
-    	setAlbumTags(tags);
-	}
+
 
   // Helper that determines which album in the albums list the url album_id is triggering the component to pull
   async function findIndex(albums){
@@ -71,15 +70,25 @@ export default function EditAlbum(){
   }
 
   async function getAlbum() {
-    setAlbumIndex(-1);
+    // setAlbumIndex(-1);
     // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
     const newA = (albums.length < 1) ? await fetchAlbums(): albums;
     const index = await findIndex(newA);
     if (index < 0) {
       throw new Error(`404. Album at url, ${album_id}, was not found!`);
     }
-    setAlbumIndex(index);
+    // Get album tags connections by album ID here
+  	const curAl = await fetchAlbum(albums[index].id);
+    console.log(curAl);
+    setCurrentAlbum(curAl);
 
+
+    // const data = {
+    // 	albumsID: currentAlbum.id,
+    // }
+    // const tags = await API.graphql({
+    // 	query: albumTagsAlbumsByAlbumsId
+    // })
 
   }
 
@@ -92,7 +101,7 @@ export default function EditAlbum(){
 	    const form = new FormData(event.target);
 	    const date = form.get("date") + 'T00:00:00.000Z';
 	    const data = {
-	    	id: albums[albumIndex].id,
+	    	id: currentAlbum.id,
 	      title: form.get("title"),
 	      desc: form.get("desc"),
 	      date: date,
@@ -102,7 +111,7 @@ export default function EditAlbum(){
 	      variables: { input: data },
 	    });
 	    if(selectedFiles.length>0){
-	   		await uploadImages(albums[albumIndex], selectedFiles);
+	   		await uploadImages(currentAlbum, selectedFiles);
 	   	}
 	    const updatedAlbums = await fetchAlbums();
 			setAlbums(updatedAlbums);
@@ -145,17 +154,34 @@ export default function EditAlbum(){
 	 }
 
 
+
+	 // //////////////////////////////////////
+	 // TAGS
+	 // /////////////////////////////////////
+
+	 async function fetchTags(){
+		  const tags = await fetchAllAlbumTags();
+    	setAlbumTags(tags);
+	}
+
 	 const handleCreateTagEnter = event => {
 	 		// event.preventDefault();
 	 		if (event.key === 'Enter'){
 	 			console.log(`enter key pressed, tag name is ${event.target.value}`);
 	 			createTag(event.target.value);
-
+	 			event.target.value="";
 	 		}
 
 	 }
 
 	 async function createTag(name){
+	 		for(let i = 0; i < albumTags.length; i++){
+	 			console.log(albumTags[i].title);
+	 			if (albumTags[i].title.toUpperCase()===name.toUpperCase()){
+	 				alert("Cannot create duplicate tags!")
+	 				return;
+	 			}
+	 		}
 	 		const data = {
 	      title: name,
 	      privacy: 'public',
@@ -168,6 +194,33 @@ export default function EditAlbum(){
 	    fetchTags();
 	 }
 
+	 async function addTagToAlbum(tag){
+	 		const data = {
+	 			albumsId: currentAlbum.id,
+	 			albumTagsId: tag.id,
+	 		}
+	 		const response = await API.graphql({
+	 			query: createAlbumTagsAlbums,
+	 			variables:{ input: data},
+	 		})
+	 		console.log(response);
+
+	 	}
+
+	 async function removeTagFromAlbum(tag){
+	 	// Delete albumtagsalbums connection
+	 }
+
+	 async function deleteTag(id){
+	 		// Need to also delete all related connections
+	 			await API.graphql({
+		      query: deleteAlbumTags,
+		      variables: { input: { id } },
+		    });
+		    fetchTags();
+	 		}
+
+
 
 
   function Loading(){
@@ -177,7 +230,7 @@ export default function EditAlbum(){
    	</>);
    }
 
-	 if(albumIndex<0){
+	 if(!currentAlbum){
     return(
       <MDBSpinner className='m-3'>
 
@@ -186,7 +239,7 @@ export default function EditAlbum(){
 
 
   // Ensures the date is formatted correctly
-		const date = new Date(albums[albumIndex].date);
+		const date = new Date(currentAlbum.date);
 		const d = date.getDate();
 		const d2 = (d < 10)  ? '0'.concat(d): String(d);
 		const month = date.getMonth()+1;
@@ -199,11 +252,11 @@ export default function EditAlbum(){
 			<form onSubmit={updateAlbum}>
 				<MDBRow className='mt-3 d-flex justify-content-center'>
 			      <MDBCol xl='3' lg='5' md ='6'>
-			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text' defaultValue={albums[albumIndex].title}/>
+			        <MDBInput className='mb-3' label = 'Title' name='title' type ='text' defaultValue={currentAlbum.title}/>
 			        <MDBInput className='mb-3' label = 'Date' name='date' type ='date'  defaultValue={dateString}/>
 			      </MDBCol>
 			      <MDBCol xl='3'  lg='5' md ='6'>
-			        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3} defaultValue={albums[albumIndex].desc}/>
+			        <MDBTextArea className='mb-3' label = 'Description' name='desc' type ='text' rows={3} defaultValue={currentAlbum.desc}/>
 			      </MDBCol>
 			   </MDBRow>
 			   <MDBRow className='d-flex justify-content-center'>
@@ -218,11 +271,11 @@ export default function EditAlbum(){
 		   </MDBRow>
 		 <MDBRow  className='d-flex justify-content-center align-items-center' >
 		    <MDBCol className ='d-flex justify-content-center' lg='5'>
-		        <MDBBtn className='m-1' title='Delete Album' onClick={()=>deleteAlbum(albums[albumIndex].id)} color='dark' data-mdb-toggle="tooltip" >
+		        <MDBBtn className='m-1' title='Delete Album' onClick={()=>deleteAlbum(currentAlbum.id)} color='dark' data-mdb-toggle="tooltip" >
 		          Delete Album
 		        </MDBBtn>
 		        <MDBBtn type='submit' className="bg-dark m-1">Save</MDBBtn>
-		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/album/${urlhelperEncode(albums[albumIndex])}`}>Cancel</Link></MDBBtn>
+		        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/album/${urlhelperEncode(currentAlbum)}`}>Cancel</Link></MDBBtn>
 		   </MDBCol>
 	   </MDBRow>
 
@@ -230,12 +283,14 @@ export default function EditAlbum(){
 		</form>
 			   <MDBRow  className='d-flex justify-content-center align-items-center' >
 		    <MDBCol className ='d-flex justify-content-center flex-wrap' lg='5'>
-		    	{albumTags.map((tag) => <Tag 
+		    	{albumTags.map((tag, i) => <Tag 
 		    		selected={false}
 		    		name={tag.title}
+		    		onSelect={() => addTagToAlbum(albumTags[i])}
+		    		onDeselect={() => removeTagFromAlbum(albumTags[i])}
 		    	/> )}
 		    	<div className='m-1' style={{'min-width':'60px'}}>
-		    	<MDBInput label='New Tag' id='newTag' type='text' className='' size='sm' onKeyDown={handleCreateTagEnter}/>
+		    	<MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='' size='sm' onKeyDown={handleCreateTagEnter}/>
 		    	</div>
 		    </MDBCol>
 	   </MDBRow>

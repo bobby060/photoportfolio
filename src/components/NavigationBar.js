@@ -67,11 +67,10 @@ export default function NavigationBar(){
     function isAdminGroup(){
       if (authStatus.authStatus==='configuring' 
         || !user_item.user 
-        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin'){
+        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']){
         return false;
       }
-      if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin')
+      if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === "portfolio_admin")
         {
           return true;
         }

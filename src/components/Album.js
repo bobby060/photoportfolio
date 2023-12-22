@@ -25,6 +25,7 @@ import {updateAlbums} from '../graphql/mutations';
 import {urlhelperDecode} from '../helpers/urlhelper';
 import fetchAlbums from '../helpers/fetchAlbums';
 import {AlbumsContext} from '../helpers/AlbumsContext';
+import {IMAGEDELIVERYHOST} from './App';
 
 // Components
 import EditAlbum from './EditAlbum';
@@ -85,12 +86,14 @@ export default function Album(){
           id: newA[index].albumsFeaturedImageId
           // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
-    const image = await API.graphql({
-      query: getImages,
-      variables: data,
-      authMode: 'API_KEY'
-    });
-    setFeaturedImg(image.data.getImages);
+    if (newA[index].albumsFeaturedImageId){
+      const image = await API.graphql({
+        query: getImages,
+        variables: data,
+        authMode: 'API_KEY'
+      });
+      setFeaturedImg(image.data.getImages);
+    }
     setAlbumIndex(index);
     if (debug) {console.log(`images set`)};
    }
@@ -161,7 +164,7 @@ export default function Album(){
 
   function AlbumHeader(){
 
-    const featuredImageUrl = (featuredImg)?`https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImg.id}-${featuredImg.filename}?width=1920`:"";
+    const featuredImageUrl = (featuredImg)?`https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=1920`:"";
 
     const parallaxStyle = {
       'background-image':`url(${featuredImageUrl})`,

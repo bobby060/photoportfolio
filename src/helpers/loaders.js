@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify';
-import {listAlbums, imagesByAlbumsID, listAlbumTags} from '../graphql/queries';
+import {listAlbums, imagesByAlbumsID, listAlbumTags, getAlbums} from '../graphql/queries';
 
 
 
@@ -15,6 +15,7 @@ export async function fetchAlbums() {
         const bDate = new Date(b.date);
         return bDate - aDate;
     });
+    // console.log(albumsFromAPI);
 
     return sortedAlbums;
   } 
@@ -38,11 +39,28 @@ export async function fetchAlbums() {
 // 	return new_imgs;
  //   }
 
+
+export async function fetchAlbum(id){
+  const data = {
+    id: id
+  }
+  const result = await API.graphql({
+    query: getAlbums,
+    variables: data,
+    authMode:'API_KEY',
+  })
+
+  // console.log(result);
+
+  return result.data.getAlbums;
+}
+
 export async function fetchAllAlbumTags() {
     const tagsData = await API.graphql({
       query: listAlbumTags,
       authMode:'API_KEY',
     })
+    console.log(tagsData.data.listAlbumTags.items);
     return tagsData.data.listAlbumTags.items;
 }
 

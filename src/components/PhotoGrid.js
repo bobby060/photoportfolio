@@ -7,6 +7,8 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { API } from 'aws-amplify';
 
+import {IMAGEDELIVERYHOST} from './App';
+
 // Database
 import { imagesByAlbumsID } from '../graphql/queries';
 import {deleteImages as deleteImageMutation} from '../graphql/mutations';
@@ -188,14 +190,14 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
   // Slides object for lightbox doesn't hold full image object, just the url 
   const slides = items.map( (image) => (
-    {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
+    {src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
       alt: image.filename,
       srcSet:[
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=768`, width: 768}, 
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1280`, width: 1280},
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1920`, width: 1920},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=768`, width: 768}, 
+          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=1280`, width: 1280},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=1920`, width: 1920},
           ],
-      downloadUrl: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}`}
+      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${image.url}`}
 ));
 
   // Splits the images into the right number of columns
