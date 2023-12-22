@@ -5,7 +5,7 @@ import {
 } from 'mdb-react-ui-kit';
 
 
-export default function Tag({selected, onSelect = () => {}, onDeselect = () => {}, name}){
+export default function Tag({selected = false, onSelect = () => {}, onDeselect = () => {}, name}){
   const [isSelected, setIsSeleted] = useState(selected);
 
   function handleClick(){

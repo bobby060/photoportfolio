@@ -49,7 +49,7 @@ export default function Root() {
 
   async function fetchWrapper(){
       const new_albums = await fetchAlbums();
-      console.log(new_albums);
+      // console.log(new_albums);
       setAlbums(new_albums);
   }
 

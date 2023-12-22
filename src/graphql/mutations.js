@@ -11,6 +11,14 @@ export const createAlbumTags = /* GraphQL */ `
       title
       privacy
       AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -30,6 +38,14 @@ export const updateAlbumTags = /* GraphQL */ `
       title
       privacy
       AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -49,6 +65,14 @@ export const deleteAlbumTags = /* GraphQL */ `
       title
       privacy
       AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -69,6 +93,21 @@ export const createAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -88,6 +127,14 @@ export const createAlbums = /* GraphQL */ `
         __typename
       }
       albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -109,6 +156,21 @@ export const updateAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -128,6 +190,14 @@ export const updateAlbums = /* GraphQL */ `
         __typename
       }
       albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -149,6 +219,21 @@ export const deleteAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -168,6 +253,14 @@ export const deleteAlbums = /* GraphQL */ `
         __typename
       }
       albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -257,6 +350,10 @@ export const createAlbumTagsAlbums = /* GraphQL */ `
         id
         title
         privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
@@ -266,6 +363,29 @@ export const createAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -290,6 +410,10 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
         id
         title
         privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
@@ -299,6 +423,29 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -323,6 +470,10 @@ export const deleteAlbumTagsAlbums = /* GraphQL */ `
         id
         title
         privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
@@ -332,6 +483,29 @@ export const deleteAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         albumsFeaturedImageId

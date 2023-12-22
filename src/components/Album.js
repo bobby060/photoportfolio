@@ -18,7 +18,7 @@ import {Link} from 'react-router-dom';
 import { useParams } from "react-router-dom";
 
 // Database
-import { imagesByAlbumsID, getImages } from '../graphql/queries';
+import { imagesByAlbumsID, getImages, getAlbums } from '../graphql/queries';
 import {updateAlbums} from '../graphql/mutations';
 
 // Helper functions
@@ -34,7 +34,7 @@ import PhotoGrid from './PhotoGrid';
 
 export default function Album(){
   const {albums, setAlbums} = useContext(AlbumsContext);
-  // const[albums, setAlbums] = useState([]);
+  const[album, setAlbum] = useState(null);
   const [albumIndex, setAlbumIndex] = useState(-1);
   const [canEdit, setCanEdit] = useState(false);
   let {album_id} = useParams();
@@ -94,6 +94,7 @@ export default function Album(){
       });
       setFeaturedImg(image.data.getImages);
     }
+    
     setAlbumIndex(index);
     if (debug) {console.log(`images set`)};
    }

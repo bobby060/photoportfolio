@@ -20,7 +20,7 @@ import Tag from './Tag';
 import {updateAlbums, deleteAlbums , deleteImages, 
 createAlbumTags, deleteAlbumTags, updateAlbumTags,
 createAlbumTagsAlbums, deleteAlbumTagsAlbums} from '../graphql/mutations'; 
-import {imagesByAlbumsID, albumTagsAlbumsByAlbumsId} from '../graphql/queries';
+import {imagesByAlbumsID, allTagsAlbumsByAlbumsId} from '../graphql/queries';
 
 // Helpers
 import {fetchAlbums, fetchAllAlbumTags, fetchAlbum} from '../helpers/loaders';
@@ -36,7 +36,8 @@ export default function EditAlbum(){
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const [deleting, setDeleting] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [albumTags, setAlbumTags] = useState([]);
+	const [allTags, setAllTags] = useState([]);
+	const [currentTags, setCurrentTags] = useState([]);
 	const navigate = useNavigate();
 	const debug = true;
 
@@ -79,15 +80,18 @@ export default function EditAlbum(){
     }
     // Get album tags connections by album ID here
   	const curAl = await fetchAlbum(albums[index].id);
-    console.log(curAl);
     setCurrentAlbum(curAl);
+    console.log(curAl);
+
+    const t = Object.fromEntries(curAl.albumtagss.items.map((item, i) => [item.albumTagsId,i]));
+    setCurrentTags(t);
 
 
     // const data = {
     // 	albumsID: currentAlbum.id,
     // }
     // const tags = await API.graphql({
-    // 	query: albumTagsAlbumsByAlbumsId
+    // 	query: allTagsAlbumsByAlbumsId
     // })
 
   }
@@ -161,7 +165,7 @@ export default function EditAlbum(){
 
 	 async function fetchTags(){
 		  const tags = await fetchAllAlbumTags();
-    	setAlbumTags(tags);
+    	setAllTags(tags);
 	}
 
 	 const handleCreateTagEnter = event => {
@@ -175,9 +179,9 @@ export default function EditAlbum(){
 	 }
 
 	 async function createTag(name){
-	 		for(let i = 0; i < albumTags.length; i++){
-	 			console.log(albumTags[i].title);
-	 			if (albumTags[i].title.toUpperCase()===name.toUpperCase()){
+	 		for(let i = 0; i < allTags.length; i++){
+	 			console.log(allTags[i].title);
+	 			if (allTags[i].title.toUpperCase()===name.toUpperCase()){
 	 				alert("Cannot create duplicate tags!")
 	 				return;
 	 			}
@@ -197,7 +201,7 @@ export default function EditAlbum(){
 	 async function addTagToAlbum(tag){
 	 		const data = {
 	 			albumsId: currentAlbum.id,
-	 			albumTagsId: tag.id,
+	 			allTagsId: tag.id,
 	 		}
 	 		const response = await API.graphql({
 	 			query: createAlbumTagsAlbums,
@@ -208,7 +212,16 @@ export default function EditAlbum(){
 	 	}
 
 	 async function removeTagFromAlbum(tag){
-	 	// Delete albumtagsalbums connection
+	 	const relationIdToRemove = currentAlbum.albumtagss.items[currentTags[tag.id]];
+	 	console.log(relationIdToRemove);
+ 		 const data = {
+ 			id: relationIdToRemove.id
+ 		}
+ 		const response = await API.graphql({
+ 			query: deleteAlbumTagsAlbums,
+ 			variables:{ input: data},
+ 		})
+	 	// Delete allTagsalbums connection
 	 }
 
 	 async function deleteTag(id){
@@ -283,14 +296,16 @@ export default function EditAlbum(){
 		</form>
 			   <MDBRow  className='d-flex justify-content-center align-items-center' >
 		    <MDBCol className ='d-flex justify-content-center flex-wrap' lg='5'>
-		    	{albumTags.map((tag, i) => <Tag 
-		    		selected={false}
+		    	{allTags.map((tag, i) => (
+		    		<Tag 
+		    		selected={(tag.id in currentTags)?true:false}
+		    		// selected={false}
 		    		name={tag.title}
-		    		onSelect={() => addTagToAlbum(albumTags[i])}
-		    		onDeselect={() => removeTagFromAlbum(albumTags[i])}
-		    	/> )}
+		    		onSelect={() => addTagToAlbum(allTags[i])}
+		    		onDeselect={() => removeTagFromAlbum(allTags[i])}
+		    	/>))}
 		    	<div className='m-1' style={{'min-width':'60px'}}>
-		    	<MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='' size='sm' onKeyDown={handleCreateTagEnter}/>
+		    	<MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='rounded' size='sm' onKeyDown={handleCreateTagEnter} />
 		    	</div>
 		    </MDBCol>
 	   </MDBRow>
