@@ -22,6 +22,7 @@ import {Link} from 'react-router-dom';
 // Components
 import Carousel from 'react-bootstrap/Carousel';
 import Image from './Image';
+import AllAlbums from './AllAlbums';
 
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
@@ -57,7 +58,8 @@ export default function Home(){
 	async function getHeaderImgs(){
 		const response = await Storage.list('highlights/h', {
 			options: {
-				listAll: true
+				listAll: true,
+				pageSize: 50
 			}
 		})
 
@@ -133,7 +135,8 @@ return(
 		<HeaderCarousel/>
 		<span id="albums"/>
 		<MDBCol lg='10' className='me-auto ms-auto'>
-		<AlbumCards/>
+		{/*<AlbumCards/>*/}
+		<AllAlbums/>
 		</MDBCol>
 		 <MDBCard
 				alignment='start'
@@ -156,7 +159,7 @@ return(
 				      </MDBTypography>
         </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
+        	<Link to={`/albums`}><MDBBtn outline color='dark' className="m-1">Photos</MDBBtn></Link>
         	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>

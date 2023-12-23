@@ -151,7 +151,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         limit: 10},
        authMode: 'API_KEY',
       });
-    console.log('loading images');
     const imgs = res.data.imagesByAlbumsID.items.map((img, i) => {
      img.index = i;
       return img});

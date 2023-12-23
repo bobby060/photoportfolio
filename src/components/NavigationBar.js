@@ -9,10 +9,10 @@ import {
   MDBNavbarItem,
   MDBNavbarLink,
   MDBCollapse,
-  MDBDropdown,
-  MDBDropdownMenu,
-  MDBDropdownToggle,
-  MDBDropdownItem,
+  // MDBDropdown,
+  // MDBDropdownMenu,
+  // MDBDropdownToggle,
+  // MDBDropdownItem,
   MDBTooltip,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
@@ -111,24 +111,24 @@ export default function NavigationBar(){
         );
     }
 
-    function DropdownWrapper(){
-      if(albums.length < 1) return;
-      return (
-          <MDBDropdown>
-          {/*Dropdown toggle shows current album if at one*/}
-            <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
-              {currentAlbum==="" ? 'Select Album': currentAlbum } 
-            </MDBDropdownToggle>
-            <MDBDropdownMenu >
-              {albums.map((album) => (
-                <MDBDropdownItem link onClick={()=>setShowNav(false)}>
-                  <Link className='text-dark' to={`/albums/${urlhelperEncode(album)}`}>{album.title}</Link>
-                </MDBDropdownItem>
-                ))}
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        );
-    }
+    // function DropdownWrapper(){
+    //   if(albums.length < 1) return;
+    //   return (
+    //       <MDBDropdown>
+    //       {/*Dropdown toggle shows current album if at one*/}
+    //         <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
+    //           {currentAlbum==="" ? 'Select Album': currentAlbum } 
+    //         </MDBDropdownToggle>
+    //         <MDBDropdownMenu >
+    //           {albums.map((album) => (
+    //             <MDBDropdownItem link onClick={()=>setShowNav(false)}>
+    //               <Link className='text-dark' to={`/albums/${urlhelperEncode(album)}`}>{album.title}</Link>
+    //             </MDBDropdownItem>
+    //             ))}
+    //         </MDBDropdownMenu>
+    //       </MDBDropdown>
+    //     );
+    // }
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
           <MDBContainer fluid >
@@ -170,11 +170,11 @@ export default function NavigationBar(){
                   </MDBNavbarLink>            
                 </MDBNavbarItem>*/}
 
-                <MDBNavbarItem >
+{/*                <MDBNavbarItem >
                   <MDBNavbarLink>
                   <DropdownWrapper/>
                   </MDBNavbarLink>
-                </MDBNavbarItem>
+                </MDBNavbarItem>*/}
                 <MDBNavbarItem className = "ms-lg-auto" onClick={()=>setShowNav(false)}>
                   <SignInWrapper/>
                 </MDBNavbarItem>

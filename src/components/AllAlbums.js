@@ -100,6 +100,7 @@ export default function AllAlbums(){
 
   // Responsiveness functions
   const num_columns = getBreakpoint();
+  console.log(`num columns = ${num_columns}`);
   function getImgHeight() {
   	if (windowSize.width < 750) {
   		return -1
@@ -142,7 +143,6 @@ export default function AllAlbums(){
 	async function getFilteredAlbums(tagIndexes){
 		setIsLoading(true);
 		const keys = Object.keys(tagIndexes);
-		console.log(keys);
   	if(keys.length < 1){
   		setCurrentVisibleAlbums(albums);
   		const allTagsVisible = allTags.map((tag) => ({...tag, visible: true, selected: false}));
@@ -169,7 +169,6 @@ export default function AllAlbums(){
   		// console.log(taggedConnections);
   		// Set visible tags to only display tags possible to select/deselect within current set
   		// Update albums to reflect
-  		console.log(taggedConnections);
   		setSelectedTagsIndexes(tagIndexes);
   		const newVisAlbums = taggedConnections.map((connection) => connection.albums);
   		setCurrentVisibleAlbums(newVisAlbums);
@@ -197,6 +196,12 @@ export default function AllAlbums(){
 	}
 
 	function Tags({tags}){
+		if(tags.length < 1){
+			return (
+				<>
+					<Tag name='____'/>
+					</>)
+		}
 			// console.log(tags);
 			return (
 				<>
@@ -221,6 +226,14 @@ export default function AllAlbums(){
 		);
 
 		return (
+			<>
+			<MDBRow className='mt-1'>
+					<MDBCol className='d-flex justify-items-start'>
+					<Tags
+						tags={allTags}
+					/>
+		    	</MDBCol>
+		    </MDBRow>
 
 			<div className="d-flex">
 				{columns.map((column) => (
@@ -247,19 +260,14 @@ export default function AllAlbums(){
 
 				))}
 			</div>
+			</>
 
 		);
 	}
 
 	return(
 		<MDBCol lg='10' className="me-auto ms-auto">
-				<MDBRow className='mt-1'>
-					<MDBCol className='d-flex justify-items-start'>
-					<Tags
-						tags={allTags}
-					/>
-		    	</MDBCol>
-		    </MDBRow>
+
 			<AlbumCards/>
 		</MDBCol>
 		);
