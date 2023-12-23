@@ -171,7 +171,8 @@ export default function AllAlbums(){
   		// Update albums to reflect
   		console.log(taggedConnections);
   		setSelectedTagsIndexes(tagIndexes);
-  		setCurrentVisibleAlbums([taggedConnections[0].albums])
+  		const newVisAlbums = taggedConnections.map((connection) => connection.albums);
+  		setCurrentVisibleAlbums(newVisAlbums);
   	}
   	reflowAlbums(currentVisibleAlbums);
   	setIsLoading(false);
@@ -253,7 +254,7 @@ export default function AllAlbums(){
 	return(
 		<MDBCol lg='10' className="me-auto ms-auto">
 				<MDBRow className='mt-1'>
-					<MDBCol>
+					<MDBCol className='d-flex justify-items-start'>
 					<Tags
 						tags={allTags}
 					/>
