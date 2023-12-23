@@ -59,11 +59,22 @@ export async function fetchAllAlbumTags() {
     const tagsData = await API.graphql({
       query: listAlbumTags,
       authMode:'API_KEY',
-    })
-    console.log(tagsData.data.listAlbumTags.items);
+    });
     return tagsData.data.listAlbumTags.items;
 }
 
 export async function fetchPublicAlbumTags() {
-
+    const variables = {
+      filter: {
+        privacy: {
+          eq: 'public'
+        }
+      }
+    }
+    const tagsData = await API.graphql({
+      query: listAlbumTags,
+      authMode:'API_KEY',
+      variables: variables,
+    });
+    return tagsData.data.listAlbumTags.items;
 }

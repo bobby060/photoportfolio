@@ -350,6 +350,21 @@ export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
           createdAt
           updatedAt
           albumsFeaturedImageId
+          featuredImage {
+            id
+            title
+            desc
+            filename
+            date
+            albumsID
+            index
+            width
+            height
+            url
+            createdAt
+            updatedAt
+            __typename
+          }
           __typename
         }
         createdAt

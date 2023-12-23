@@ -20,11 +20,11 @@ export default function Tag({selected = false, onSelect = () => {}, onDeselect =
 
   if (isSelected){
     return (
-        <MDBBtn rounded toggle className='text-light m-1' size='sm' color='dark' onClick={()=>handleClick()}>{name}  <MDBIcon className="text-white-50" icon="times" /></MDBBtn>
+        <MDBBtn rounded className='text-light m-1' size='sm' color='dark' onClick={()=>handleClick()}>{name}  <MDBIcon className="text-white-50" icon="times" /></MDBBtn>
               );
   } else {
     return (
-      <MDBBtn rounded toggle outline onClick={()=>handleClick()} className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
+      <MDBBtn rounded  outline onClick={()=>handleClick()} className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
       );
   }
 

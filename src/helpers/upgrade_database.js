@@ -2,7 +2,7 @@
 
 import { API } from 'aws-amplify';
 import {listImages} from '../graphql/queries';
-import {updateImages} from '../graphql/mutations';
+import {updateImages, createAlbumTags} from '../graphql/mutations';
 
 const getMeta = async (url) => {
 	const img = new Image();
@@ -69,7 +69,26 @@ export async function upgradeDB() {
 
 	console.log('all images upgraded')
 
+}
 
+export async function createDefaultTags() {
+		 	const data = {
+	      title: 'featured',
+	      privacy: 'protected',
+	    };
+	    const response = await API.graphql({
+	      query: createAlbumTags,
+	      variables: { input: data },
+	    });
+	    console.log('created featured tag')
+	    const data2 = {
+	      title: 'latest',
+	      privacy: 'protected',
+	    };
+	    const response2 = await API.graphql({
+	      query: createAlbumTags,
+	      variables: { input: data2 },
+	    });
 
-
+	    console.log('created latest tag');
 }
