@@ -53,7 +53,6 @@ export default function EditAlbum(){
 
   // Helper that determines which album in the albums list the url album_id is triggering the component to pull
   async function findIndex(albums){
-  	console.log(album_id);
     for(let i = 0; i < albums.length; i++){
       if (urlhelperDecode(albums[i], album_id)) {
         return i;
@@ -81,7 +80,6 @@ export default function EditAlbum(){
     // Get album tags connections by album ID here
   	const curAl = await fetchAlbum(albums[index].id);
     setCurrentAlbum(curAl);
-    console.log(curAl);
 
     const t = Object.fromEntries(curAl.albumtagss.items.map((item, i) => [item.albumTagsId,i]));
     setCurrentTags(t);

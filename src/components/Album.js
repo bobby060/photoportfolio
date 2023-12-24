@@ -42,6 +42,8 @@ export default function Album(){
 
 
 
+
+
   // for storing images in current album
 
   const debug = false;
@@ -166,15 +168,46 @@ export default function Album(){
 
   function AlbumHeader(){
 
-    const featuredImageUrl = (featuredImg)?`https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=1920`:"";
+    const [windowSize, setWindowSize] = useState({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+    useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }; 
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+    const breakpoints = [0, 750, 1200, 1920];
+    
+    function getBreakpoint() {
+      const cur_width = windowSize.width;
+      for (let i = breakpoints.length-2; i >= 0; i--){
+          if (breakpoints[i] < cur_width ) return breakpoints[i+1];
+      }
+    }
+    const imgWidth = getBreakpoint();
+    const imgRatio = featuredImg.height/featuredImg.width;
+    const featuredImageUrl = (featuredImg)?`https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}`:"";
+
+
+    const imgHeight = windowSize.width*imgRatio;
 
     const parallaxStyle = {
-      'background-image':`url(${featuredImageUrl})`,
-      'background-attachment':'fixed',
-      'background-position':' bottom',
-      'background-repeat': 'no-repeat',
-      'min-height': '500px', 
-      'background-size':'cover',
+      backgroundImage:`url(${featuredImageUrl})`,
+      backgroundAttachment:'fixed',
+      backgroundPosition:'bottom',
+      backgroundRepeat: 'no-repeat',
+      minHeight: imgHeight, 
+      backgroundSize:'cover',
     }
 
     return(

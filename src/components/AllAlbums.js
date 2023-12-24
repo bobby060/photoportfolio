@@ -174,7 +174,6 @@ export default function AllAlbums(){
 	}
 
 	async function onSelectTag(tag){
-		console.log(tag);
 		const newSelectedTags = {...selectedTagsIndexes, [tag.index]:tag.id};
 		getFilteredAlbums(newSelectedTags);
 	}
@@ -202,6 +201,7 @@ export default function AllAlbums(){
 				<>
 				{tags.map((tag, i ) => (
 				(tag.visible)?<Tag 
+						key={tag.id}
 		    		selected={tag.selected}
 		    		name={tag.title}
 		    		onSelect={() => onSelectTag(tag)}
@@ -235,9 +235,11 @@ export default function AllAlbums(){
 
 	function AlbumCards() {
 
-		if (isLoading || currentVisibleAlbums.length < 1) return(
+		if (isLoading || currentVisibleAlbums.length < 1) {
+
+			return(
 		<MDBSpinner className="mt-3"></MDBSpinner>
-		);
+		);}
 
 		return (
 			<>

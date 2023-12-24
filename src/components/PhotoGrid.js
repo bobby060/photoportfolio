@@ -5,7 +5,7 @@ import {
   MDBIcon,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { API } from 'aws-amplify';
+import { API, Storage } from 'aws-amplify';
 
 import {IMAGEDELIVERYHOST} from './App';
 

@@ -59,7 +59,7 @@ export default function Home(){
 		const response = await Storage.list('highlights/h', {
 			options: {
 				listAll: true,
-				pageSize: 50
+				pageSize: 50,
 			}
 		})
 
@@ -81,14 +81,14 @@ export default function Home(){
 	// style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}
 
 	function HeaderCarousel(){
-		const s = { width:windowSize.width, height: windowSize.height,'object-fit': 'cover'};
+		const s = { width:windowSize.width, height: windowSize.height,'objectFit': 'cover'};
 		if(headerImgs.length < 1) return(
 			<Carousel indicators={false} interval = {2500} style={s} controls={false} pause={false}>
-						<Carousel.Item itemId={1} className='overflow-hidden placeholder' >
+						<Carousel.Item itemID={1} className='overflow-hidden placeholder' >
 								{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
-							<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
-								<span class="placeholder w-25"/>
-								<span class="placeholder w-25"/>
+							<Carousel.Caption className='placeholder-glow' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
+								<span className="placeholder w-25"/>
+								<span className="placeholder w-25"/>
 							</Carousel.Caption>
 						</Carousel.Item>
 			</Carousel>
@@ -97,7 +97,7 @@ export default function Home(){
 			<Carousel fade indicators={false} interval = {3000} controls={false} pause={false} >
 				{headerImgs.map((img, i) =>
 					(
-						<Carousel.Item  itemId={i} key={i}  >
+						<Carousel.Item  itemID={i} key={i}  >
 								<img src = {img} alt='...'
 								style={s} 
 								 />
@@ -149,15 +149,13 @@ return(
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 1,
-          'border-radius': 0,
+          borderRadius: 0,
         }}>
       <MDBCardBody>
-        <MDBCardTitle><h2>Robert Norwood</h2></MDBCardTitle>
-        <MDBCardText>
+        <MDBCardTitle>Robert Norwood</MDBCardTitle>
 				      <MDBTypography className='lead d-none d-sm-block' >
-				        <p >Through pictures we see the world not just for what it is, but for what it can be</p>
+				        Through pictures we see the world not just for what it is, but for what it can be
 				      </MDBTypography>
-        </MDBCardText>
         <div className='text-center'>
         	<Link to={`/albums`}><MDBBtn outline color='dark' className="m-1">Photos</MDBBtn></Link>
         	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}

@@ -5,7 +5,7 @@ import {
 } from 'mdb-react-ui-kit';
 
 
-export default function Tag({selected = false, onSelect = () => {}, onDeselect = () => {}, name}){
+export default function Tag({ selected = false, onSelect = () => {}, onDeselect = () => {}, name}){
   const [isSelected, setIsSeleted] = useState(selected);
 
   function handleClick(){
@@ -24,7 +24,7 @@ export default function Tag({selected = false, onSelect = () => {}, onDeselect =
               );
   } else {
     return (
-      <MDBBtn rounded  outline onClick={()=>handleClick()} className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
+      <MDBBtn rounded outline onClick={()=>handleClick()} className='text-dark m-1' size='sm' color='dark'>{name}</MDBBtn>
       );
   }
 

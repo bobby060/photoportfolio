@@ -144,7 +144,7 @@ export default function NavigationBar(){
               aria-label='Toggle navigation'
               onClick={() => setShowNav(!showNav)}
             >
-                <i class="fas fa-bars text-dark m-2 "></i>
+                <i className="fas fa-bars text-dark m-2 "></i>
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav className='w-100'>
