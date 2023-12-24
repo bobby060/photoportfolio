@@ -97,7 +97,6 @@ export default function AllAlbums(){
 
   // Responsiveness functions
   const num_columns = getBreakpoint();
-  console.log(`num columns = ${num_columns}`);
   function getImgHeight() {
   	if (windowSize.width < 750) {
   		return -1
