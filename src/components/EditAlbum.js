@@ -178,7 +178,6 @@ export default function EditAlbum(){
 
 	 async function createTag(name){
 	 		for(let i = 0; i < allTags.length; i++){
-	 			console.log(allTags[i].title);
 	 			if (allTags[i].title.toUpperCase()===name.toUpperCase()){
 	 				alert("Cannot create duplicate tags!")
 	 				return;
@@ -192,7 +191,6 @@ export default function EditAlbum(){
 	      query: createAlbumTags,
 	      variables: { input: data },
 	    });
-	    console.log(response);
 	    fetchTags();
 	 }
 
@@ -234,7 +232,7 @@ export default function EditAlbum(){
   function Loading(){
    	return(<>
    	 <MDBSpinner className="mt-3"></MDBSpinner>
-   	 (files.length>0)?<p className='fw-light'>Saving album and uploading photos</p>:<p className='fw-light'>Saving album</p>
+   	 {(selectedFiles.length>0)?<p className='fw-light'>Saving album and uploading photos</p>:<p className='fw-light'>Saving album</p>}
    	</>);
    }
 

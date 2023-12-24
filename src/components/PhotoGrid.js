@@ -155,16 +155,18 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     return item;});
 
   // Slides object for lightbox doesn't hold full image object, just the url 
-  const slides = items.map( (image) => (
-    {src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
+  const slides = items.map((image) => {
+    const urlNoSpaces = image.url.replaceAll(' ', '%20');
+    return ({src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
       alt: image.filename,
       srcSet:[
-          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=768`, width: 768}, 
-          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=1280`, width: 1280},
-          { src: `https://${IMAGEDELIVERYHOST}/public/${image.url}?width=1920`, width: 1920},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=768`, width: 768}, 
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1280`, width: 1280},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1920`, width: 1920},
           ],
-      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${image.url}`}
-));
+      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`});
+    }
+);
 
 
   function confirmDeleteImage(image){
