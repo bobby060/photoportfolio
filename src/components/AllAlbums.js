@@ -20,6 +20,7 @@ import {
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import {Link} from 'react-router-dom';
 import Tag from './Tag';
+import ResponsiveGrid from './ResponsiveGrid';
 
 import {albumTagsAlbumsByAlbumTagsId} from '../graphql/queries';
 
@@ -57,10 +58,6 @@ export default function AllAlbums(){
 		fetchTags();
 		fetchInitalData();
 	}, []);
-
-	useEffect(()=>{
-		reflowAlbums(currentVisibleAlbums);
-	}, [currentVisibleAlbums]);
 
 	// Adds ability to adjust column layout after resize
  	useEffect(() => {
@@ -114,21 +111,21 @@ export default function AllAlbums(){
   const height_style = imgHeight<0?{}:{'height':imgHeight, 'object-fit':'cover'}
 
    // Holds the columns for the photo grid 
-  function reflowAlbums(albumsToReflow){
-	  const newColumns = new Array(num_columns);
+ //  function reflowAlbums(albumsToReflow){
+// 	  const newColumns = new Array(num_columns);
 
-	    // Splits the images into the right number of columns
-	  for (let i = 0; i < albumsToReflow.length; i++) {
-	    const item = albumsToReflow[i];
-	    const columnIndex = i % num_columns;
+// 	    // Splits the images into the right number of columns
+// 	  for (let i = 0; i < albumsToReflow.length; i++) {
+// 	    const item = albumsToReflow[i];
+// 	    const columnIndex = i % num_columns;
 
-	    if (!newColumns[columnIndex]) {
-	      newColumns[columnIndex] = [];
-	    }
-	    newColumns[columnIndex].push(item);
-	   }
-	   setColumns(newColumns);
- }
+// 	    if (!newColumns[columnIndex]) {
+// 	      newColumns[columnIndex] = [];
+// 	    }
+// 	    newColumns[columnIndex].push(item);
+// 	   }
+// 	   setColumns(newColumns);
+ // }
 
   // ///////////////////
   // TAGS
@@ -173,7 +170,6 @@ export default function AllAlbums(){
   		const newVisAlbums = taggedConnections.map((connection) => connection.albums);
   		setCurrentVisibleAlbums(newVisAlbums);
   	}
-  	reflowAlbums(currentVisibleAlbums);
   	setIsLoading(false);
 		// gets filtered albums based on the current tag
 	}
@@ -218,6 +214,25 @@ export default function AllAlbums(){
 			);
 	}
 
+	const responsiveItems = currentVisibleAlbums.map((album) => (
+		<Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+		 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+	      <MDBCardImage overlay
+	       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
+	       alt='...'
+	       style={height_style}
+	       className=''/>
+	      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
+	        <MDBCardTitle>{album.title}</MDBCardTitle>
+	        {(album.desc.length > 0)?<MDBCardText className='text-truncate'>{album.desc}</MDBCardText>:<></>}
+	        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+	      </MDBCardOverlay>
+	      <div className='mask overlay'
+	          			style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
+	      </MDBCard>
+	    </Link>
+		));
+
 
 	function AlbumCards() {
 
@@ -236,29 +251,10 @@ export default function AllAlbums(){
 		    </MDBRow>
 
 			<div className="d-flex">
-				{columns.map((column) => (
-					<MDBCol className=''>
-						{column.map( (album, i) => (
-							<Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
-							 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
-							 
-						      <MDBCardImage overlay
-						       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
-						       alt='...'
-						       style={height_style}
-						       className=''/>
-						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
-						        <MDBCardTitle>{album.title}</MDBCardTitle>
-						        {(album.desc.length > 0)?<MDBCardText className='text-truncate'>{album.desc}</MDBCardText>:<></>}
-						        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-						      </MDBCardOverlay>
-						      <div className='mask overlay'
-                      			style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
-						      </MDBCard>
-						    </Link>))}
-						</MDBCol>
-
-				))}
+				<ResponsiveGrid
+					items={responsiveItems}
+					breakpoints={breakPoints}
+					/>
 			</div>
 			</>
 

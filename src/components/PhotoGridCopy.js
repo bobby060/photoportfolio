@@ -16,7 +16,6 @@ import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 // Components
 import {Lightbox} from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
-import ResponsiveGrid from "./ResponsiveGrid";
 // import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import Image from "./Image";
@@ -31,6 +30,10 @@ import Image from "./Image";
 
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   const [open, setOpen] = React.useState(false);
   // Tracks index for Lightbox
   const [index, setIndex] = React.useState(0);
@@ -100,6 +103,20 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
 // https://dev.to/vishnusatheesh/exploring-infinite-scroll-techniques-in-react-1bn0
 
+  // Adds ability to adjust column layout after resize
+ useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }; 
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
  // 
  useEffect(() => {
    getImages();
@@ -111,7 +128,17 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         Window with of 850 will have 2 columns. 2000 will have 4
 
   */}
- 
+  const breakPoints = [0, 350, 750, 1200];
+ // const breakPoints = [0,0];
+
+  // Gets breakpoint for current width
+  function getBreakpoint() {
+    const cur_width = windowSize.width;
+    for (let i = breakPoints.length-1; i >= 0; i--){
+        if (breakPoints[i] < cur_width ) return i;
+    }
+  }
+
 
   // Requests the first 10 images
   async function getImages(){
@@ -146,6 +173,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     setItems(newImages);
   }
 
+
+  const num_columns = getBreakpoint();
+
+  // Holds the columns for the photo grid 
+  const columns = new Array(num_columns);
+
   // Ensures grid does not render if no items are in props
   if (items.length===0) return;
 
@@ -166,6 +199,16 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
       downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${image.url}`}
 ));
 
+  // Splits the images into the right number of columns
+  for (let i = 0; i < items_with_index.length; i++) {
+    const item = items_with_index[i];
+    const columnIndex = i % num_columns;
+
+    if (!columns[columnIndex]) {
+      columns[columnIndex] = [];
+    }
+    columns[columnIndex].push(item);
+  }
 
   function confirmDeleteImage(image){
     if (window.confirm("Are you sure you want to delete this image?")){
@@ -200,32 +243,39 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
               <MDBIcon far icon="star text-dark" size='2x' />
             </MDBBtn>);
   }
-  const responsiveProps = items.map((image, i)=>(
-    <div className= 'm-0 p-1'>        
-      <div className='bg-image hover-overlay position-relative'>
-        <Image
-          img_obj = {image }
-          className = 'img-fluid shadow-4'
-        />
-        <a type="button" >
-          <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
-        </a>
-        <DeleteImageWrapper
-        image={image} />
-        <MakeFeaturedWrapper
-        image = {image}/>
-      </div>
-    </div>
-    ))
 
   return (
     <div className="d-flex photo-album">
-      <ResponsiveGrid
-        items={responsiveProps}
-        breakpoints={[0, 350, 750, 1200]}
-      />
-      <div ref={observerTarget}></div>
+      {columns.map((column) => (
+        <MDBCol className="column">
+          {column.map((image, i) => (
+           <div className= 'm-0 p-1'>        
+                <div className='bg-image hover-overlay position-relative'>
+{/*                <img
+                    src={image.filename}
+                    alt={`visual aid for ${image.name}`}
+                    className='img-fluid shadow-4' 
+                  />*/}
+                  <Image
+                    img_obj = {image }
+                    className = 'img-fluid shadow-4'
+                  />
+                  <a type="button" >
+                    <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+                  </a>
+                  <DeleteImageWrapper
+                  image={image} />
+                  <MakeFeaturedWrapper
+                  image = {image}/>
+                </div>
+
+                </div>
+                ))}
+            <div ref={observerTarget}></div>
+              </MDBCol>
+            ))}
+
       <Lightbox
         index={index}
         slides={slides}
