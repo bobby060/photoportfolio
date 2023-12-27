@@ -57,7 +57,8 @@ export default function FeaturedCarouselWrapper(){
 		const result = await API.graphql({
 	  		query: albumTagsAlbumsByAlbumTagsId,
 	        variables: { 
-	        albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
+	        // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
+	        albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
 	      },
 	       authMode: 'API_KEY',
 	  	 });

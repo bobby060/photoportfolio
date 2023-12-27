@@ -30,6 +30,8 @@ import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 import {IMAGEDELIVERYHOST} from './App';
 
+// import {createDefaultTags} from '../helpers/upgrade_database';
+
 
 // import {upgradeDB} from '../helpers/upgrade_database';
 
@@ -176,7 +178,7 @@ return(
 				      </MDBTypography>
         <div className='text-center'>
         	<MDBBtn outline href='#albums' color='dark' className="m-1">Photos</MDBBtn>
-        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
+        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>createDefaultTags()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>
