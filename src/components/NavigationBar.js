@@ -157,7 +157,7 @@ export default function NavigationBar(){
                 </MDBNavbarItem>
                   <MDBNavbarItem>
                     <MDBNavbarLink onClick={()=>setShowNav(false)}>
-                    <NavLink to={`/albums`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
+                    <NavLink to={`/home#albums`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
                       Albums
                       </NavLink>
                     </MDBNavbarLink>
