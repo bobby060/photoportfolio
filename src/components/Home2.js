@@ -23,11 +23,13 @@ import {Link} from 'react-router-dom';
 import Carousel from 'react-bootstrap/Carousel';
 import Image from './Image';
 import AllAlbums from './AllAlbums';
+import FeaturedCarouselWrapper from './Carousel';
 
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 import {IMAGEDELIVERYHOST} from './App';
+
 
 // import {upgradeDB} from '../helpers/upgrade_database';
 
@@ -133,9 +135,23 @@ export default function Home(){
 return(
 	<div>
 		<HeaderCarousel/>
+		<div className='p-3'>
+		 <h2 className='m-0 fw-light'>
+		 	Featured Albums
+		 </h2>
+		</div>
+		<MDBCol lg='10' className='me-auto ms-auto'>
+		<FeaturedCarouselWrapper/>
+		</MDBCol>
 		<span id="albums"/>
 		<MDBCol lg='10' className='me-auto ms-auto'>
 		{/*<AlbumCards/>*/}
+		<div className='p-3'>
+		 <h2 className='m-0 fw-light'>
+		 	All Albums
+		 </h2>
+		</div>
+		<hr className="hr m-0" />
 		<AllAlbums/>
 		</MDBCol>
 		 <MDBCard
@@ -157,7 +173,7 @@ return(
 				        Through pictures we see the world not just for what it is, but for what it can be
 				      </MDBTypography>
         <div className='text-center'>
-        	<Link to={`/albums`}><MDBBtn outline color='dark' className="m-1">Photos</MDBBtn></Link>
+        	<MDBBtn outline href='#albums' color='dark' className="m-1">Photos</MDBBtn>
         	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>

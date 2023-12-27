@@ -56,7 +56,6 @@ export default function AllAlbums(){
 
 	useEffect(()=> {
 		fetchTags();
-		fetchInitalData();
 	}, []);
 
 	// Adds ability to adjust column layout after resize
@@ -73,9 +72,10 @@ export default function AllAlbums(){
 	    return () => window.removeEventListener('resize', handleResize);
 	  }, []);
 
- 	async function fetchInitalData(){
- 		await setCurrentVisibleAlbums(albums);
- 	}
+ 	useEffect(()=> {
+		fetchTags();
+		setCurrentVisibleAlbums(albums);
+	}, [albums]);
 
  	{/*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
   Example  breakpoints = [0 ,  350, 750, 900, 1300]

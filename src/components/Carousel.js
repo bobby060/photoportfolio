@@ -3,58 +3,122 @@ import React, {useContext, useEffect, useState} from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import {getImages} from '../graphql/queries';
 import { API } from 'aws-amplify';
+import {
+
+	MDBCard,
+	MDBCardTitle,
+	MDBCardText,
+	MDBCardOverlay,
+	MDBCardImage,
+	MDBCardBody,
+	MDBCardSubTitle,
+	MDBCardLink,
+	MDBTypography
+
+} from 'mdb-react-ui-kit';
 import {Link} from 'react-router-dom';
 
 
 // Helpers
-import fetchAlbums from '../helpers/fetchAlbums';
-import {AlbumsContext} from '../helpers/AlbumsContext';
-import addURL from '../helpers/addURL';
 import {urlhelperEncode} from '../helpers/urlhelper';
-import getFeaturedImgs from '../helpers/getFeatured';
+import {IMAGEDELIVERYHOST} from './App';
 
-export default function CarouselWrapper(){
+import {albumTagsAlbumsByAlbumTagsId} from '../graphql/queries';
 
-	const {albums} = useContext(AlbumsContext);
+export default function FeaturedCarouselWrapper(){
+
 	const [featuredAlbums, setFeaturedAlbums]= useState([]);
+	const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  	});
 
 	  useEffect(() => {
 	    updateFeatured();
-	  }, [albums]);
+	  }, []);
+
+	  	// Adds ability to adjust column layout after resize
+ 	useEffect(() => {
+	    const handleResize = () => {
+	      setWindowSize({
+	        width: window.innerWidth,
+	        height: window.innerHeight,
+	      });
+	    }; 
+
+	    window.addEventListener('resize', handleResize);
+
+	    return () => window.removeEventListener('resize', handleResize);
+	  }, []);
 
 
 	  async function updateFeatured(){
 
-	  		const a = await getFeaturedImgs(albums);
+		const result = await API.graphql({
+	  		query: albumTagsAlbumsByAlbumTagsId,
+	        variables: { 
+	        albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
+	      },
+	       authMode: 'API_KEY',
+	  	 });
+	  	const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
+	  	const newAlbums = taggedConnections.map((connection) => connection.albums);
+	  	setFeaturedAlbums(newAlbums);
+		}
 
-	  		setFeaturedAlbums(a);
-		  }
+	function dateFormat(date){
+		const d = new Date(date);
+		return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+	}
+
 
 	if(featuredAlbums.length < 1) return(
 		<Carousel indicators={false} interval = {5000}>
-					<Carousel.Item itemId={1} className='w-100 overflow-hidden placeholder' style={{height: '600px'}}>
-							{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
-						<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
+					<Carousel.Item itemID={1} className='w-100 overflow-hidden placeholder' style={{height: '600px'}}>
+			{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
+						{/*				<Carousel.Caption className='placeholder-glow' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
 							<span class="placeholder w-25"/>
 							<span class="placeholder w-25"/>
-						</Carousel.Caption>
+						</Carousel.Caption>*/}
+
 					</Carousel.Item>
 		</Carousel>
 		);
+
+
+	const heightArray=[featuredAlbums.map((album)=>(album.featuredImage.height*(windowSize.width/album.featuredImage.width)*0.8))];
+	const height=Math.min(...heightArray[0]);
 	return (	
-		<Carousel indicators={false} interval = {3000} className='w-100 pe-auto ' touch={true} >
+		<div className='position-relative'>
+		<Carousel indicators={false} fade interval = {3000} className='w-100 pe-auto ' touch={true} >
 			{featuredAlbums.map((album, i) =>
 				(
-					<Carousel.Item  itemId={i}  style={{height: '600px', cursor: 'pointer' }}>
-						<Link to={`/${urlhelperEncode(album)}`}>
-							<img src = {album.featuredImage.filename} className='h-100 w-100 ' alt='...' 
-							 style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}/>
-						<Carousel.Caption className='' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
+					<Carousel.Item  itemID={i} >
+{/*						<Link to={`/albums/${urlhelperEncode(album)}`}>
+							<img src = {`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`} className='h-100 w-100 ' alt='...' 
+							 style={{ width:'100%', height:'100%', 'objectFit': 'cover'}}/>
+						<Carousel.Caption className='' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
 							<h5 >{album.title}</h5>
 							<p>{album.desc}</p>
 						</Carousel.Caption>
-						</Link>
+						</Link>*/}
+						
+						 <MDBCard background='dark' className='text-white  mb-2 bg-image rounded-0' alignment='end'>
+					      <MDBCardImage overlay
+					       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
+					       alt='...'
+					       style={{'objectFit': 'cover', height: height}}
+					       className=''/>
+					       <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))'}}>					    
+						        	<MDBTypography className='display-6'>{album.title}</MDBTypography>
+						        	<MDBCardText>{dateFormat(album.date)}</MDBCardText>
+						      </MDBCardOverlay>
+					      	</Link>
+					      </MDBCard>
 					</Carousel.Item>
 					))}
-		</Carousel>);
+		</Carousel>
+		</div>
+		);
 	}
