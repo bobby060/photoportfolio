@@ -3,8 +3,11 @@
 A full stack web app built with React, GraphQL, AWS Amplify, AWS AppSync, AWS Cognito, and AWS S3.
 
 ## Features
-#### Responsive photo albums with lightbox
-#### Create, edit, and delete photo albums
+- Responsive photo albums with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/)
+- Ability to dynamically update photo content from anywhere via the admin user
+- Configurable list of Featured albums that display on the homescreen
+- Custom highlighted albums 
+#### Create, edit, and delete photo albums for admin user
 #### Cloudfront content delivery network to rapidly deliver responsive images. Implementation is a vanilla version of [this AWS example](https://github.com/aws-samples/image-optimization)
 
 # Build instructions
@@ -32,24 +35,21 @@ Ensure you have properly configured Amplify CLI, see [here](https://docs.amplify
 ? Are you sure you want to continue? Y
 ? Do you want to generate code for your newly created GraphQL API? Y
 ```
-3. Start the app
+3. Initialize CloudFront Content Delivery setup with the S3 storage bucket created in step 2 using [these instructions](https://github.com/aws-samples/image-optimization). At some point this will ideally be collected a single create script
+
+4. Upload any images you want to show in the header carousel to your AWS S3 photo bucket with the prefix 'highlights/h'. This will allow them to be automatically pulled into the header carousel
+
+
+5. Start the app. Featured portion of the screen won't appear until you create a featured tag (need to add instructions on how to do that)
 ```npm start```
 
-## Deploy the front end
-1. Create a new repo with your git service of choice
+6. Configure an admin user in AWS Cognito and add them to the user group 'portfolio-admin.' Once you log in with that user, you should be able to create albums, upload pictures, and create public tags.
 
-2. Push project to new repo
-```
-~ git remote add origin <your_new_repository>
-~ git push --set-upstream master`
-```
+
+
 
 ### Authentication
 This app is designed to use an Amplify Graphql API with primary mode set to Cognito User pool and secondary mode set to AWS API. This means that by default, a query run in a component will be authenticated using Cognito unless you specifiy to use AWS API. The default is the secure option.
-
-
-# Features to add:
-- Lightbox using [Yet Another React Lightbox](https://yet-another-react-lightbox.com/)
 
 
 # Useful References:

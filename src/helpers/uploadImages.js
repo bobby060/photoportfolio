@@ -1,5 +1,6 @@
 import { API, Storage } from 'aws-amplify';
 import {createImages, updateImages } from '../graphql/mutations';
+import {IMAGEDELIVERYHOST} from '../components/App';
 
 
 export default async function uploadImages(targetAlbum, files){
@@ -48,29 +49,43 @@ export default async function uploadImages(targetAlbum, files){
 	    const img = response?.data?.createImages
 
 	    // Need to add error handling here
-	    if (!img) return;
+	    if (!img) {
+	    	console.warn('Error creating image');
+	    	return; 
+	    };
 
 	    const url = `${img.id}-${image.name}`;
 	    // Combining id and image name ensures uniqueness while preserving information
+	    try {
 	    const result = await Storage.put(url, image, {
 	        contentType: "image/png", // contentType is optional
 	      });
+	    console.log(result);
 	    // Add error handling with result
 	    console.log(`${image.name} uploaded`)
+	  } catch (error){
+	  	console.warn('Image not uploaded. Error: ', error);
+	  	return;
+	  }
 	   
 
 	   // Adds dimensions and url to the image object that was just created
-	   	const dims = await getMeta(`https://d2brh14yl9j2nl.cloudfront.net/public/${url}`);
+	   	const dims = await getMeta(`https://${IMAGEDELIVERYHOST}/public/${url}`);
 			const update_data = {
 			    	id: img.id,
 			      	url: url,
 			      	height: dims[0],
 			      	width: dims[1]
 			    };
-	    const update_response = await API.graphql({
-	      query: updateImages,
-	      variables: { input: update_data },
-	    });
+			try {
+		    const update_response = await API.graphql({
+		      query: updateImages,
+		      variables: { input: update_data },
+		    });
+		  } catch(error){
+		  	await Storage.remove(url);
+		  	console.warn('Image no inserted into database, deleting from storage. Error: ', error);
+		  }
 	  };
 
 	  if (files.length > 0){

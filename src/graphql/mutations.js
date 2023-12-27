@@ -1,6 +1,87 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const createAlbumTags = /* GraphQL */ `
+  mutation CreateAlbumTags(
+    $input: CreateAlbumTagsInput!
+    $condition: ModelAlbumTagsConditionInput
+  ) {
+    createAlbumTags(input: $input, condition: $condition) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateAlbumTags = /* GraphQL */ `
+  mutation UpdateAlbumTags(
+    $input: UpdateAlbumTagsInput!
+    $condition: ModelAlbumTagsConditionInput
+  ) {
+    updateAlbumTags(input: $input, condition: $condition) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteAlbumTags = /* GraphQL */ `
+  mutation DeleteAlbumTags(
+    $input: DeleteAlbumTagsInput!
+    $condition: ModelAlbumTagsConditionInput
+  ) {
+    deleteAlbumTags(input: $input, condition: $condition) {
+      id
+      title
+      privacy
+      AlbumsHaveTags {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
+        __typename
+      }
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
 export const createAlbums = /* GraphQL */ `
   mutation CreateAlbums(
     $input: CreateAlbumsInput!
@@ -12,6 +93,21 @@ export const createAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -28,6 +124,18 @@ export const createAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
         __typename
       }
       createdAt
@@ -48,6 +156,21 @@ export const updateAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -64,6 +187,18 @@ export const updateAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
         __typename
       }
       createdAt
@@ -84,6 +219,21 @@ export const deleteAlbums = /* GraphQL */ `
       desc
       date
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -100,6 +250,18 @@ export const deleteAlbums = /* GraphQL */ `
         url
         createdAt
         updatedAt
+        __typename
+      }
+      albumtagss {
+        items {
+          id
+          albumTagsId
+          albumsId
+          createdAt
+          updatedAt
+          __typename
+        }
+        nextToken
         __typename
       }
       createdAt
@@ -175,45 +337,180 @@ export const deleteImages = /* GraphQL */ `
     }
   }
 `;
-export const createTodo = /* GraphQL */ `
-  mutation CreateTodo(
-    $input: CreateTodoInput!
-    $condition: ModelTodoConditionInput
+export const createAlbumTagsAlbums = /* GraphQL */ `
+  mutation CreateAlbumTagsAlbums(
+    $input: CreateAlbumTagsAlbumsInput!
+    $condition: ModelAlbumTagsAlbumsConditionInput
   ) {
-    createTodo(input: $input, condition: $condition) {
+    createAlbumTagsAlbums(input: $input, condition: $condition) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updateTodo = /* GraphQL */ `
-  mutation UpdateTodo(
-    $input: UpdateTodoInput!
-    $condition: ModelTodoConditionInput
+export const updateAlbumTagsAlbums = /* GraphQL */ `
+  mutation UpdateAlbumTagsAlbums(
+    $input: UpdateAlbumTagsAlbumsInput!
+    $condition: ModelAlbumTagsAlbumsConditionInput
   ) {
-    updateTodo(input: $input, condition: $condition) {
+    updateAlbumTagsAlbums(input: $input, condition: $condition) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deleteTodo = /* GraphQL */ `
-  mutation DeleteTodo(
-    $input: DeleteTodoInput!
-    $condition: ModelTodoConditionInput
+export const deleteAlbumTagsAlbums = /* GraphQL */ `
+  mutation DeleteAlbumTagsAlbums(
+    $input: DeleteAlbumTagsAlbumsInput!
+    $condition: ModelAlbumTagsAlbumsConditionInput
   ) {
-    deleteTodo(input: $input, condition: $condition) {
+    deleteAlbumTagsAlbums(input: $input, condition: $condition) {
       id
-      name
-      description
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
       createdAt
       updatedAt
       __typename

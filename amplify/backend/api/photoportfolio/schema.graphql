@@ -1,3 +1,10 @@
+type AlbumTags  @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}])  {
+  id: ID!
+  title: String
+  privacy: String
+  AlbumsHaveTags: [Albums] @manyToMany(relationName: "AlbumTagsAlbums")
+}
+
 type Albums @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
   title: String
@@ -5,6 +12,7 @@ type Albums @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], pr
   date: AWSDateTime
   Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
   featuredImage: Images @hasOne
+  albumtagss: [AlbumTags] @manyToMany(relationName: "AlbumTagsAlbums")
 }
 
 type Images @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
@@ -18,11 +26,5 @@ type Images @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], pr
   width: Int
   height: Int
   url: String
-}
-
-type Todo @model @auth(rules: [{allow: private, provider: userPools}, {allow: public, operations: [read]}]) {
-  id: ID!
-  name: String!
-  description: String
 }
  

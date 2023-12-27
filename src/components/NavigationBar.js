@@ -9,10 +9,10 @@ import {
   MDBNavbarItem,
   MDBNavbarLink,
   MDBCollapse,
-  MDBDropdown,
-  MDBDropdownMenu,
-  MDBDropdownToggle,
-  MDBDropdownItem,
+  // MDBDropdown,
+  // MDBDropdownMenu,
+  // MDBDropdownToggle,
+  // MDBDropdownItem,
   MDBTooltip,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
@@ -43,7 +43,7 @@ export default function NavigationBar(){
 
     // Decodes the current album from the current path
     function setCurrentAlbumState(){
-      if(location.pathname.startsWith('/album/')){
+      if(location.pathname.startsWith('/albums/')){
         for(let i = 0; i < albums.length; i++){
           if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
             setCurrentAlbum(albums[i].title);
@@ -67,11 +67,10 @@ export default function NavigationBar(){
     function isAdminGroup(){
       if (authStatus.authStatus==='configuring' 
         || !user_item.user 
-        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin'){
+        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']){
         return false;
       }
-      if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === 'portfolio_admin')
+      if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === "portfolio_admin")
         {
           return true;
         }
@@ -112,24 +111,24 @@ export default function NavigationBar(){
         );
     }
 
-    function DropdownWrapper(){
-      if(albums.length < 1) return;
-      return (
-          <MDBDropdown>
-          {/*Dropdown toggle shows current album if at one*/}
-            <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
-              {currentAlbum==="" ? 'Select Album': currentAlbum } 
-            </MDBDropdownToggle>
-            <MDBDropdownMenu >
-              {albums.map((album) => (
-                <MDBDropdownItem link onClick={()=>setShowNav(false)}>
-                  <Link className='text-dark' to={`/album/${urlhelperEncode(album)}`}>{album.title}</Link>
-                </MDBDropdownItem>
-                ))}
-            </MDBDropdownMenu>
-          </MDBDropdown>
-        );
-    }
+    // function DropdownWrapper(){
+    //   if(albums.length < 1) return;
+    //   return (
+    //       <MDBDropdown>
+    //       {/*Dropdown toggle shows current album if at one*/}
+    //         <MDBDropdownToggle tag='a' className={currentAlbum==="" ? " btn-secondary text-muted": "btn-secondary text-dark"}>
+    //           {currentAlbum==="" ? 'Select Album': currentAlbum } 
+    //         </MDBDropdownToggle>
+    //         <MDBDropdownMenu >
+    //           {albums.map((album) => (
+    //             <MDBDropdownItem link onClick={()=>setShowNav(false)}>
+    //               <Link className='text-dark' to={`/albums/${urlhelperEncode(album)}`}>{album.title}</Link>
+    //             </MDBDropdownItem>
+    //             ))}
+    //         </MDBDropdownMenu>
+    //       </MDBDropdown>
+    //     );
+    // }
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
           <MDBContainer fluid >
@@ -145,7 +144,7 @@ export default function NavigationBar(){
               aria-label='Toggle navigation'
               onClick={() => setShowNav(!showNav)}
             >
-                <i class="fas fa-bars text-dark m-2 "></i>
+                <i className="fas fa-bars text-dark m-2 "></i>
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
               <MDBNavbarNav className='w-100'>
@@ -156,6 +155,13 @@ export default function NavigationBar(){
                       </NavLink>
                     </MDBNavbarLink>
                 </MDBNavbarItem>
+                  <MDBNavbarItem>
+                    <MDBNavbarLink onClick={()=>setShowNav(false)}>
+                    <NavLink to={`/home#albums`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>
+                      Albums
+                      </NavLink>
+                    </MDBNavbarLink>
+                </MDBNavbarItem>
                 <NewAlbumWrapper/>
 {/*                <MDBNavbarItem>
                   <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
@@ -163,11 +169,12 @@ export default function NavigationBar(){
                     </NavLink>
                   </MDBNavbarLink>            
                 </MDBNavbarItem>*/}
-                <MDBNavbarItem >
+
+{/*                <MDBNavbarItem >
                   <MDBNavbarLink>
                   <DropdownWrapper/>
                   </MDBNavbarLink>
-                </MDBNavbarItem>
+                </MDBNavbarItem>*/}
                 <MDBNavbarItem className = "ms-lg-auto" onClick={()=>setShowNav(false)}>
                   <SignInWrapper/>
                 </MDBNavbarItem>

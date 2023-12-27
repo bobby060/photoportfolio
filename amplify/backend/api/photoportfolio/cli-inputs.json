@@ -9,18 +9,11 @@
     },
     "additionalAuthTypes": [
       {
-        "mode": "AWS_IAM"
-      },
-      {
         "mode": "API_KEY",
-        "keyDescription": "api key description",
-        "expirationTime": 30
+        "expirationTime": 90,
+        "apiKeyExpirationDate": "2024-03-21T08:55:56.007Z",
+        "keyDescription": "graphqlportfolio"
       }
-    ],
-    "conflictResolution": {
-      "defaultResolutionStrategy": {
-        "type": "NONE"
-      }
-    }
+    ]
   }
 }

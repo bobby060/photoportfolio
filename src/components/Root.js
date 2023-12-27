@@ -49,7 +49,7 @@ export default function Root() {
 
   async function fetchWrapper(){
       const new_albums = await fetchAlbums();
-      console.log(new_albums);
+      console.log('fetching albums');
       setAlbums(new_albums);
   }
 
@@ -59,7 +59,7 @@ export default function Root() {
     albums,
     setAlbums
   }}>
-    <View className="App" style={{display: 'flex', 'flex-direction':'column', 'min-height':'100vh', margin: 'none'}}>
+    <View className="App" style={{display: 'flex', 'flexDirection':'column', 'minHeight':'100vh', margin: 'none'}}>
         <Headroom className="m-0" style={{zIndex: 1000}}>
             <NavigationBar/>
         </Headroom >

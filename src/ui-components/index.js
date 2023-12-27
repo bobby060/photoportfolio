@@ -4,8 +4,8 @@
  * Any changes to this file will be overwritten when running amplify pull. *
  **************************************************************************/
 
+export { default as AlbumTagsCreateForm } from "./AlbumTagsCreateForm";
+export { default as AlbumTagsUpdateForm } from "./AlbumTagsUpdateForm";
 export { default as AlbumsCreateForm } from "./AlbumsCreateForm";
 export { default as AlbumsUpdateForm } from "./AlbumsUpdateForm";
-export { default as TodoCreateForm } from "./TodoCreateForm";
-export { default as TodoUpdateForm } from "./TodoUpdateForm";
 export { default as studioTheme } from "./studioTheme";

@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import "../css/App.css";
 import "@aws-amplify/ui-react/styles.css";
@@ -15,6 +17,16 @@ import Home from './Home2';
 import AboutPage from './AboutPage';
 import Album from './Album';
 import EditAlbum from './EditAlbum';
+import AllAlbums from './AllAlbums.js';
+
+
+// Dev
+ // export const IMAGEDELIVERYHOST = 'd3fxm8v2c5j7cl.cloudfront.net';
+
+// STAGING
+export const IMAGEDELIVERYHOST = 'd2brh14yl9j2nl.cloudfront.net';
+
+
 
 const router = createBrowserRouter([
   {
@@ -46,7 +58,11 @@ const router = createBrowserRouter([
             element: <AboutPage/>,
           },
           {
-            path:"album/:album_id",
+            path: "albums",
+            element: <AllAlbums/>,
+          },
+          {
+            path:"albums/:album_id",
             element: <Album/>,
             children: [
             {

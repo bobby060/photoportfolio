@@ -14,12 +14,10 @@
         "authConfig": {
           "additionalAuthenticationProviders": [
             {
-              "authenticationType": "AWS_IAM"
-            },
-            {
               "apiKeyConfig": {
-                "apiKeyExpirationDays": 30,
-                "description": "api key description"
+                "apiKeyExpirationDate": "2024-03-21T08:55:56.007Z",
+                "apiKeyExpirationDays": 90,
+                "description": "graphqlportfolio"
               },
               "authenticationType": "API_KEY"
             }

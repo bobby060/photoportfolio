@@ -5,7 +5,9 @@ import {
   MDBIcon,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { API } from 'aws-amplify';
+import { API, Storage } from 'aws-amplify';
+
+import {IMAGEDELIVERYHOST} from './App';
 
 // Database
 import { imagesByAlbumsID } from '../graphql/queries';
@@ -14,6 +16,7 @@ import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 // Components
 import {Lightbox} from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
+import ResponsiveGrid from "./ResponsiveGrid";
 // import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import Image from "./Image";
@@ -26,12 +29,8 @@ import Image from "./Image";
 // selectedAlbum - where photogrid is pulling photos from
 
 
-export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false }) {
+export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
   const [open, setOpen] = React.useState(false);
   // Tracks index for Lightbox
   const [index, setIndex] = React.useState(0);
@@ -43,7 +42,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   const [nextToken, setNextToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-// Fetches next set of items when bottom of scroll is reached
+  // Fetches next set of items when bottom of scroll is reached
   const fetchData = useCallback(async () => {
   // async function fetchData(){
 
@@ -101,20 +100,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
 // https://dev.to/vishnusatheesh/exploring-infinite-scroll-techniques-in-react-1bn0
 
-  // Adds ability to adjust column layout after resize
- useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }; 
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
  // 
  useEffect(() => {
    getImages();
@@ -126,17 +111,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         Window with of 850 will have 2 columns. 2000 will have 4
 
   */}
-  const breakPoints = [0, 350, 750, 1200];
- // const breakPoints = [0,0];
-
-  // Gets breakpoint for current width
-  function getBreakpoint() {
-    const cur_width = windowSize.width;
-    for (let i = breakPoints.length-1; i >= 0; i--){
-        if (breakPoints[i] < cur_width ) return i;
-    }
-  }
-
+ 
 
   // Requests the first 10 images
   async function getImages(){
@@ -149,7 +124,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         limit: 10},
        authMode: 'API_KEY',
       });
-    console.log('loading images');
     const imgs = res.data.imagesByAlbumsID.items.map((img, i) => {
      img.index = i;
       return img});
@@ -172,12 +146,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     setItems(newImages);
   }
 
-
-  const num_columns = getBreakpoint();
-
-  // Holds the columns for the photo grid 
-  const columns = new Array(num_columns);
-
   // Ensures grid does not render if no items are in props
   if (items.length===0) return;
 
@@ -187,27 +155,19 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     return item;});
 
   // Slides object for lightbox doesn't hold full image object, just the url 
-  const slides = items.map( (image) => (
-    {src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.id}-${image.filename}`,
+  const slides = items.map((image) => {
+    const urlNoSpaces = image.url.replaceAll(' ', '%20');
+    return ({src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
       alt: image.filename,
       srcSet:[
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=768`, width: 768}, 
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1280`, width: 1280},
-          { src: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}?width=1920`, width: 1920},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=768`, width: 768}, 
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1280`, width: 1280},
+          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1920`, width: 1920},
           ],
-      downloadUrl: `https://d2brh14yl9j2nl.cloudfront.net/public/${image.url}`}
-));
-
-  // Splits the images into the right number of columns
-  for (let i = 0; i < items_with_index.length; i++) {
-    const item = items_with_index[i];
-    const columnIndex = i % num_columns;
-
-    if (!columns[columnIndex]) {
-      columns[columnIndex] = [];
+      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`});
     }
-    columns[columnIndex].push(item);
-  }
+);
+
 
   function confirmDeleteImage(image){
     if (window.confirm("Are you sure you want to delete this image?")){
@@ -242,39 +202,32 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
               <MDBIcon far icon="star text-dark" size='2x' />
             </MDBBtn>);
   }
+  const responsiveProps = items.map((image, i)=>(
+    <div className= 'm-0 p-1'>        
+      <div className='bg-image hover-overlay position-relative'>
+        <Image
+          img_obj = {image }
+          className = 'img-fluid shadow-4'
+        />
+        <a type="button" >
+          <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
+        </a>
+        <DeleteImageWrapper
+        image={image} />
+        <MakeFeaturedWrapper
+        image = {image}/>
+      </div>
+    </div>
+    ))
 
   return (
     <div className="d-flex photo-album">
-      {columns.map((column) => (
-        <MDBCol className="column">
-          {column.map((image, i) => (
-           <div className= 'm-0 p-1'>        
-                <div className='bg-image hover-overlay position-relative'>
-{/*                <img
-                    src={image.filename}
-                    alt={`visual aid for ${image.name}`}
-                    className='img-fluid shadow-4' 
-                  />*/}
-                  <Image
-                    img_obj = {image }
-                    className = 'img-fluid shadow-4'
-                  />
-                  <a type="button" >
-                    <div className='mask overlay' onClick={() => (setOpen(true), setIndex(image.index))} 
-                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}></div>
-                  </a>
-                  <DeleteImageWrapper
-                  image={image} />
-                  <MakeFeaturedWrapper
-                  image = {image}/>
-                </div>
-
-                </div>
-                ))}
-            <div ref={observerTarget}></div>
-              </MDBCol>
-            ))}
-
+      <ResponsiveGrid
+        items={responsiveProps}
+        breakpoints={[0, 350, 750, 1200]}
+      />
+      <div ref={observerTarget}></div>
       <Lightbox
         index={index}
         slides={slides}
@@ -282,7 +235,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         open={open}
         controller={{closeonBackDropClick: true}}
         styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
-        plugins={[Download]}
+        plugins={ signedIn ? [Download]: []}
         on={{ view: ({ index: currentIndex }) => setIndex(currentIndex) }}
         // zoom={{maxZoomPixelRatio: 3}}
         />

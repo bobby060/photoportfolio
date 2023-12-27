@@ -22,10 +22,17 @@ import {Link} from 'react-router-dom';
 // Components
 import Carousel from 'react-bootstrap/Carousel';
 import Image from './Image';
+import AllAlbums from './AllAlbums';
+import FeaturedCarouselWrapper from './Carousel';
 
 // Helpers
 import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
+import {IMAGEDELIVERYHOST} from './App';
+
+// import {createDefaultTags} from '../helpers/upgrade_database';
+
+
 // import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home(){
@@ -55,11 +62,14 @@ export default function Home(){
 	async function getHeaderImgs(){
 		const response = await Storage.list('highlights/h', {
 			options: {
-				listAll: true
+				listAll: true,
+				pageSize: 50,
 			}
 		})
 
-		const urls = response.results.map((item) => `https://d2brh14yl9j2nl.cloudfront.net/public/${item.key}?width=1280`);
+		console.log(response.results);
+
+		const urls = response.results.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
 	}
 
@@ -77,14 +87,14 @@ export default function Home(){
 	// style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}
 
 	function HeaderCarousel(){
-		const s = { width:windowSize.width, height: windowSize.height,'object-fit': 'cover'};
+		const s = { width:windowSize.width, height: windowSize.height,'objectFit': 'cover'};
 		if(headerImgs.length < 1) return(
 			<Carousel indicators={false} interval = {2500} style={s} controls={false} pause={false}>
-						<Carousel.Item itemId={1} className='overflow-hidden placeholder' >
+						<Carousel.Item itemID={1} className='overflow-hidden placeholder' >
 								{/*<img src = {album.featuredImage.filename} className='d-block w-100' alt='...' />*/}
-							<Carousel.Caption className='placeholder-glow' style={{'background-color': 'rgba(0, 0, 0, 0.3)'}}>
-								<span class="placeholder w-25"/>
-								<span class="placeholder w-25"/>
+							<Carousel.Caption className='placeholder-glow' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
+								<span className="placeholder w-25"/>
+								<span className="placeholder w-25"/>
 							</Carousel.Caption>
 						</Carousel.Item>
 			</Carousel>
@@ -93,7 +103,7 @@ export default function Home(){
 			<Carousel fade indicators={false} interval = {3000} controls={false} pause={false} >
 				{headerImgs.map((img, i) =>
 					(
-						<Carousel.Item  itemId={i} key={i}  >
+						<Carousel.Item  itemID={i} key={i}  >
 								<img src = {img} alt='...'
 								style={s} 
 								 />
@@ -109,9 +119,9 @@ export default function Home(){
 		return (
 			featuredAlbums.map( (album, i) => (
 				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-				 <Link to={`/album/${urlhelperEncode(album)}`} className="text-light">
+				 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
 			      <MDBCardImage overlay
-			       src={`https://d2brh14yl9j2nl.cloudfront.net/public/${album.featuredImage.url}?width=1920`}
+			       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
 			       alt='...'/>
 			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
 			        <MDBCardTitle>{album.title}</MDBCardTitle>
@@ -129,9 +139,24 @@ export default function Home(){
 return(
 	<div>
 		<HeaderCarousel/>
+		<div className='p-3'>
+		 <h2 className='m-0 fw-light'>
+		 	Featured Albums
+		 </h2>
+		</div>
+		<MDBCol lg='10' className='me-auto ms-auto'>
+		<FeaturedCarouselWrapper/>
+		</MDBCol>
 		<span id="albums"/>
 		<MDBCol lg='10' className='me-auto ms-auto'>
-		<AlbumCards/>
+		{/*<AlbumCards/>*/}
+		<div className='p-3'>
+		 <h2 className='m-0 fw-light'>
+		 	All Albums
+		 </h2>
+		</div>
+		<hr className="hr m-0" />
+		<AllAlbums/>
 		</MDBCol>
 		 <MDBCard
 				alignment='start'
@@ -144,18 +169,16 @@ return(
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 1,
-          'border-radius': 0,
+          borderRadius: 0,
         }}>
       <MDBCardBody>
-        <MDBCardTitle><h2>Robert Norwood</h2></MDBCardTitle>
-        <MDBCardText>
+        <MDBCardTitle>Robert Norwood</MDBCardTitle>
 				      <MDBTypography className='lead d-none d-sm-block' >
-				        <p >Through pictures we see the world not just for what it is, but for what it can be</p>
+				        Through pictures we see the world not just for what it is, but for what it can be
 				      </MDBTypography>
-        </MDBCardText>
         <div className='text-center'>
-        	<MDBBtn href='#albums' outline color='dark' className="m-1">Photos</MDBBtn>
-        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>upgradeDB()}>Upgrade DB</MDBBtn>*/}
+        	<MDBBtn outline href='#albums' color='dark' className="m-1">Photos</MDBBtn>
+        	{/*<MDBBtn  outline color='dark' className="m-1" onClick={()=>createDefaultTags()}>Upgrade DB</MDBBtn>*/}
         	<MDBBtn href='https://github.com/bobby060' target="_blank" outline color='dark' className="m-1">Coding</MDBBtn>
         </div>
       </MDBCardBody>

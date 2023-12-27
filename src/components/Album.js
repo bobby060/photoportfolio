@@ -18,13 +18,14 @@ import {Link} from 'react-router-dom';
 import { useParams } from "react-router-dom";
 
 // Database
-import { imagesByAlbumsID, getImages } from '../graphql/queries';
+import { imagesByAlbumsID, getImages, getAlbums } from '../graphql/queries';
 import {updateAlbums} from '../graphql/mutations';
 
 // Helper functions
 import {urlhelperDecode} from '../helpers/urlhelper';
 import fetchAlbums from '../helpers/fetchAlbums';
 import {AlbumsContext} from '../helpers/AlbumsContext';
+import {IMAGEDELIVERYHOST} from './App';
 
 // Components
 import EditAlbum from './EditAlbum';
@@ -33,11 +34,14 @@ import PhotoGrid from './PhotoGrid';
 
 export default function Album(){
   const {albums, setAlbums} = useContext(AlbumsContext);
-  // const[albums, setAlbums] = useState([]);
+  const[album, setAlbum] = useState(null);
   const [albumIndex, setAlbumIndex] = useState(-1);
   const [canEdit, setCanEdit] = useState(false);
   let {album_id} = useParams();
   const [featuredImg, setFeaturedImg] = useState([]);
+
+
+
 
 
   // for storing images in current album
@@ -45,6 +49,7 @@ export default function Album(){
   const debug = false;
 
   const user_item = useAuthenticator((context) => [context.user]);
+  const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
   let location = useLocation();
 
   // Initializes images after component render
@@ -66,8 +71,7 @@ export default function Album(){
  async function pullAlbum(){
     if(location.pathname.endsWith('edit')){
       setCanEdit(true);
-    }
-    else{
+    } else{
       setCanEdit(false);
     }
     setAlbumIndex(-1);
@@ -85,12 +89,15 @@ export default function Album(){
           id: newA[index].albumsFeaturedImageId
           // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
-    const image = await API.graphql({
-      query: getImages,
-      variables: data,
-      authMode: 'API_KEY'
-    });
-    setFeaturedImg(image.data.getImages);
+    if (newA[index].albumsFeaturedImageId){
+      const image = await API.graphql({
+        query: getImages,
+        variables: data,
+        authMode: 'API_KEY'
+      });
+      setFeaturedImg(image.data.getImages);
+    }
+    
     setAlbumIndex(index);
     if (debug) {console.log(`images set`)};
    }
@@ -161,15 +168,46 @@ export default function Album(){
 
   function AlbumHeader(){
 
-    const featuredImageUrl = (featuredImg)?`https://d2brh14yl9j2nl.cloudfront.net/public/${featuredImg.id}-${featuredImg.filename}?width=1920`:"";
+    const [windowSize, setWindowSize] = useState({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+    useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }; 
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+    const breakpoints = [0, 750, 1200, 1920];
+    
+    function getBreakpoint() {
+      const cur_width = windowSize.width;
+      for (let i = breakpoints.length-2; i >= 0; i--){
+          if (breakpoints[i] < cur_width ) return breakpoints[i+1];
+      }
+    }
+    const imgWidth = getBreakpoint();
+    const imgRatio = featuredImg.height/featuredImg.width;
+    const featuredImageUrl = (featuredImg)?`https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}`:"";
+
+
+    const imgHeight = windowSize.width*imgRatio;
 
     const parallaxStyle = {
-      'background-image':`url(${featuredImageUrl})`,
-      'background-attachment':'fixed',
-      'background-position':' bottom',
-      'background-repeat': 'no-repeat',
-      'min-height': '500px', 
-      'background-size':'cover',
+      backgroundImage:`url(${featuredImageUrl})`,
+      backgroundAttachment:'fixed',
+      backgroundPosition:'bottom',
+      backgroundRepeat: 'no-repeat',
+      minHeight: imgHeight, 
+      backgroundSize:'cover',
     }
 
     return(
@@ -204,6 +242,8 @@ export default function Album(){
       setFeaturedImg ={updateFeaturedImg}
       selectedAlbum = {albums[albumIndex]}
       editMode = {canEdit}
+      signedIn = {authStatus.authStatus==="authenticated"}
+
       />
     </MDBContainer>
     </>
