@@ -197,17 +197,15 @@ export default function Album(){
     const imgWidth = getBreakpoint();
     const imgRatio = featuredImg.height/featuredImg.width;
     const featuredImageUrl = (featuredImg)?`https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}`:"";
-
-
-    const imgHeight = windowSize.width*imgRatio;
+    const imgHeight = Math.min(windowSize.width*imgRatio, 400);
 
     const parallaxStyle = {
       backgroundImage:`url(${featuredImageUrl})`,
       backgroundAttachment:'fixed',
-      backgroundPosition:'bottom',
+      backgroundPosition:'top',
       backgroundRepeat: 'no-repeat',
       minHeight: imgHeight, 
-      backgroundSize:'cover',
+      backgroundSize:'',
     }
 
     return(
