@@ -59,6 +59,10 @@ export default function FeaturedCarouselWrapper(){
 	        variables: { 
 	        // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
 	        albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
+
+	        // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
+	        albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
+
 	      },
 	       authMode: 'API_KEY',
 	  	 });
@@ -86,16 +90,25 @@ export default function FeaturedCarouselWrapper(){
 		</Carousel>
 		);
 
-
-	const heightArray=[featuredAlbums.map((album)=>(album.featuredImage.height*(windowSize.width/album.featuredImage.width)*0.8))];
-	const height=Math.min(...heightArray[0]);
+	const breakPoints = [0, 576, 768, 992, 1200]
+	const columnsMultplier = () => {
+		if (windowSize.width > 992) {
+			return 8/12; 
+		} else if (windowSize.width > 768){
+			return 10/12;
+		} else {
+			return 1;
+		}
+	}
+	const heightArray=[featuredAlbums.map((album)=>(windowSize.width*(album.featuredImage.height/album.featuredImage.width)))];
+	const height=Math.min(...heightArray[0])*(columnsMultplier());
 	return (	
-		<div className='position-relative'>
-		<Carousel indicators={false} fade interval = {3000} className='w-100 pe-auto ' touch={true} >
+		<div>
+		<Carousel indicators={false} fade interval = {3000} className='w-100 pe-auto m-1' touch={true} >
 			{featuredAlbums.map((album, i) =>
 				(
-					<Carousel.Item  itemID={i} >
-{/*						<Link to={`/albums/${urlhelperEncode(album)}`}>
+					<Carousel.Item  itemID={i} style={{}}>
+{/*						<Link to={`/albums/${urlhelperEncode(album)}`} >
 							<img src = {`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`} className='h-100 w-100 ' alt='...' 
 							 style={{ width:'100%', height:'100%', 'objectFit': 'cover'}}/>
 						<Carousel.Caption className='' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
@@ -104,11 +117,11 @@ export default function FeaturedCarouselWrapper(){
 						</Carousel.Caption>
 						</Link>*/}
 						
-						 <MDBCard background='dark' className='text-white  mb-2 bg-image rounded-0' alignment='end'>
+						 <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
 					      <MDBCardImage overlay
 					       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
 					       alt='...'
-					       style={{'objectFit': 'cover', height: height}}
+					       style={{'objectFit': 'cover',  height: height}}
 					       className=''/>
 					       <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
 						      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))'}}>					    

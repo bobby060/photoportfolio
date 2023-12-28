@@ -27,10 +27,12 @@ export default function AlbumsUpdateForm(props) {
     title: "",
     desc: "",
     date: "",
+    privacy: "",
   };
   const [title, setTitle] = React.useState(initialValues.title);
   const [desc, setDesc] = React.useState(initialValues.desc);
   const [date, setDate] = React.useState(initialValues.date);
+  const [privacy, setPrivacy] = React.useState(initialValues.privacy);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = albumsRecord
@@ -39,6 +41,7 @@ export default function AlbumsUpdateForm(props) {
     setTitle(cleanValues.title);
     setDesc(cleanValues.desc);
     setDate(cleanValues.date);
+    setPrivacy(cleanValues.privacy);
     setErrors({});
   };
   const [albumsRecord, setAlbumsRecord] = React.useState(albumsModelProp);
@@ -61,6 +64,7 @@ export default function AlbumsUpdateForm(props) {
     title: [],
     desc: [],
     date: [],
+    privacy: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -108,6 +112,7 @@ export default function AlbumsUpdateForm(props) {
           title: title ?? null,
           desc: desc ?? null,
           date: date ?? null,
+          privacy: privacy ?? null,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -171,6 +176,7 @@ export default function AlbumsUpdateForm(props) {
               title: value,
               desc,
               date,
+              privacy,
             };
             const result = onChange(modelFields);
             value = result?.title ?? value;
@@ -197,6 +203,7 @@ export default function AlbumsUpdateForm(props) {
               title,
               desc: value,
               date,
+              privacy,
             };
             const result = onChange(modelFields);
             value = result?.desc ?? value;
@@ -225,6 +232,7 @@ export default function AlbumsUpdateForm(props) {
               title,
               desc,
               date: value,
+              privacy,
             };
             const result = onChange(modelFields);
             value = result?.date ?? value;
@@ -238,6 +246,33 @@ export default function AlbumsUpdateForm(props) {
         errorMessage={errors.date?.errorMessage}
         hasError={errors.date?.hasError}
         {...getOverrideProps(overrides, "date")}
+      ></TextField>
+      <TextField
+        label="Privacy"
+        isRequired={false}
+        isReadOnly={false}
+        value={privacy}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              desc,
+              date,
+              privacy: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.privacy ?? value;
+          }
+          if (errors.privacy?.hasError) {
+            runValidationTasks("privacy", value);
+          }
+          setPrivacy(value);
+        }}
+        onBlur={() => runValidationTasks("privacy", privacy)}
+        errorMessage={errors.privacy?.errorMessage}
+        hasError={errors.privacy?.hasError}
+        {...getOverrideProps(overrides, "privacy")}
       ></TextField>
       <Flex
         justifyContent="space-between"

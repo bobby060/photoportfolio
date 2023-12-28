@@ -56,6 +56,7 @@ export const getAlbums = /* GraphQL */ `
       title
       desc
       date
+      privacy
       Images {
         nextToken
         __typename
@@ -106,6 +107,7 @@ export const listAlbums = /* GraphQL */ `
         title
         desc
         date
+        privacy
         Images {
           nextToken
           __typename
@@ -243,6 +245,7 @@ export const getAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
+        privacy
         Images {
           nextToken
           __typename
