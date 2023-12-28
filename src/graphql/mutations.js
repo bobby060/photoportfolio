@@ -92,6 +92,7 @@ export const createAlbums = /* GraphQL */ `
       title
       desc
       date
+      privacy
       Images {
         items {
           id
@@ -155,6 +156,7 @@ export const updateAlbums = /* GraphQL */ `
       title
       desc
       date
+      privacy
       Images {
         items {
           id
@@ -218,6 +220,7 @@ export const deleteAlbums = /* GraphQL */ `
       title
       desc
       date
+      privacy
       Images {
         items {
           id
@@ -423,6 +426,7 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
+        privacy
         Images {
           nextToken
           __typename
