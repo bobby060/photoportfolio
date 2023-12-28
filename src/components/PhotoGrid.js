@@ -3,6 +3,7 @@ import {
   MDBCol,
   MDBBtn,
   MDBIcon,
+  MDBSpinner,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { API, Storage } from 'aws-amplify';
@@ -17,7 +18,7 @@ import {deleteImages as deleteImageMutation} from '../graphql/mutations';
 import {Lightbox} from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
 import ResponsiveGrid from "./ResponsiveGrid";
-// import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import Image from "./Image";
 // import "animate.css/animate.min.css";
@@ -159,14 +160,19 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const urlNoSpaces = image.url.replaceAll(' ', '%20');
     return ({src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
       alt: image.filename,
-      srcSet:[
-          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=768`, width: 768}, 
-          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1280`, width: 1280},
-          { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1920`, width: 1920},
-          ],
-      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`});
+
+      downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`,
+      width: image.width,
+      height: image.height,
+    });
     }
 );
+
+        // srcSet:[ 
+        //   { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1920`, width: 1920},
+        //   ],
+
+
 
 
   function confirmDeleteImage(image){
@@ -235,9 +241,14 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         open={open}
         controller={{closeonBackDropClick: true}}
         styles={{ container: { backgroundColor: "rgba(0, 0, 0, .5)" } }}
-        plugins={ signedIn ? [Download]: []}
+        plugins={ signedIn ? [Download, Zoom]: [Zoom]}
         on={{ view: ({ index: currentIndex }) => setIndex(currentIndex) }}
-        // zoom={{maxZoomPixelRatio: 3}}
+        zoom={{
+          maxZoomPixelRatio: 1}}
+        render = {{
+          iconZoomIn: () => {},
+          iconZoomOut: () => {},
+        }}
         />
 
     </div>
