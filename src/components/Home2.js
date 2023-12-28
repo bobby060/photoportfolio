@@ -142,7 +142,7 @@ return(
 		 	Featured Albums
 		 </h2>
 		</div>
-		<MDBCol lg='10' className='me-auto ms-auto'>
+		<MDBCol lg='10' xl ='8' className='me-auto ms-auto'>
 		<FeaturedCarouselWrapper/>
 		</MDBCol>
 		<span id="albums"/>
