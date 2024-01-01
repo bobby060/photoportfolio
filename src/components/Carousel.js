@@ -60,9 +60,6 @@ export default function FeaturedCarouselWrapper(){
 	        // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
 	        albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
 
-	        // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
-	        albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
-
 	      },
 	       authMode: 'API_KEY',
 	  	 });

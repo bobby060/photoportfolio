@@ -35,6 +35,9 @@ export default async function uploadImages(targetAlbum, files){
 	};
 
 	async function newImage(image){
+
+			let img = {}
+			let url = ''
 	    const data = {
 	      title: image.name,
 	      desc: "",
@@ -42,19 +45,21 @@ export default async function uploadImages(targetAlbum, files){
 	      date: getExifDate(image),
 	      albumsID: targetAlbum.id
 	    }
+	    try {
 	    const response = await API.graphql({
 	      query: createImages,
 	      variables: {input: data},
 	    });
-	    const img = response?.data?.createImages
 
-	    // Need to add error handling here
-	    if (!img) {
-	    	console.warn('Error creating image');
+
+	   	img = response?.data?.createImages
+	    url = `${img.id}-${image.name}`;
+	    // Need to add error handling here\
+	  	} catch {
+	    	console.warn('Error creating image: ', image.name);
 	    	return; 
 	    };
 
-	    const url = `${img.id}-${image.name}`;
 	    // Combining id and image name ensures uniqueness while preserving information
 	    try {
 	    const result = await Storage.put(url, image, {
