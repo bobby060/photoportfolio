@@ -1,33 +1,21 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-	MDBRow,
 	MDBCol,
 	MDBBtn,
 	MDBCard,
 	MDBCardTitle,
-	MDBCardText,
-	MDBCardOverlay,
-	MDBCardImage,
 	MDBCardBody,
-	MDBCardSubTitle,
-	MDBCardLink,
 	MDBIcon,
 	MDBTypography
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
-import {listImages} from '../graphql/queries';
-import {AlbumsContext} from '../helpers/AlbumsContext';
-import {Link} from 'react-router-dom';
+import { Storage } from 'aws-amplify';
 
 // Components
 import Carousel from 'react-bootstrap/Carousel';
-import Image from './Image';
 import AllAlbums from './AllAlbums';
 import FeaturedCarouselWrapper from './Carousel';
 
 // Helpers
-import getFeaturedImgs from '../helpers/getFeatured';
-import {urlhelperEncode} from '../helpers/urlhelper';
 import {IMAGEDELIVERYHOST} from './App';
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
@@ -36,8 +24,6 @@ import {IMAGEDELIVERYHOST} from './App';
 // import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home(){
-	const {albums} = useContext(AlbumsContext);
-	const [featuredAlbums, setFeaturedAlbums]= useState([]);
 	const [headerImgs, setHeaderImgs]=useState([]);
 	const [windowSize, setWindowSize] = useState({
 	    width: window.innerWidth,
@@ -45,7 +31,6 @@ export default function Home(){
 	  });
 
 	useEffect(() => {
-	updateFeatured();
 	getHeaderImgs();
 	const handleResize = () => {
       setWindowSize({
@@ -59,6 +44,8 @@ export default function Home(){
     return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
+
+
 	async function getHeaderImgs(){
 		const response = await Storage.list('highlights/h', {
 			options: {
@@ -69,16 +56,6 @@ export default function Home(){
 
 		const urls = response.results.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
-	}
-
-	async function updateFeatured(){
-  		const a = await getFeaturedImgs(albums);
-  		setFeaturedAlbums(a);
-	}
-
-	function dateFormat(date){
-		const d = new Date(date);
-		return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
 	}
 
 	// style={{height: '600px'}}
@@ -111,28 +88,28 @@ export default function Home(){
 
 	}
 
-	function AlbumCards() {
-		if (featuredAlbums.length < 1) return;
+	// function AlbumCards() {
+	// 	if (featuredAlbums.length < 1) return;
 
-		return (
-			featuredAlbums.map( (album, i) => (
-				 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-				 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
-			      <MDBCardImage overlay
-			       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
-			       alt='...'/>
-			      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
-			        <MDBCardTitle>{album.title}</MDBCardTitle>
-			        <MDBCardText className='text-truncate'>
-			          {album.desc}
-			        </MDBCardText>
-			        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-			      </MDBCardOverlay>
-			      </Link>
-			    </MDBCard>
+	// 	return (
+	// 		featuredAlbums.map( (album, i) => (
+	// 			 <MDBCard background='dark' className='text-white m-4' alignment='end'>
+	// 			 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+	// 		      <MDBCardImage overlay
+	// 		       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
+	// 		       alt='...'/>
+	// 		      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
+	// 		        <MDBCardTitle>{album.title}</MDBCardTitle>
+	// 		        <MDBCardText className='text-truncate'>
+	// 		          {album.desc}
+	// 		        </MDBCardText>
+	// 		        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+	// 		      </MDBCardOverlay>
+	// 		      </Link>
+	// 		    </MDBCard>
 
-				)));
-	}
+	// 			)));
+	// }
 
 return(
 	<div>
@@ -158,9 +135,8 @@ return(
 		</MDBCol>
 		 <MDBCard
 				alignment='start'
-		 		className='text-dark'
+		 		className='text-dark p-3'
 		 		background='light'
-		 		className='p-3'
 		 	  style={{
           position: 'absolute',
           top: '50%',

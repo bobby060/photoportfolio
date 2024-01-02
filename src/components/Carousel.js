@@ -1,18 +1,13 @@
 // Not used anymore
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import {getImages} from '../graphql/queries';
 import { API } from 'aws-amplify';
 import {
 
 	MDBCard,
-	MDBCardTitle,
 	MDBCardText,
 	MDBCardOverlay,
 	MDBCardImage,
-	MDBCardBody,
-	MDBCardSubTitle,
-	MDBCardLink,
 	MDBTypography
 
 } from 'mdb-react-ui-kit';
@@ -87,7 +82,7 @@ export default function FeaturedCarouselWrapper(){
 		</Carousel>
 		);
 
-	const breakPoints = [0, 576, 768, 992, 1200]
+	// const breakPoints = [0, 576, 768, 992, 1200]
 	const columnsMultplier = () => {
 		if (windowSize.width > 992) {
 			return 8/12; 
@@ -104,7 +99,7 @@ export default function FeaturedCarouselWrapper(){
 		<Carousel indicators={false} fade interval = {3000} className='w-100 pe-auto m-1' touch={true} >
 			{featuredAlbums.map((album, i) =>
 				(
-					<Carousel.Item  itemID={i} style={{}}>
+					<Carousel.Item  itemID={i} style={{}} key={i}>
 {/*						<Link to={`/albums/${urlhelperEncode(album)}`} >
 							<img src = {`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`} className='h-100 w-100 ' alt='...' 
 							 style={{ width:'100%', height:'100%', 'objectFit': 'cover'}}/>
