@@ -1,4 +1,4 @@
-import {React, useState, useContext, useEffect} from 'react';
+import {React, useState} from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import {
   MDBContainer,
@@ -13,15 +13,15 @@ import {
   // MDBDropdownMenu,
   // MDBDropdownToggle,
   // MDBDropdownItem,
-  MDBTooltip,
+  // MDBTooltip,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 import logo from '../logo192.png';
 
-import { useOutletContext, useLocation } from "react-router-dom";
-import { AlbumsContext } from '../helpers/AlbumsContext';
-import {urlhelperEncode, urlhelperDecode} from '../helpers/urlhelper';
+// import { useLocation } from "react-router-dom";
+// import { AlbumsContext } from '../helpers/AlbumsContext';
+// import {urlhelperDecode} from '../helpers/urlhelper';
 
 
 export default function NavigationBar(){
@@ -31,38 +31,29 @@ export default function NavigationBar(){
   const authStatus = useAuthenticator(context => [context.authStatus]);
   // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
   const { signOut } = useAuthenticator((context) => [context.user]);
-  const {albums, setAlbums} = useContext(AlbumsContext);
-  const[currentAlbum,setCurrentAlbum] = useState("");
+  // const {albums} = useContext(AlbumsContext);
+  // const[currentAlbum,setCurrentAlbum] = useState("");
 
-  let location = useLocation();
+  // let location = useLocation();
 
     // Updates current album each time location changes
-    useEffect(() => {
-      setCurrentAlbumState();
-    }, [location]);
+    // useEffect(() => {
+    //   setCurrentAlbumState();
+    // }, [location]);
 
     // Decodes the current album from the current path
-    function setCurrentAlbumState(){
-      if(location.pathname.startsWith('/albums/')){
-        for(let i = 0; i < albums.length; i++){
-          if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
-            setCurrentAlbum(albums[i].title);
-            return;
-        }
-      }
-    }
+    // function setCurrentAlbumState(){
+    //   if(location.pathname.startsWith('/albums/')){
+    //     for(let i = 0; i < albums.length; i++){
+    //       if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
+    //         setCurrentAlbum(albums[i].title);
+    //         return;
+    //     }
+    //   }
+    // }
 
-      setCurrentAlbum("");
-    }
-
-    function activeStyle(isActive){
-      if (isActive){
-        return ({
-          'font-weight':'bold'
-        });
-      };
-      return ({});
-    }
+    //   setCurrentAlbum("");
+    // }
 
     function isAdminGroup(){
       if (authStatus.authStatus==='configuring' 
@@ -132,7 +123,7 @@ export default function NavigationBar(){
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
           <MDBContainer fluid >
-            <img src={logo} className = 'pe-2' style={{height:'40px'}}/>
+            <img src={logo} className = 'pe-2' style={{height:'40px'}} alt='RNorwood logo'/>
             <Link to="/home">
               <MDBNavbarBrand href='#'>
                 Robert Norwood              

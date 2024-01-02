@@ -67,8 +67,6 @@ export default function Home(){
 			}
 		})
 
-		console.log(response.results);
-
 		const urls = response.results.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
 		setHeaderImgs(urls);
 	}

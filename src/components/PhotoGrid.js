@@ -1,11 +1,9 @@
-import React,  { lazy, useState, useEffect, useRef, useCallback }  from 'react';
+import React,  { useState, useEffect, useRef, useCallback }  from 'react';
 import {
-  MDBCol,
   MDBBtn,
   MDBIcon,
-  MDBSpinner,
 } from 'mdb-react-ui-kit';
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import {  } from '@aws-amplify/ui-react';
 import { API, Storage } from 'aws-amplify';
 
 import {IMAGEDELIVERYHOST} from './App';
@@ -67,7 +65,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     setItems(new_items);
     setIsLoading(false);
   // }
-  }, [nextToken, isLoading, index]);
+  }, [nextToken]);
 
   useEffect(() => {
     if (index < items.length -1){
@@ -88,16 +86,18 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
       // { threshold: 1 }
     );
 
-    if (observerTarget.current && !isLoading) {
-      observer.observe(observerTarget.current);
+    const obsCurrent = observerTarget.current
+
+    if (obsCurrent && !isLoading) {
+      observer.observe(obsCurrent);
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+      if (obsCurrent) {
+        observer.unobserve(obsCurrent);
       }
     };
-  }, [fetchData]);
+  }, [fetchData, isLoading]);
 
 // https://dev.to/vishnusatheesh/exploring-infinite-scroll-techniques-in-react-1bn0
 
@@ -151,9 +151,9 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
   if (items.length===0) return;
 
   // Ensures each image has a unique index to map to the lightbox
-  const items_with_index = items.map((item,i) => {
-    item.index = i;
-    return item;});
+  // const items_with_index = items.map((item,i) => {
+  //   item.index = i;
+  //   return item;});
 
   // Slides object for lightbox doesn't hold full image object, just the url 
   const slides = items.map((image) => {

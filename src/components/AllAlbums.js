@@ -3,17 +3,12 @@ import { API } from 'aws-amplify';
 import {
 	MDBRow,
 	MDBCol,
-	MDBBtn,
 	MDBCard,
 	MDBCardTitle,
 	MDBCardText,
 	MDBCardOverlay,
 	MDBCardImage,
-	MDBCardBody,
-	MDBCardSubTitle,
-	MDBCardLink,
-	MDBIcon,
-	MDBTypography,
+	// MDBTypography,
 	MDBSpinner
 } from 'mdb-react-ui-kit';
 
@@ -25,12 +20,11 @@ import ResponsiveGrid from './ResponsiveGrid';
 import {albumTagsAlbumsByAlbumTagsId} from '../graphql/queries';
 
 // Helpers
-import getFeaturedImgs from '../helpers/getFeatured';
 import {urlhelperEncode} from '../helpers/urlhelper';
 import {IMAGEDELIVERYHOST} from './App';
 import {fetchPublicAlbumTags} from '../helpers/loaders';
 
-import {createDefaultTags} from '../helpers/upgrade_database';
+// import {createDefaultTags} from '../helpers/upgrade_database';
 
 
 export default function AllAlbums(){
@@ -38,11 +32,10 @@ export default function AllAlbums(){
 	const {albums} = useContext(AlbumsContext);
 	const [allTags, setAllTags] = useState([]);
 	const [currentVisibleAlbums, setCurrentVisibleAlbums] = useState([]);
-	const [nextToken, setNextToken] = useState([]);
+	// const [nextToken, setNextToken] = useState([]);
 	const [selectedTagsIndexes, setSelectedTagsIndexes] = useState([]);
-	const [visibleTagsIndexes, setVisibleTagsIndexes] = useState([]);
+	// const [visibleTagsIndexes, setVisibleTagsIndexes] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [columns, setColumns] = useState([]);
 
 	const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -185,9 +178,9 @@ export default function AllAlbums(){
 		getFilteredAlbums(newSelectedTags);
 }
 
-	async function deselectAllTags(){
-		getFilteredAlbums({});
-	}
+	// async function deselectAllTags(){
+	// 	getFilteredAlbums({});
+	// }
 
 	function Tags({tags}){
 		if(tags.length < 1){
