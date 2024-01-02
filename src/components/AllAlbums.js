@@ -70,12 +70,11 @@ export default function AllAlbums(){
 		setCurrentVisibleAlbums(albums);
 	}, [albums]);
 
- 	{/*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
-  Example  breakpoints = [0 ,  350, 750, 900, 1300]
-        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
-        Window with of 850 will have 2 columns. 2000 will have 4
+//  	Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
+//   Example  breakpoints = [0 ,  350, 750, 900, 1300]
+//         number columns = [0 ,   1 ,  2 , 3  ,   4 ]
+//         Window with of 850 will have 2 columns. 2000 will have 4
 
-  */}
   const breakPoints = [0, 350, 750, 1200];
  // const breakPoints = [0,0];
 

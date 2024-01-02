@@ -1,7 +1,6 @@
 import React from 'react';
 import { MDBFooter, MDBContainer, MDBRow, MDBCol, MDBIcon,
-MDBBtn } from 'mdb-react-ui-kit';
-import  { useAuthenticator } from '@aws-amplify/ui-react';
+ } from 'mdb-react-ui-kit';
 
 export default function Footer() {
 

@@ -28,7 +28,7 @@ import uploadImages from '../helpers/uploadImages';
 
 export default function CreateAlbum(){
 	const user_item = useAuthenticator((context) => [context.user]);
-	const {albums, setAlbums} = useContext(AlbumsContext);
+	const {setAlbums} = useContext(AlbumsContext);
 	const navigate = useNavigate();
 	const [selectedFiles, setSelectedFiles] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -42,11 +42,11 @@ export default function CreateAlbum(){
 
 	    	navigate('/');
 	  }
-	 }, [user_item]);
+	 }, [user_item, navigate]);
 
-	function handleNew(){
-		document.getElementById("createAlbumForm").submit();
-	}
+	// function handleNew(){
+	// 	document.getElementById("createAlbumForm").submit();
+	// }
 
 
    // tracks files uploaded by clicker, sets state object

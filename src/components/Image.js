@@ -3,9 +3,9 @@ import React from 'react';
 import {IMAGEDELIVERYHOST} from './App';
 
 export default function Image({img_obj, className}) {
-  const small = 300;
-  const md = 768;
-  const lg = 1280;
+  // const small = 300;
+  // const md = 768;
+  // const lg = 1280;
   const delivery_domain = `https://${IMAGEDELIVERYHOST}/public`;
   const img_url = `${delivery_domain}/${img_obj.url}`.replaceAll(' ', '%20');
 
@@ -53,7 +53,7 @@ export default function Image({img_obj, className}) {
          srcSet={ `${img_url}?width=300&format=jpeg 300w, ${img_url}?width=768&format=jpeg 768w,  ${img_url}?width=1280&format=jpeg 1280w`}
          sizes="(max-width: 300px) 300px, (max-width: 768px) 768px, 1280px"
        />
-       <img src={`${img_url}?width=1920`}  className = {className} loading='lazy'/>
+       <img src={`${img_url}?width=1920`}  className = {className} loading='lazy' alt={img_url}/>
      </picture>
      );
 

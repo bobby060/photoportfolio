@@ -1,24 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-  MDBRow,
-  MDBCol,
   MDBBtn,
   MDBContainer,
-  MDBCard,
-  MDBCardBody,
-  MDBCardTitle,
-  MDBCardText,
   MDBIcon,
-  MDBSpinner,
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import {Outlet, useLocation} from "react-router-dom";
 import {Link} from 'react-router-dom';
 import { useParams } from "react-router-dom";
 
 // Database
-import { imagesByAlbumsID, getImages, getAlbums } from '../graphql/queries';
+import {  getImages } from '../graphql/queries';
 import {updateAlbums} from '../graphql/mutations';
 
 // Helper functions
@@ -28,13 +21,12 @@ import {AlbumsContext} from '../helpers/AlbumsContext';
 import {IMAGEDELIVERYHOST} from './App';
 
 // Components
-import EditAlbum from './EditAlbum';
 import PhotoGrid from './PhotoGrid';
 
 
 export default function Album(){
   const {albums, setAlbums} = useContext(AlbumsContext);
-  const[album, setAlbum] = useState(null);
+  // const[album, setAlbum] = useState(null);
   const [albumIndex, setAlbumIndex] = useState(-1);
   const [canEdit, setCanEdit] = useState(false);
   let {album_id} = useParams();
@@ -136,9 +128,9 @@ export default function Album(){
           <MDBContainer >
             <div className='text-justify-start text-light placeholder-glow'>
               <div className='ms-3 d-flex justify-items-start align-items-end'>
-                <h2 className="p-0 d-inline-block text-start placeholder col-7"></h2>
+                <h2 className="p-0 d-inline-block text-start placeholder col-7">Placeholder</h2>
                 <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
-                <h5 className="p-1 d-inline-block text-start placeholder col-3"></h5>
+                <h5 className="p-1 d-inline-block text-start placeholder col-3">Placeholder</h5>
               </div>
 
               <p className='text-start ms-3 me-3 placeholder col-9'></p> 

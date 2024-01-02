@@ -1,40 +1,23 @@
 import React, { useState, useEffect } from "react";
 import "../css/App.css";
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage, Auth } from 'aws-amplify';
 import {
-  Button,
-  Flex,
-  Heading,
-  Image,
-  Text,
-  TextField,
   View,
-  Authenticator,
-  useAuthenticator,
 } from '@aws-amplify/ui-react';
 import {
   Outlet,
   ScrollRestoration
 } from "react-router-dom";
 
-import ReactDOM from 'react-dom/client';
-import {
-  MDBBtn,
-  MDBContainer,
-} from 'mdb-react-ui-kit';
 
 // Components
 import Headroom from 'react-headroom';
 import NavigationBar from './NavigationBar';
-import EditAlbum from './EditAlbum';
 import Footer from './Footer';
 
 // Helpers
 import fetchAlbums from '../helpers/fetchAlbums';
 import {AlbumsContext} from '../helpers/AlbumsContext';
-
-import {listAlbums, getImages} from '../graphql/queries';
 
 export default function Root() {
 

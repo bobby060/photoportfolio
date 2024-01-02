@@ -8,7 +8,6 @@ import {
   MDBTextArea,
   MDBSpinner,
   MDBFile,
-  MDBCheckbox,
 } from 'mdb-react-ui-kit';
 import { API, Storage } from 'aws-amplify';
 import { useNavigate } from "react-router-dom";
@@ -18,9 +17,9 @@ import Tag from './Tag';
 
 // Database
 import {updateAlbums, deleteAlbums , deleteImages, 
-createAlbumTags, deleteAlbumTags, updateAlbumTags,
+createAlbumTags,  
 createAlbumTagsAlbums, deleteAlbumTagsAlbums} from '../graphql/mutations'; 
-import {imagesByAlbumsID, allTagsAlbumsByAlbumsId} from '../graphql/queries';
+import {imagesByAlbumsID} from '../graphql/queries';
 
 // Helpers
 import {fetchAlbums, fetchAllAlbumTags, fetchAlbum} from '../helpers/loaders';
@@ -39,7 +38,6 @@ export default function EditAlbum(){
 	const [allTags, setAllTags] = useState([]);
 	const [currentTags, setCurrentTags] = useState([]);
 	const navigate = useNavigate();
-	const debug = true;
 
 	const [currentAlbum, setCurrentAlbum] = useState(null);
 	let {album_id} = useParams();
@@ -187,7 +185,7 @@ export default function EditAlbum(){
 	      title: name,
 	      privacy: 'public',
 	    };
-	    const response = await API.graphql({
+	    await API.graphql({
 	      query: createAlbumTags,
 	      variables: { input: data },
 	    });
@@ -199,7 +197,7 @@ export default function EditAlbum(){
 	 			albumsId: currentAlbum.id,
 	 			albumTagsId: tag.id,
 	 		}
-	 		const response = await API.graphql({
+	 		await API.graphql({
 	 			query: createAlbumTagsAlbums,
 	 			variables:{ input: data},
 	 		})
@@ -211,20 +209,20 @@ export default function EditAlbum(){
  		 const data = {
  			id: relationIdToRemove.id
  		}
- 		const response = await API.graphql({
+ 		await API.graphql({
  			query: deleteAlbumTagsAlbums,
  			variables:{ input: data},
  		})
 	 }
 
-	 async function deleteTag(id){
-	 		// Need to also delete all related connections
-	 			await API.graphql({
-		      query: deleteAlbumTags,
-		      variables: { input: { id } },
-		    });
-		    fetchTags();
-	 		}
+	//  async function deleteTag(id){
+	//  		// Need to also delete all related connections
+	//  			await API.graphql({
+	// 	      query: deleteAlbumTags,
+	// 	      variables: { input: { id } },
+	// 	    });
+	// 	    fetchTags();
+	//  		}
 
 
 
