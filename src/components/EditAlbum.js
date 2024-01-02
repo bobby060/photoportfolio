@@ -27,10 +27,11 @@ import {urlhelperEncode, urlhelperDecode} from '../helpers/urlhelper';
 import {AlbumsContext} from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
 
+import { useAuthenticator } from '@aws-amplify/ui-react';
+
 
 
 export default function EditAlbum(){
-	const [showEditAlbum, CanEditAlbum] = useState(false);
 	const [selectedFiles, setSelectedFiles] = useState([]);
 	const {albums, setAlbums} = useContext(AlbumsContext);
 	const [deleting, setDeleting] = useState(false);
@@ -38,6 +39,7 @@ export default function EditAlbum(){
 	const [allTags, setAllTags] = useState([]);
 	const [currentTags, setCurrentTags] = useState([]);
 	const navigate = useNavigate();
+	const user_item = useAuthenticator((context) => [context.user]);
 
 	const [currentAlbum, setCurrentAlbum] = useState(null);
 	let {album_id} = useParams();
@@ -56,8 +58,7 @@ export default function EditAlbum(){
         return i;
       }
     }
-    console.log('album not found');
-    return -1;
+    throw new Error(`404. Album at url, ${album_id}, was not found!`);
   }
 
 
@@ -128,7 +129,6 @@ export default function EditAlbum(){
 	 		// Remove album being deleted from the current list of albums
 	    const newAlbums = albums.filter((album) => album.id !== id);
 	    setAlbums(newAlbums);
-	    CanEditAlbum(false);
 
 	    // Gets all the images associated with the old album ID
 	   	const imgs = await API.graphql({
@@ -224,6 +224,14 @@ export default function EditAlbum(){
 	// 	    fetchTags();
 	//  		}
 
+
+
+
+		if (!user_item.user 
+		   || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
+		   || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin'){
+		  throw new Error('401, Not authorized');
+		}
 
 
 

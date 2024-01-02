@@ -24,24 +24,24 @@ export default function Footer() {
                 <MDBCol md="6">
                   <div className='mt-2'>
                     <MDBIcon fab icon="github" className="me-3" />
-                    <a href="https://github.com/bobby060/" target="_blank" className='me-4 text-reset' >Github
+                    <a href="https://github.com/bobby060/" target="_new" className='me-4 text-reset' >Github
                     </a>
                   </div>
                   <div className='mt-2'>
                     <MDBIcon fab icon="linkedin" className="me-3" />
-                    <a href="https://www.linkedin.com/in/robert-p-norwood/" target="_blank" className='me-4 text-reset'>LinkedIn
+                    <a href="https://www.linkedin.com/in/robert-p-norwood/" target="_new" className='me-4 text-reset'>LinkedIn
                     </a>
                   </div>
                 </MDBCol>
                 <MDBCol md="6">
                   <div className='mt-2'>
                     <MDBIcon fab icon="facebook" className="me-3" />
-                    <a href="https://www.facebook.com/bobby.norwood.84/" target="_blank" className='me-4 text-reset'>Facebook
+                    <a href="https://www.facebook.com/bobby.norwood.84/" target="_new" className='me-4 text-reset'>Facebook
                     </a>
                   </div>
                   <div className='mt-2'>
                     <MDBIcon fab icon="etsy" className="me-3" />
-                    <a href="https://www.etsy.com/shop/rnorwoodphoto" target="_blank" className='me-4 text-reset'>Etsy
+                    <a href="https://www.etsy.com/shop/rnorwoodphoto" target="_new" className='me-4 text-reset'>Etsy
                   </a>
                   </div>
                 </MDBCol>
