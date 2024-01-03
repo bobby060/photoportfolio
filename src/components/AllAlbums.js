@@ -210,7 +210,7 @@ export default function AllAlbums() {
         <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
             <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                 <MDBCardImage overlay
-                    src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
+                    src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
                     alt='...'
                     style={height_style}
                     className='' />
