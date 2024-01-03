@@ -1,9 +1,10 @@
 import { API, Storage } from 'aws-amplify';
-import { createImages, updateImages } from '../graphql/mutations';
-import { IMAGEDELIVERYHOST } from '../components/App';
+import { createImages, deleteImages } from '../graphql/mutations';
 
 
 export default async function uploadImages(targetAlbum, files) {
+
+    const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
 
     function getExifDate() {
 
@@ -27,23 +28,32 @@ export default async function uploadImages(targetAlbum, files) {
 
     }
 
-    const getMeta = async (url) => {
-        const img = new Image();
-        img.src = url;
-        await img.decode();
-        return [img.naturalHeight, img.naturalWidth];
-    };
 
     async function newImage(image) {
 
-        let img = {}
-        let url = ''
+        if (!validImageTypes.includes(image['type'])) {
+            console.warn(`file ${image.name} is not a valid file type!`);
+            return;
+        }
+
+        let newImageId = '';
+        let uploadedImg = {};
+        let url = '';
+
+        // Gets height for image
+        const img = new Image();
+        img.src = window.URL.createObjectURL(image);
+        await img.decode();
+        const dims = [img.naturalHeight, img.naturalWidth];
+
         const data = {
             title: image.name,
             desc: "",
             filename: image.name,
             date: getExifDate(image),
-            albumsID: targetAlbum.id
+            albumsID: targetAlbum.id,
+            height: dims[0],
+            width: dims[1],
         }
         try {
             const response = await API.graphql({
@@ -51,46 +61,30 @@ export default async function uploadImages(targetAlbum, files) {
                 variables: { input: data },
             });
 
-
-            img = response?.data?.createImages
-            url = `${img.id}-${image.name}`;
+            uploadedImg = response?.data?.createImages;
+            newImageId = uploadedImg.id;
+            url = `${uploadedImg.id}-${image.name}`;
             // Need to add error handling here\
-        } catch {
-            console.warn('Error creating image: ', image.name);
+        } catch (error) {
+            console.warn('Error creating image: ', image.name, error);
             return;
         }
 
         // Combining id and image name ensures uniqueness while preserving information
         try {
-            const result = await Storage.put(url, image, {
-                contentType: "image/png", // contentType is optional
-            });
-            console.log(result);
-            // Add error handling with result
-            console.log(`${image.name} uploaded`)
+            await Storage.put(url, image);
+
         } catch (error) {
+            // Delete image object if S3 file doesn't upload
             console.warn('Image not uploaded. Error: ', error);
+            await API.graphql({
+                query: deleteImages,
+                variables: { id: newImageId }
+            });
             return;
         }
 
-
-        // Adds dimensions and url to the image object that was just created
-        const dims = await getMeta(`https://${IMAGEDELIVERYHOST}/public/${url}`);
-        const update_data = {
-            id: img.id,
-            url: url,
-            height: dims[0],
-            width: dims[1]
-        };
-        try {
-            await API.graphql({
-                query: updateImages,
-                variables: { input: update_data },
-            });
-        } catch (error) {
-            await Storage.remove(url);
-            console.warn('Image no inserted into database, deleting from storage. Error: ', error);
-        }
+        console.log(`${image.name} uploaded`)
     }
 
     if (files.length > 0) {
@@ -98,7 +92,7 @@ export default async function uploadImages(targetAlbum, files) {
         console.log(`starting uploads`)
         await Promise.all(files_array.map((file) => newImage(file)));
         console.log(`All images uploaded!`)
-        return 0;
+        return;
     }
-    return -1
+    return;
 }

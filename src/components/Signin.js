@@ -2,10 +2,10 @@
 import React from 'react';
 
 import { useEffect } from "react";
-
+import '@aws-amplify/ui-react/styles.css';
 import '../css/auth_css.css';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+
 
 import { useNavigate, useLocation } from 'react-router';
 

@@ -7,7 +7,7 @@ export default function Image({ img_obj, className }) {
     // const md = 768;
     // const lg = 1280;
     const delivery_domain = `https://${IMAGEDELIVERYHOST}/public`;
-    const img_url = `${delivery_domain}/${img_obj.url}`.replaceAll(' ', '%20');
+    const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
 
     // function image_loader(url){
     //   let retries = 0;
