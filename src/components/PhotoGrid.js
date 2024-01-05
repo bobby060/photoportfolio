@@ -39,12 +39,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const observerTarget = useRef(null);
     // Holds next token for data
     const [nextToken, setNextToken] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Fetches next set of items when bottom of scroll is reached
     const fetchData = useCallback(async () => {
         // async function fetchData(){
-
+        console.log('fetching 10 more');
         if (isLoading || !nextToken) return;
 
         setIsLoading(true);
@@ -78,28 +78,28 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
 
     // Initalizes intersection observer to call each time observer enters view
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting) {
-                    fetchData();
-                }
-            },
-            // { threshold: 1 }
-        );
+    // useEffect(() => {
+    //     const observer = new IntersectionObserver(
+    //         entries => {
+    //             if (entries[0].isIntersecting) {
+    //                 fetchData();
+    //             }
+    //         },
+    //         // { threshold: 1 }
+    //     );
 
-        const obsCurrent = observerTarget.current
+    //     const obsCurrent = observerTarget.current;
 
-        if (obsCurrent && !isLoading) {
-            observer.observe(obsCurrent);
-        }
+    //     if (obsCurrent && !isLoading) {
+    //         observer.observe(obsCurrent);
+    //     }
 
-        return () => {
-            if (obsCurrent) {
-                observer.unobserve(obsCurrent);
-            }
-        };
-    }, [fetchData, isLoading]);
+    //     return () => {
+    //         if (obsCurrent) {
+    //             observer.unobserve(obsCurrent);
+    //         }
+    //     };
+    // }, [isLoading, fetchData]);
 
     // https://dev.to/vishnusatheesh/exploring-infinite-scroll-techniques-in-react-1bn0
 
@@ -108,12 +108,11 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         getImages();
     }, []);
 
-    {/*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
-  Example  breakpoints = [0 ,  350, 750, 900, 1300]
-        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
-        Window with of 850 will have 2 columns. 2000 will have 4
+    //     /*Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
+    //   Example  breakpoints = [0 ,  350, 750, 900, 1300]
+    //         number columns = [0 ,   1 ,  2 , 3  ,   4 ]
+    //         Window with of 850 will have 2 columns. 2000 will have 4
 
-  */}
 
 
     // Requests the first 10 images
@@ -232,13 +231,18 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         </div>
     ))
 
+
+
     return (
         <div className="d-flex photo-album">
             <ResponsiveGrid
                 items={responsiveProps}
                 breakpoints={[0, 350, 750, 1200]}
+                loadNextItems={fetchData}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
             />
-            <div ref={observerTarget}></div>
+            {/* <div ref={observerTarget}></div> */}
             <Lightbox
                 index={index}
                 slides={slides}

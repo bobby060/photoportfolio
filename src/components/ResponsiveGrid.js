@@ -1,13 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-    MDBCol,
+    MDBCol, MDBRow,
 } from 'mdb-react-ui-kit';
 
-export default function ResponsiveGrid({ items, breakpoints }) {
+export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () => { }, isLoading = true, setIsLoading = () => { } }) {
     const [windowSize, setWindowSize] = useState({
         width: window.innerWidth,
         height: window.innerHeight,
     });
+
+    // Observer for infinite scroll
+    const observerTarget = useRef(null);
+
+    // Initalizes intersection observer to call each time observer enters view
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    loadNextItems();
+                }
+            },
+            // { threshold: 1 }
+        );
+
+        const obsCurrent = observerTarget.current;
+
+        if (obsCurrent && !isLoading) {
+            observer.observe(obsCurrent);
+        }
+
+        return () => {
+            if (obsCurrent) {
+                observer.unobserve(obsCurrent);
+            }
+        };
+    }, [isLoading, loadNextItems]);
 
 
     useEffect(() => {
@@ -44,7 +71,6 @@ export default function ResponsiveGrid({ items, breakpoints }) {
 
     // Holds the columns for the photo grid 
     const columns = new Array(num_columns);
-
     // Splits the images into the right number of columns
     for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -58,19 +84,20 @@ export default function ResponsiveGrid({ items, breakpoints }) {
 
 
     return (
-        <>
-            {columns.map((column, i) => (
-                <MDBCol className="column" key={i}>
-                    {column.map((item) => (
-                        item
-                    ))}
-                </MDBCol>
-            ))}
-        </>
+        <div>
+            <MDBRow className='p-' style={{ minHeight: '100vh' }}>
+                {columns.map((column, i) => (
+                    <MDBCol className="column p-0" key={i}>
+                        {column.map((item) => (
+                            item
+                        ))}
+                    </MDBCol>
+                ))}
+
+            </MDBRow>
+            <p className='display-block' ref={observerTarget}></p>
+        </div>
 
     )
-
-
-
 
 }
