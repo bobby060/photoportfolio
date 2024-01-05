@@ -237,7 +237,7 @@ export default function AllAlbums() {
 
         return (
             <>
-                <MDBRow className='p-2 pb-0'>
+                <MDBRow className='p-2 pb-0 me-0'>
                     <MDBCol className='d-flex justify-items-start' xl='12'>
                         <Tags
                             tags={allTags}
