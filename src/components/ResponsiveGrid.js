@@ -85,7 +85,7 @@ export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () 
 
     return (
         <div>
-            <MDBRow className='p-' style={{ minHeight: '100vh' }}>
+            <MDBRow className='m-1' style={{ minHeight: '100vh' }}>
                 {columns.map((column, i) => (
                     <MDBCol className="column p-0" key={i}>
                         {column.map((item) => (
