@@ -15,7 +15,8 @@ import Home from './Home2';
 import AboutPage from './AboutPage';
 import Album from './Album';
 import EditAlbum from './EditAlbum';
-import AllAlbums from './AllAlbums.js';
+import AllAlbums from './AllAlbums';
+import ManageAccount from './ManageAccount';
 
 
 // Dev
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
                                 path: "edit",
                                 element: <EditAlbum />
                             }]
+                    },
+                    {
+                        path: "account",
+                        element: <ManageAccount />
                     }
                 ]
             }
