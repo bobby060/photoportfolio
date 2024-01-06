@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
-import { listAlbumTagsAlbums } from "../graphql/queries";
+import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
 
 
 
@@ -40,7 +40,27 @@ export default function ManageAccount() {
         setTags(loadedTags);
     }
 
-    async function deleteTag(id) {
+    async function deleteTag(tag) {
+        if (!window.confirm(`Are you sure you want to delete the tag ${tag.title}?`)) return;
+
+        const newTags = tags.filter((t) => t.id !== tag.id);
+        setTags(newTags);
+
+        const tagConnections = await API.graphql({
+            query: albumTagsAlbumsByAlbumTagsId,
+            variables: { albumTagsId: tag.id }
+        });
+        tagConnections.data.albumTagsAlbumsByAlbumTagsId.items.map(async (tagConnection) => {
+            await API.graphql({
+                query: deleteAlbumTagsAlbums,
+                variables: { input: { id: tagConnection.id } }
+            });
+        });
+        await API.graphql({
+            query: deleteAlbumTags,
+            variables: { input: { id: tag.id } }
+        });
+        console.log('tag deleted');
 
     }
 
@@ -59,11 +79,11 @@ export default function ManageAccount() {
     function AdminSettings() {
         return (
             <MDBCol md='3' lg='2' sm='5' className="ms-auto me-auto">
-                <p className="mt-1">Current Tags</p>
+                <p className="mt-1">Manage Tags</p>
                 <MDBListGroup light>
                     {tags.map((tag) => (<MDBListGroupItem key={tag.id} className="d-flex">
                         <p className="w-100">{tag.title}</p>
-                        <MDBBtn tag='a' color='none' style={{ color: '#000000' }} onClick={() => { deleteTag(tag.id) }} ><MDBIcon className="" fas icon="trash" /></MDBBtn>
+                        <MDBBtn tag='a' color='none' style={{ color: '#000000' }} onClick={() => { deleteTag(tag) }} ><MDBIcon className="" fas icon="trash" /></MDBBtn>
                     </MDBListGroupItem>))}
                 </MDBListGroup>
 
@@ -80,7 +100,8 @@ export default function ManageAccount() {
 
     return (
         <MDBContainer>
-            <h4 className="mt-1"> Manage Account Here</h4>
+            <h4 className="mt-2"> Manage Account Here</h4>
+            <hr className="hr" />
             {isAdmin ? <AdminSettings /> : <></>}
             <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>
         </MDBContainer>
