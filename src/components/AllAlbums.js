@@ -225,13 +225,41 @@ export default function AllAlbums() {
         </Link>
     ));
 
+    const placeHolderItems = [1, 2, 3, 4, 5, 6].map((a, i) => (
+        <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+            <MDBCardImage overlay
+                src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                alt='...'
+                style={height_style}
+                className='' />
+            <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))' }}>
+                <MDBCardTitle><span className='placeholder col-7'></span></MDBCardTitle>
+                <MDBCardText><span className='placeholder col-3'></span></MDBCardText>
+            </MDBCardOverlay>
+            <div className='mask overlay'
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
+        </MDBCard>
+    ));
+
 
     function AlbumCards() {
 
         if (isLoading || currentVisibleAlbums.length < 1) {
 
             return (
-                <MDBSpinner className="mt-3"></MDBSpinner>
+                <>
+                    <MDBRow className='p-2 pb-0 me-0'>
+                        <MDBCol className='d-flex justify-items-start' xl='12'>
+                            <Tags
+                                tags={allTags}
+                            />
+                        </MDBCol>
+                    </MDBRow>
+                    <ResponsiveGrid
+                        items={placeHolderItems}
+                        breakpoints={breakPoints}
+                    />
+                </>
             );
         }
 
