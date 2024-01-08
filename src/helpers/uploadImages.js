@@ -1,99 +1,98 @@
 import { API, Storage } from 'aws-amplify';
-import {createImages, updateImages } from '../graphql/mutations';
-import {IMAGEDELIVERYHOST} from '../components/App';
+import { createImages, deleteImages } from '../graphql/mutations';
 
 
-export default async function uploadImages(targetAlbum, files){
+export default async function uploadImages(targetAlbum, files) {
 
-	 function getExifDate(photo) {
+    const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
 
-    // if (photo.name.endsWith(".jpg" || ".jpeg")){
-    //   // Get the EXIF metadata of the photo.
-    //   const exifData = EXIF.getData(photo);
+    function getExifDate() {
 
-    //   // Get the date and time the photo was taken.
-    //   const dateTaken = exifData.DateTimeOriginal;
+        // if (photo.name.endsWith(".jpg" || ".jpeg")){
+        //   // Get the EXIF metadata of the photo.
+        //   const exifData = EXIF.getData(photo);
 
-    //   // Convert the date and time to a Date object.
-    //   const date = new Date(dateTaken);
+        //   // Get the date and time the photo was taken.
+        //   const dateTaken = exifData.DateTimeOriginal;
 
-    //   // Return the date of the photo.
-    //   return date.toISOString();
-    //    }
+        //   // Convert the date and time to a Date object.
+        //   const date = new Date(dateTaken);
 
-      const date2 = new Date()
+        //   // Return the date of the photo.
+        //   return date.toISOString();
+        //    }
 
-      return date2.toISOString()
+        const date2 = new Date()
 
-  }
+        return date2.toISOString()
 
-  const getMeta = async (url) => {
-		const img = new Image();
-		img.src = url;
-		await img.decode();
-		return [img.naturalHeight, img.naturalWidth];
-	};
+    }
 
-	async function newImage(image){
-	    const data = {
-	      title: image.name,
-	      desc: "",
-	      filename: image.name,
-	      date: getExifDate(image),
-	      albumsID: targetAlbum.id
-	    }
-	    const response = await API.graphql({
-	      query: createImages,
-	      variables: {input: data},
-	    });
-	    const img = response?.data?.createImages
 
-	    // Need to add error handling here
-	    if (!img) {
-	    	console.warn('Error creating image');
-	    	return; 
-	    };
+    async function newImage(image) {
 
-	    const url = `${img.id}-${image.name}`;
-	    // Combining id and image name ensures uniqueness while preserving information
-	    try {
-	    const result = await Storage.put(url, image, {
-	        contentType: "image/png", // contentType is optional
-	      });
-	    console.log(result);
-	    // Add error handling with result
-	    console.log(`${image.name} uploaded`)
-	  } catch (error){
-	  	console.warn('Image not uploaded. Error: ', error);
-	  	return;
-	  }
-	   
+        if (!validImageTypes.includes(image['type'])) {
+            console.warn(`file ${image.name} is not a valid file type!`);
+            return;
+        }
 
-	   // Adds dimensions and url to the image object that was just created
-	   	const dims = await getMeta(`https://${IMAGEDELIVERYHOST}/public/${url}`);
-			const update_data = {
-			    	id: img.id,
-			      	url: url,
-			      	height: dims[0],
-			      	width: dims[1]
-			    };
-			try {
-		    const update_response = await API.graphql({
-		      query: updateImages,
-		      variables: { input: update_data },
-		    });
-		  } catch(error){
-		  	await Storage.remove(url);
-		  	console.warn('Image no inserted into database, deleting from storage. Error: ', error);
-		  }
-	  };
+        let newImageId = '';
+        let uploadedImg = {};
+        let url = '';
 
-	  if (files.length > 0){
+        // Gets height for image
+        const img = new Image();
+        img.src = window.URL.createObjectURL(image);
+        await img.decode();
+        const dims = [img.naturalHeight, img.naturalWidth];
+
+        const data = {
+            title: image.name,
+            desc: "",
+            filename: image.name,
+            date: getExifDate(image),
+            albumsID: targetAlbum.id,
+            height: dims[0],
+            width: dims[1],
+        }
+        try {
+            const response = await API.graphql({
+                query: createImages,
+                variables: { input: data },
+            });
+
+            uploadedImg = response?.data?.createImages;
+            newImageId = uploadedImg.id;
+            url = `${uploadedImg.id}-${image.name}`;
+            // Need to add error handling here\
+        } catch (error) {
+            console.warn('Error creating image: ', image.name, error);
+            return;
+        }
+
+        // Combining id and image name ensures uniqueness while preserving information
+        try {
+            await Storage.put(url, image);
+
+        } catch (error) {
+            // Delete image object if S3 file doesn't upload
+            console.warn('Image not uploaded. Error: ', error);
+            await API.graphql({
+                query: deleteImages,
+                variables: { id: newImageId }
+            });
+            return;
+        }
+
+        console.log(`${image.name} uploaded`)
+    }
+
+    if (files.length > 0) {
         const files_array = Array.from(files)
         console.log(`starting uploads`)
         await Promise.all(files_array.map((file) => newImage(file)));
         console.log(`All images uploaded!`)
-        return 0;
-     }	
-     return -1
+        return;
+    }
+    return;
 }
