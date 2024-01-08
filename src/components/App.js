@@ -20,10 +20,10 @@ import ManageAccount from './ManageAccount';
 
 
 // Dev
-export const IMAGEDELIVERYHOST = 'd3fxm8v2c5j7cl.cloudfront.net';
+// export const IMAGEDELIVERYHOST = 'd3fxm8v2c5j7cl.cloudfront.net';
 
 // STAGING
-// export const IMAGEDELIVERYHOST = 'd2brh14yl9j2nl.cloudfront.net';
+export const IMAGEDELIVERYHOST = 'd2brh14yl9j2nl.cloudfront.net';
 
 
 
