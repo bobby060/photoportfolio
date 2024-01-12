@@ -15,8 +15,8 @@ import { useNavigate } from "react-router-dom";
 
 // Database
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { createAlbums, updateAlbums } from '../graphql/mutations';
-import { imagesByAlbumsID } from '../graphql/queries';
+import { createAlbums, updateAlbums, } from '../graphql/mutations';
+import { imagesByAlbumsID, listImages } from '../graphql/queries';
 
 
 // Helpers
@@ -68,10 +68,20 @@ export default function CreateAlbum() {
         // Ensures album has a name...
         const cleaned_title = (title.length === 0) ?
             `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
+        // Get a random image to ENSURE there is a featured Image, even tho this should be handled later
+        const placeHolderImageRes = await API.graphql({
+            query: listImages,
+            limit: 1
+        })
+
+        const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
+
+
         const data = {
             title: cleaned_title,
             desc: form.get("desc"),
             date: cleaned_date,
+            albumsFeaturedImageId: placeHolderImageId,
         };
         const response = await API.graphql({
             query: createAlbums,
@@ -90,7 +100,6 @@ export default function CreateAlbum() {
         });
 
         const img = res.data.imagesByAlbumsID.items[0]
-        console.log(img)
 
         const featured_img_query_data = {
             id: newAlbum.id,
@@ -103,7 +112,6 @@ export default function CreateAlbum() {
             },
         })
         const new_album = updateAlbumResponse.data.updateAlbums;
-        console.log(new_album.albumsFeaturedImageId);
         const updatedAlbums = await fetchAlbums();
         setAlbums(updatedAlbums);
         console.log(`Created new album named: ${form.get("title")}`);

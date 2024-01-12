@@ -140,7 +140,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     // Deletes image object and source image on AWS
     async function deleteImage(image) {
         const newImages = items.filter((img) => img.id !== image.id);
-        await Storage.remove(`${image.id}-${image.name}`)
+        await Storage.remove(`${image.id}-${image.filename}`)
         await API.graphql({
             query: deleteImageMutation,
             variables: { input: { id: image.id } },

@@ -97,33 +97,26 @@ export default function FeaturedCarouselWrapper() {
     return (
         <div>
             <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-1' touch={true} >
-                {featuredAlbums.map((album, i) =>
-                (
-                    <Carousel.Item itemID={i} style={{}} key={i}>
-                        {/*						<Link to={`/albums/${urlhelperEncode(album)}`} >
-							<img src = {`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`} className='h-100 w-100 ' alt='...' 
-							 style={{ width:'100%', height:'100%', 'objectFit': 'cover'}}/>
-						<Carousel.Caption className='' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
-							<h5 >{album.title}</h5>
-							<p>{album.desc}</p>
-						</Carousel.Caption>
-						</Link>*/}
-
-                        <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
-                            <MDBCardImage overlay
-                                src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
-                                alt='...'
-                                style={{ 'objectFit': 'cover', height: height }}
-                                className='' />
-                            <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
-                                <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
-                                    <MDBTypography className='display-6'>{album.title}</MDBTypography>
-                                    <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-                                </MDBCardOverlay>
-                            </Link>
-                        </MDBCard>
-                    </Carousel.Item>
-                ))}
+                {featuredAlbums.map((album, i) => {
+                    return (
+                        <Carousel.Item itemID={i} style={{}} key={i}>
+                            <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
+                                <MDBCardImage overlay
+                                    src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+                                    alt='...'
+                                    style={{ 'objectFit': 'cover', height: height }}
+                                    className='' />
+                                <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+                                    <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
+                                        <MDBTypography className='display-6'>{album.title}</MDBTypography>
+                                        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+                                    </MDBCardOverlay>
+                                </Link>
+                            </MDBCard>
+                        </Carousel.Item>
+                    )
+                }
+                )}
             </Carousel>
         </div>
     );
