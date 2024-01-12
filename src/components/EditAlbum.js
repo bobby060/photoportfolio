@@ -274,13 +274,19 @@ export default function EditAlbum() {
                     </MDBCol>
                 </MDBRow>
                 <MDBRow className='d-flex justify-content-center'>
-                    <MDBCol lg='6'>
+                    <MDBCol sm='12'>
+                        <label for='file_upload'> Upload more images </label>
+                    </MDBCol>
+                    <MDBCol lg='6' className='d-flex' >
                         <MDBFile
+                            id='file_upload'
                             multiple
                             onChange={setFiles}
-                            className='m-1 mb-3'
-                            label='Add more photos to album'
+                            className='m-1 mb-1 flex-grow-1'
+                        // label='Add more photos to album'
                         />
+                        {/* Need to update so that UI makes more sense */}
+                        <MDBBtn disabled className="bg-dark m-1">Upload</MDBBtn>
                     </MDBCol>
                 </MDBRow>
                 <MDBRow className='d-flex justify-content-center align-items-center' >
