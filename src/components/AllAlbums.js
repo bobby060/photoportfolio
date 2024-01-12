@@ -9,7 +9,6 @@ import {
     MDBCardOverlay,
     MDBCardImage,
     // MDBTypography,
-    MDBSpinner
 } from 'mdb-react-ui-kit';
 
 import { AlbumsContext } from '../helpers/AlbumsContext';
