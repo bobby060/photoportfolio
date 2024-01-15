@@ -35,7 +35,7 @@ import uploadImages from '../helpers/uploadImages';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 const client = generateClient({
-    authMode: 'userPools'
+    authMode: 'userPool'
 });
 
 const publicClient = generateClient({
