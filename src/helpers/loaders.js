@@ -1,12 +1,15 @@
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+
 import { listAlbums, listAlbumTags, getAlbums } from '../graphql/queries';
 
 
+const client = generateClient({
+    authMode: 'apiKey'
+});
 
 export async function fetchAlbums() {
-    const apiData = await API.graphql({
+    const apiData = await client.graphql({
         query: listAlbums,
-        authMode: 'API_KEY',
     });
 
     const albumsFromAPI = apiData.data.listAlbums.items;
@@ -44,10 +47,9 @@ export async function fetchAlbum(id) {
     const data = {
         id: id
     }
-    const result = await API.graphql({
+    const result = await client.graphql({
         query: getAlbums,
         variables: data,
-        authMode: 'API_KEY',
     })
 
     // console.log(result);
@@ -56,9 +58,8 @@ export async function fetchAlbum(id) {
 }
 
 export async function fetchAllAlbumTags() {
-    const tagsData = await API.graphql({
+    const tagsData = await client.graphql({
         query: listAlbumTags,
-        authMode: 'API_KEY',
     });
     return tagsData.data.listAlbumTags.items;
 }
@@ -71,9 +72,8 @@ export async function fetchPublicAlbumTags() {
             }
         }
     }
-    const tagsData = await API.graphql({
+    const tagsData = await client.graphql({
         query: listAlbumTags,
-        authMode: 'API_KEY',
         variables: variables,
     });
     return tagsData.data.listAlbumTags.items;

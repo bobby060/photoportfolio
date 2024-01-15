@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import {
     MDBCol,
     MDBListGroup,
@@ -10,19 +10,22 @@ import {
     MDBIcon
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { useNavigate } from "react-router-dom";
 
 import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
 import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
 
+const client = generateClient();
 
 
 export default function ManageAccount() {
 
-    const user_item = useAuthenticator((context) => [context.user]);
+    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [isAdmin, setIsAdmin] = useState(false);
+
     const [tags, setTags] = useState([]);
     const navigate = useNavigate();
 
@@ -31,8 +34,7 @@ export default function ManageAccount() {
     }, []);
 
     useEffect(() => {
-        const adminStatus = isAdminGroup();
-        setIsAdmin(adminStatus);
+        isAdminGroup();
     }, [authStatus]);
 
     async function fetchTags() {
@@ -46,17 +48,17 @@ export default function ManageAccount() {
         const newTags = tags.filter((t) => t.id !== tag.id);
         setTags(newTags);
 
-        const tagConnections = await API.graphql({
+        const tagConnections = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: { albumTagsId: tag.id }
         });
         tagConnections.data.albumTagsAlbumsByAlbumTagsId.items.map(async (tagConnection) => {
-            await API.graphql({
+            await client.graphql({
                 query: deleteAlbumTagsAlbums,
                 variables: { input: { id: tagConnection.id } }
             });
         });
-        await API.graphql({
+        await client.graphql({
             query: deleteAlbumTags,
             variables: { input: { id: tag.id } }
         });
@@ -64,16 +66,27 @@ export default function ManageAccount() {
 
     }
 
-    function isAdminGroup() {
-        if (authStatus.authStatus === 'configuring'
-            || !user_item.user
-            || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']) {
-            return false;
+    async function isAdminGroup() {
+        try {
+            const { accessToken } = (await fetchAuthSession()).tokens ?? {};
+
+            if (authStatus.authStatus === 'configuring'
+                || !accessToken
+                || !accessToken.payload['cognito:groups']) {
+                setIsAdmin(false);
+                return;
+            }
+            if (accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
+                setIsAdmin(true);
+                return;
+            }
+            setIsAdmin(false);
+            return;
+        } catch (err) {
+            console.log(err);
         }
-        if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
-            return true;
-        }
-        return false;
+
+
     }
 
     function AdminSettings() {

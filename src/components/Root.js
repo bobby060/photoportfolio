@@ -19,6 +19,8 @@ import Footer from './Footer';
 import fetchAlbums from '../helpers/fetchAlbums';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 
+
+
 export default function Root() {
 
     const [selectedAlbum, setSelectedAlbum] = useState([]);

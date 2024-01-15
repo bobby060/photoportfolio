@@ -9,7 +9,10 @@ import {
     MDBSpinner,
     MDBFile,
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
+import { remove } from 'aws-amplify/storage';
+import { generateClient } from 'aws-amplify/api';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
@@ -29,7 +32,15 @@ import { urlhelperEncode, urlhelperDecode } from '../helpers/urlhelper';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
 
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
+const client = generateClient({
+    authMode: 'userPools'
+});
+
+const publicClient = generateClient({
+    authMode: 'apiKey'
+});
 
 
 
@@ -41,16 +52,32 @@ export default function EditAlbum() {
     const [allTags, setAllTags] = useState([]);
     const [currentTags, setCurrentTags] = useState([]);
     const navigate = useNavigate();
-    const user_item = useAuthenticator((context) => [context.user]);
+    const [accessToken, setAccessToken] = useState(null);
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
     let { album_id } = useParams();
 
+    const { user } = useAuthenticator((context) => [context]);
+
     useEffect(() => {
         getAlbum();
         fetchTags();
+        currentSession();
     }, [album_id]);
 
+    async function currentSession() {
+        try {
+            const { at, idToken } = (await fetchAuthSession()).tokens ?? {};
+            await setAccessToken(at);
+            if (!accessToken
+                || !accessToken.payload['cognito:groups']
+                || accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
+                throw new Error('401, Not authorized');
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
@@ -109,7 +136,7 @@ export default function EditAlbum() {
             desc: form.get("desc"),
             date: date,
         };
-        const response = await API.graphql({
+        const response = await client.graphql({
             query: updateAlbums,
             variables: { input: data },
         });
@@ -133,20 +160,22 @@ export default function EditAlbum() {
         setAlbums(newAlbums);
 
         // Gets all the images associated with the old album ID
-        const imgs = await API.graphql({
+        const imgs = await publicClient.graphql({
             query: imagesByAlbumsID,
             variables: { albumsID: id }
         });
 
         // Deletes albums associated with old album
         imgs.data.imagesByAlbumsID.items.map(async (img) => {
-            await Storage.remove(`${img.id}-${img.filename}`);
-            await API.graphql({
+            await remove({
+                key: `${img.id}-${img.filename}`
+            });
+            await client.graphql({
                 query: deleteImages,
                 variables: { input: { id: img.id } },
             });
         });
-        await API.graphql({
+        await client.graphql({
             query: deleteAlbums,
             variables: { input: { id } },
         });
@@ -187,7 +216,7 @@ export default function EditAlbum() {
             title: name,
             privacy: 'public',
         };
-        await API.graphql({
+        await client.graphql({
             query: createAlbumTags,
             variables: { input: data },
         });
@@ -199,7 +228,7 @@ export default function EditAlbum() {
             albumsId: currentAlbum.id,
             albumTagsId: tag.id,
         }
-        await API.graphql({
+        await client.graphql({
             query: createAlbumTagsAlbums,
             variables: { input: data },
         })
@@ -211,7 +240,7 @@ export default function EditAlbum() {
         const data = {
             id: relationIdToRemove.id
         }
-        await API.graphql({
+        await client.graphql({
             query: deleteAlbumTagsAlbums,
             variables: { input: data },
         })
@@ -228,12 +257,6 @@ export default function EditAlbum() {
 
 
 
-
-    if (!user_item.user
-        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-        throw new Error('401, Not authorized');
-    }
 
 
 

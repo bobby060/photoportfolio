@@ -4,8 +4,9 @@ import {
     MDBContainer,
     MDBIcon,
 } from 'mdb-react-ui-kit';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useParams } from "react-router-dom";
@@ -23,7 +24,9 @@ import { IMAGEDELIVERYHOST } from './App';
 // Components
 import PhotoGrid from './PhotoGrid';
 
-
+const client = generateClient({
+    authMode: 'apiKey'
+});
 export default function Album() {
     const { albums, setAlbums } = useContext(AlbumsContext);
     // const[album, setAlbum] = useState(null);
@@ -31,16 +34,13 @@ export default function Album() {
     const [canEdit, setCanEdit] = useState(false);
     let { album_id } = useParams();
     const [featuredImg, setFeaturedImg] = useState([]);
-
-
-
-
+    const [accessToken, setAccessToken] = useState(null);
 
     // for storing images in current album
 
     const debug = false;
 
-    const user_item = useAuthenticator((context) => [context.user]);
+    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
     let location = useLocation();
 
@@ -48,6 +48,15 @@ export default function Album() {
     useEffect(() => {
         pullAlbum();
     }, [album_id, location]);
+
+    async function currentSession() {
+        try {
+            const { at, idToken } = (await fetchAuthSession()).tokens ?? {};
+            setAccessToken(at);
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
     async function findIndex(albums) {
@@ -82,10 +91,9 @@ export default function Album() {
             // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
         if (newA[index].albumsFeaturedImageId) {
-            const image = await API.graphql({
+            const image = await client.graphql({
                 query: getImages,
                 variables: data,
-                authMode: 'API_KEY'
             });
             setFeaturedImg(image.data.getImages);
         }
@@ -100,7 +108,7 @@ export default function Album() {
             id: albums[albumIndex].id,
             albumsFeaturedImageId: image.image.id
         }
-        const response = await API.graphql({
+        const response = await client.graphql({
             query: updateAlbums,
             variables: {
                 input: data
@@ -144,10 +152,11 @@ export default function Album() {
 
     const date = new Date(albums[albumIndex].date);
 
-    function isAdminGroup() {
-        if (!user_item.user
-            || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-            || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
+    async function isAdminGroup() {
+        await fetchAuthSession();
+        if (!accessToken
+            || accessToken.payload['cognito:groups']
+            || accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
             return false;
         }
         return true;
@@ -179,6 +188,7 @@ export default function Album() {
             return () => window.removeEventListener('resize', handleResize);
         }, []);
 
+
         const breakpoints = [0, 750, 1200, 1920];
 
         function getBreakpoint() {
@@ -188,7 +198,7 @@ export default function Album() {
             }
         }
         const imgWidth = getBreakpoint();
-        const imgRatio = featuredImg.height / featuredImg.width;
+        const imgRatio = (featuredImg) ? featuredImg.height / featuredImg.width : 1;
         const featuredImageUrl = (featuredImg) ? `https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}` : "";
         const imgHeight = Math.min(windowSize.width * imgRatio, 400);
 

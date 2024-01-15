@@ -1,7 +1,7 @@
 // Not used anymore
 import React, { useEffect, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import {
 
     MDBCard,
@@ -19,6 +19,11 @@ import { urlhelperEncode } from '../helpers/urlhelper';
 import { IMAGEDELIVERYHOST } from './App';
 
 import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
+
+const client = generateClient({
+    authMode: 'apiKey'
+});
+
 
 export default function FeaturedCarouselWrapper() {
 
@@ -49,14 +54,12 @@ export default function FeaturedCarouselWrapper() {
 
     async function updateFeatured() {
 
-        const result = await API.graphql({
+        const result = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: {
                 albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
                 // albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
-
             },
-            authMode: 'API_KEY',
         });
         const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
         const newAlbums = taggedConnections.map((connection) => connection.albums);

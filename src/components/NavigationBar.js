@@ -1,5 +1,6 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
     MDBContainer,
     MDBNavbar,
@@ -27,41 +28,33 @@ import logo from '../logo192.png';
 export default function NavigationBar() {
 
     const [showNav, setShowNav] = useState(false);
-    const user_item = useAuthenticator((context) => [context.user]);
+    const [accessTokenState, setAccessToken] = useState(null);
+    const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
+    const userItem = useAuthenticator(context => [context.user]);
     // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
-    const { signOut } = useAuthenticator((context) => [context.user]);
     // const {albums} = useContext(AlbumsContext);
-    // const[currentAlbum,setCurrentAlbum] = useState("");
 
-    // let location = useLocation();
+    useEffect(() => {
+        currentSession();
+    }, [])
 
-    // Updates current album each time location changes
-    // useEffect(() => {
-    //   setCurrentAlbumState();
-    // }, [location]);
-
-    // Decodes the current album from the current path
-    // function setCurrentAlbumState(){
-    //   if(location.pathname.startsWith('/albums/')){
-    //     for(let i = 0; i < albums.length; i++){
-    //       if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
-    //         setCurrentAlbum(albums[i].title);
-    //         return;
-    //     }
-    //   }
-    // }
-
-    //   setCurrentAlbum("");
-    // }
-
+    async function currentSession() {
+        try {
+            const { accessToken } = (await fetchAuthSession()).tokens ?? {};
+            setAccessToken(accessToken);
+        } catch (err) {
+            console.log(err);
+        }
+    }
     function isAdminGroup() {
+        // await currentSession();
         if (authStatus.authStatus === 'configuring'
-            || !user_item.user
-            || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']) {
+            || !accessTokenState
+            || !accessTokenState.payload['cognito:groups']) {
             return false;
         }
-        if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
+        if (accessTokenState.payload['cognito:groups'][0] === "portfolio_admin") {
             return true;
         }
         return false;
@@ -88,7 +81,7 @@ export default function NavigationBar() {
                 <MDBNavbarItem>
                     <Link to={`/account`}>
                         <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                            {user_item.user.username}
+                            {(accessTokenState) ? accessTokenState.payload.username : ''}
                         </MDBNavbarLink>
                     </Link>
                 </MDBNavbarItem>

@@ -1,11 +1,14 @@
 import { listAlbums } from '../graphql/queries';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 
+
+const client = generateClient({
+    authMode: 'apiKey'
+});
 // Gets list of current albums from the server
 export default async function fetchAlbums() {
-    const apiData = await API.graphql({
+    const apiData = await client.graphql({
         query: listAlbums,
-        authMode: 'API_KEY',
     });
 
     const albumsFromAPI = apiData.data.listAlbums.items;
