@@ -1,4 +1,4 @@
-import { downloadData } from "aws-amplify/storage";
+import { downloadData, uploadData } from "aws-amplify/storage";
 
 let instance;
 
@@ -21,8 +21,33 @@ class Config {
     }
 
     getValue(key) {
-        const cEnv = config.currentEnvironment;
-        return (config.environments[cEnv][key]);
+        return (config.environments[config.currentEnvironment][key]);
+    }
+
+    updateValue(key, newValue) {
+        config.environments[config.currentEnvironment][key] = newValue;
+        return;
+    }
+
+    getCurrentEnvironment() {
+        return config.currentEnvironment;
+    }
+
+    setCurrentEnvironment(value) {
+        config.currentEnvironment = value;
+    }
+
+    async save() {
+        const file = JSON.stringify(config);
+        try {
+            const result = await uploadData({
+                key: 'portfolio-config.json',
+                data: file
+            }).result;
+            console.log('Successfully saved config changes: ', result)
+        } catch (error) {
+            console.warn('Error, config not saved: ', error);
+        }
     }
 
     async updateConfig() {

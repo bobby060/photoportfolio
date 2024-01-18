@@ -102,7 +102,7 @@ export default function FeaturedCarouselWrapper() {
     const height = Math.min(...heightArray[0]) * (columnsMultplier());
     return (
         <div>
-            <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-1' touch={true} >
+            <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-2' touch={true} >
                 {featuredAlbums.map((album, i) => {
                     return (
                         <Carousel.Item itemID={i} style={{}} key={i}>

@@ -7,7 +7,9 @@ import {
     MDBBtn,
     MDBContainer,
     MDBSpinner,
-    MDBIcon
+    MDBIcon,
+    MDBRadio,
+    MDBBtnGroup
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -16,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
 import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
+import currentUser from "../helpers/CurrentUser";
 
 const client = generateClient();
 
@@ -25,7 +28,7 @@ export default function ManageAccount() {
     // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [isAdmin, setIsAdmin] = useState(false);
-
+    const adminObject = new currentUser;
     const [tags, setTags] = useState([]);
     const navigate = useNavigate();
 
@@ -33,9 +36,6 @@ export default function ManageAccount() {
         fetchTags();
     }, []);
 
-    useEffect(() => {
-        isAdminGroup();
-    }, [authStatus]);
 
     async function fetchTags() {
         const loadedTags = await fetchPublicAlbumTags();
@@ -66,32 +66,10 @@ export default function ManageAccount() {
 
     }
 
-    async function isAdminGroup() {
-        try {
-            const { accessToken } = (await fetchAuthSession()).tokens ?? {};
-
-            if (authStatus.authStatus === 'configuring'
-                || !accessToken
-                || !accessToken.payload['cognito:groups']) {
-                setIsAdmin(false);
-                return;
-            }
-            if (accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
-                setIsAdmin(true);
-                return;
-            }
-            setIsAdmin(false);
-            return;
-        } catch (err) {
-            console.log(err);
-        }
-
-
-    }
-
     function AdminSettings() {
         return (
             <MDBCol md='3' lg='2' sm='5' className="ms-auto me-auto">
+                <hr className="hr" />
                 <p className="mt-1">Manage Tags</p>
                 <MDBListGroup light>
                     {tags.map((tag) => (<MDBListGroupItem key={tag.id} className="d-flex">
@@ -99,8 +77,13 @@ export default function ManageAccount() {
                         <MDBBtn tag='a' color='none' style={{ color: '#000000' }} onClick={() => { deleteTag(tag) }} ><MDBIcon className="" fas icon="trash" /></MDBBtn>
                     </MDBListGroupItem>))}
                 </MDBListGroup>
-
-
+                <p className="mt-1">Change branch</p>
+                <div className="m-1">
+                    <MDBRadio name='inlineRadio' id='inlineRadio1' value='option1' label='dev' inline />
+                    <MDBRadio name='inlineRadio' id='inlineRadio2' value='option2' label='staging' inline defaultChecked />
+                </div>
+                <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
+                <hr className="hr" />
             </MDBCol>
         );
     }
@@ -114,8 +97,10 @@ export default function ManageAccount() {
     return (
         <MDBContainer>
             <h4 className="mt-2"> Manage Account Here</h4>
-            <hr className="hr" />
-            {isAdmin ? <AdminSettings /> : <></>}
+
+            {adminObject.isAdmin() ? <AdminSettings /> : <></>}
+
+
             <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>
         </MDBContainer>
 

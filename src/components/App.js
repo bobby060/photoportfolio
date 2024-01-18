@@ -22,6 +22,7 @@ import ManageAccount from './ManageAccount';
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../amplifyconfiguration.json';
 import projectConfig from "../helpers/Config";
+import userObject from "../helpers/CurrentUser";
 
 Amplify.configure(amplifyconfig);
 

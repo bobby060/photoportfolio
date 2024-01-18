@@ -175,7 +175,6 @@ export default function AllAlbums() {
     async function onDeselectTag(tag) {
         const newSelectedTags = selectedTagsIndexes;
         delete newSelectedTags[tag.index];
-        console.log(newSelectedTags);
         getFilteredAlbums(newSelectedTags);
     }
 
@@ -192,7 +191,7 @@ export default function AllAlbums() {
         }
         // console.log(tags);
         return (
-            <>
+            <div className='p-1 pb-0'>
                 {tags.map((tag) => (
                     (tag.visible) ? <Tag
                         key={tag.id}
@@ -203,7 +202,7 @@ export default function AllAlbums() {
                     /> : <></>
                 ))}
                 {/*<MDBBtn rounded className='text-light m-1' size='sm' color='dark' onClick={()=>deselectAllTags()}>Clear</MDBBtn>*/}
-            </>
+            </div>
         );
     }
 
@@ -249,8 +248,8 @@ export default function AllAlbums() {
 
             return (
                 <>
-                    <MDBRow className='p-2 pb-0 me-0'>
-                        <MDBCol className='d-flex justify-items-start' xl='12'>
+                    <MDBRow className='me-0 mt-0'>
+                        <MDBCol className='d-flex justify-items-start'>
                             <Tags
                                 tags={allTags}
                             />
@@ -266,8 +265,8 @@ export default function AllAlbums() {
 
         return (
             <>
-                <MDBRow className='p-2 pb-0 me-0'>
-                    <MDBCol className='d-flex justify-items-start' xl='12'>
+                <MDBRow className='me-0'>
+                    <MDBCol className='d-flex justify-items-start'>
                         <Tags
                             tags={allTags}
                         />
@@ -286,10 +285,7 @@ export default function AllAlbums() {
     }
 
     return (
-        <MDBCol lg='10' className="me-auto ms-auto">
-
-            <AlbumCards />
-        </MDBCol>
+        <AlbumCards />
     );
 
 

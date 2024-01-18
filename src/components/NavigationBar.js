@@ -19,6 +19,7 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 import logo from '../logo192.png';
+import currentUser from '../helpers/CurrentUser';
 
 // import { useLocation } from "react-router-dom";
 // import { AlbumsContext } from '../helpers/AlbumsContext';
@@ -32,6 +33,7 @@ export default function NavigationBar() {
     const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const userItem = useAuthenticator(context => [context.user]);
+    const adminObject = new currentUser;
     // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
     // const {albums} = useContext(AlbumsContext);
 
@@ -96,10 +98,7 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (!isAdminGroup()) {
-            return;
-        }
-        return (
+        if (adminObject.isAdmin()) {
             <MDBNavbarItem>
                 <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
                     <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
@@ -107,7 +106,8 @@ export default function NavigationBar() {
                     </NavLink>
                 </MDBNavbarLink>
             </MDBNavbarItem>
-        );
+        }
+        return;
     }
 
     return (

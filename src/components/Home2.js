@@ -54,7 +54,6 @@ export default function Home() {
                 pageSize: 50,
             }
         });
-        console.log(response);
 
         const urls = response.items.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
         setHeaderImgs(urls);
@@ -125,7 +124,7 @@ export default function Home() {
                 <FeaturedCarouselWrapper />
             </MDBCol>
             <span id="albums" />
-            <MDBCol lg='10' className='me-auto ms-auto'>
+            <MDBCol lg='10' xl='8' className='me-auto ms-auto'>
                 {/*<AlbumCards/>*/}
                 <div className='p-3'>
                     <h2 className='m-0 fw-light'>

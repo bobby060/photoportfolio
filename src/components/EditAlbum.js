@@ -18,6 +18,7 @@ import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import Tag from './Tag';
 
+
 // Database
 import {
     updateAlbums, deleteAlbums, deleteImages,
@@ -31,8 +32,9 @@ import { fetchAlbums, fetchAllAlbumTags, fetchAlbum } from '../helpers/loaders';
 import { urlhelperEncode, urlhelperDecode } from '../helpers/urlhelper';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
+import currentUser from '../helpers/CurrentUser';
 
-import { fetchAuthSession } from 'aws-amplify/auth';
+
 
 const client = generateClient({
     authMode: 'userPool'
@@ -52,32 +54,21 @@ export default function EditAlbum() {
     const [allTags, setAllTags] = useState([]);
     const [currentTags, setCurrentTags] = useState([]);
     const navigate = useNavigate();
-    const [accessToken, setAccessToken] = useState(null);
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
     let { album_id } = useParams();
+    const adminObject = new currentUser;
 
     const { user } = useAuthenticator((context) => [context]);
 
     useEffect(() => {
         getAlbum();
         fetchTags();
-        currentSession();
+        if (!adminObject.isAdmin()) {
+            throw new Error('401, Not authorized');
+        }
     }, [album_id]);
 
-    async function currentSession() {
-        try {
-            const { at, idToken } = (await fetchAuthSession()).tokens ?? {};
-            await setAccessToken(at);
-            if (!accessToken
-                || !accessToken.payload['cognito:groups']
-                || accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-                throw new Error('401, Not authorized');
-            }
-        } catch (err) {
-            console.log(err);
-        }
-    }
 
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull

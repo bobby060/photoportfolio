@@ -16,7 +16,7 @@ export default function Footer() {
                             </h6>
                             <p>
                                 I created this site both to share my love for photography and also as an experiment to renew my coding skills. If you want to find out more about how I built this
-                                website, please checkout my <a href='https://github.com/bobby060/photoportfolio'>Github</a> for this project!
+                                website, please check out my <a href='https://github.com/bobby060/photoportfolio'>Github</a> for this project!
                             </p>
                         </MDBCol>
 

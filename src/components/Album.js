@@ -6,7 +6,6 @@ import {
 } from 'mdb-react-ui-kit';
 import { generateClient } from 'aws-amplify/api';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import { Outlet, useLocation } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useParams } from "react-router-dom";
@@ -20,6 +19,7 @@ import { urlhelperDecode } from '../helpers/urlhelper';
 import fetchAlbums from '../helpers/fetchAlbums';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import { IMAGEDELIVERYHOST } from './App';
+import currentUser from '../helpers/CurrentUser';
 
 // Components
 import PhotoGrid from './PhotoGrid';
@@ -34,7 +34,7 @@ export default function Album() {
     const [canEdit, setCanEdit] = useState(false);
     let { album_id } = useParams();
     const [featuredImg, setFeaturedImg] = useState([]);
-    const [accessToken, setAccessToken] = useState(null);
+    const adminObject = new currentUser;
 
     // for storing images in current album
 
@@ -48,15 +48,6 @@ export default function Album() {
     useEffect(() => {
         pullAlbum();
     }, [album_id, location]);
-
-    async function currentSession() {
-        try {
-            const { at, idToken } = (await fetchAuthSession()).tokens ?? {};
-            setAccessToken(at);
-        } catch (err) {
-            console.log(err);
-        }
-    }
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
     async function findIndex(albums) {
@@ -152,20 +143,14 @@ export default function Album() {
 
     const date = new Date(albums[albumIndex].date);
 
-    async function isAdminGroup() {
-        await fetchAuthSession();
-        if (!accessToken
-            || accessToken.payload['cognito:groups']
-            || accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-            return false;
-        }
-        return true;
-    }
+
 
     function ShowEditButton() {
-        if (isAdminGroup() && !canEdit) {
+        if (adminObject.isAdmin()) {
             return (<MDBBtn floating onClick={() => setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
         }
+
+        return;
     }
 
     function AlbumHeader() {
