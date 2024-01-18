@@ -3,9 +3,16 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 class currentUser {
     accessToken = null;
     idToken = null;
+    loading = false;
     constructor() {
         // {this.username, this.userId, this.signinDetails} = null
         this.setTokens();
+    }
+
+    async checkLoading() {
+        if (this.loading) {
+            await this.setTokens();
+        }
     }
 
     async setTokens() {
@@ -15,7 +22,8 @@ class currentUser {
         this.idToken = id;
     }
 
-    isAdmin() {
+    async isAdmin() {
+        await this.checkLoading();
         if (!this.accessToken
             || !this.accessToken.payload['cognito:groups']) {
             return false;
@@ -26,7 +34,7 @@ class currentUser {
         }
     }
 
-    userName() {
+    async userName() {
         if (this.idToken) {
             return this.idToken.payload['cognito:username']
         } else {

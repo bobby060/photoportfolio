@@ -19,6 +19,7 @@ import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
 import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
 import currentUser from "../helpers/CurrentUser";
+import projectConfig from "../helpers/Config";
 
 const client = generateClient();
 
@@ -27,8 +28,7 @@ export default function ManageAccount() {
 
     // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const adminObject = new currentUser;
+    const adminObject = new currentUser();
     const [tags, setTags] = useState([]);
     const navigate = useNavigate();
 
@@ -66,6 +66,15 @@ export default function ManageAccount() {
 
     }
 
+    async function updateBranch(event) {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const radioValue = form.get("inlineRadio");
+        console.log(radioValue);
+        projectConfig.setCurrentEnvironment(radioValue);
+        projectConfig.save();
+    }
+
     function AdminSettings() {
         return (
             <MDBCol md='3' lg='2' sm='5' className="ms-auto me-auto">
@@ -78,11 +87,16 @@ export default function ManageAccount() {
                     </MDBListGroupItem>))}
                 </MDBListGroup>
                 <p className="mt-1">Change branch</p>
-                <div className="m-1">
-                    <MDBRadio name='inlineRadio' id='inlineRadio1' value='option1' label='dev' inline />
-                    <MDBRadio name='inlineRadio' id='inlineRadio2' value='option2' label='staging' inline defaultChecked />
-                </div>
-                <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
+                <form className="m-1" onSubmit={updateBranch}>
+                    {(projectConfig.getCurrentEnvironment === 'dev') ? (
+                        <>
+                            <MDBRadio name='inlineRadio' value='dev' label='dev' inline defaultChecked />
+                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline />
+                        </>) : (<><MDBRadio name='inlineRadio' value='dev' label='dev' inline />
+                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline defaultChecked />
+                        </>)}
+                    <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
+                </form>
                 <hr className="hr" />
             </MDBCol>
         );
