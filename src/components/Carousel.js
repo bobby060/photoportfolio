@@ -19,6 +19,7 @@ import { urlhelperEncode } from '../helpers/urlhelper';
 import { IMAGEDELIVERYHOST } from './App';
 
 import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
+import projectConfig from '../helpers/Config';
 
 const client = generateClient({
     authMode: 'apiKey'
@@ -26,6 +27,8 @@ const client = generateClient({
 
 
 export default function FeaturedCarouselWrapper() {
+
+    const featuredAlbumTag = projectConfig.getValue('featuredTagId');
 
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [windowSize, setWindowSize] = useState({
@@ -57,7 +60,7 @@ export default function FeaturedCarouselWrapper() {
         const result = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: {
-                albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
+                albumTagsId: featuredAlbumTag,
                 // albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
             },
         });
