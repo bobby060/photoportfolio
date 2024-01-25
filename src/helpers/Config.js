@@ -34,7 +34,9 @@ class Config {
     }
 
     setCurrentEnvironment(value) {
+        console.log(value);
         config.currentEnvironment = value;
+        console.log(value);
     }
 
     async save() {

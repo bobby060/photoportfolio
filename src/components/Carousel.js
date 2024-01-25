@@ -108,7 +108,7 @@ export default function FeaturedCarouselWrapper() {
                         <Carousel.Item itemID={i} style={{}} key={i}>
                             <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
                                 <MDBCardImage overlay
-                                    src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+                                    src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
                                     alt='...'
                                     style={{ 'objectFit': 'cover', height: height }}
                                     className='' />
