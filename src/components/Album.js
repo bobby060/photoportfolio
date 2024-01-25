@@ -18,7 +18,7 @@ import { updateAlbums } from '../graphql/mutations';
 import { urlhelperDecode } from '../helpers/urlhelper';
 import fetchAlbums from '../helpers/fetchAlbums';
 import { AlbumsContext } from '../helpers/AlbumsContext';
-import { IMAGEDELIVERYHOST } from './App';
+import projectConfig from '../helpers/Config';
 import currentUser from '../helpers/CurrentUser';
 
 // Components
@@ -201,7 +201,7 @@ export default function Album() {
         }
         const imgWidth = getBreakpoint();
         const imgRatio = (featuredImg) ? featuredImg.height / featuredImg.width : 1;
-        const featuredImageUrl = (featuredImg) ? `https://${IMAGEDELIVERYHOST}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}` : "";
+        const featuredImageUrl = (featuredImg) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}` : "";
         const imgHeight = Math.min(windowSize.width * imgRatio, 400);
 
         const parallaxStyle = {

@@ -1,12 +1,11 @@
 import React from 'react';
-
-import { IMAGEDELIVERYHOST } from './App';
+import projectConfig from '../helpers/Config';
 
 export default function Image({ img_obj, className }) {
     // const small = 300;
     // const md = 768;
     // const lg = 1280;
-    const delivery_domain = `https://${IMAGEDELIVERYHOST}/public`;
+    const delivery_domain = `https://${projectConfig.getValue('imageDeliveryHost')}/public`;
     const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
 
     // function image_loader(url){

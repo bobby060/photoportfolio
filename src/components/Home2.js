@@ -16,7 +16,7 @@ import AllAlbums from './AllAlbums';
 import FeaturedCarouselWrapper from './Carousel';
 
 // Helpers
-import { IMAGEDELIVERYHOST } from './App';
+import projectConfig from "../helpers/Config";
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 
@@ -55,7 +55,7 @@ export default function Home() {
             }
         });
 
-        const urls = response.items.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
+        const urls = response.items.map((item) => `https://${projectConfig.getValue('imageDeliveryHost')}/public/${item.key}?width=1280`);
         setHeaderImgs(urls);
     }
 

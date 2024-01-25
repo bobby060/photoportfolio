@@ -20,8 +20,8 @@ import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
-import { IMAGEDELIVERYHOST } from './App';
 import { fetchPublicAlbumTags } from '../helpers/loaders';
+import projectConfig from '../helpers/Config';
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 const client = generateClient({
@@ -210,7 +210,7 @@ export default function AllAlbums() {
         <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
             <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                 <MDBCardImage overlay
-                    src={`https://${IMAGEDELIVERYHOST}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
+                    src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
                     alt='...'
                     style={height_style}
                     className='' />

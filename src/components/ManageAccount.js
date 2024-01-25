@@ -77,6 +77,7 @@ export default function ManageAccount() {
     }
 
     function AdminSettings() {
+
         return (
             <MDBCol md='3' lg='2' sm='5' className="ms-auto me-auto">
                 <hr className="hr" />
@@ -89,7 +90,7 @@ export default function ManageAccount() {
                 </MDBListGroup>
                 <p className="mt-1">Change branch</p>
                 <form className="m-1" onSubmit={updateBranch}>
-                    {(projectConfig.getCurrentEnvironment === 'dev') ? (
+                    {(projectConfig.getCurrentEnvironment() === 'dev') ? (
                         <>
                             <MDBRadio name='inlineRadio' value='dev' label='dev' inline defaultChecked />
                             <MDBRadio name='inlineRadio' value='staging' label='staging' inline />

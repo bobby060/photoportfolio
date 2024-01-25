@@ -6,9 +6,7 @@ import {
 import { } from '@aws-amplify/ui-react';
 import { remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
-
-import { IMAGEDELIVERYHOST } from './App';
-
+import projectConfig from '../helpers/Config';
 // Database
 import { imagesByAlbumsID } from '../graphql/queries';
 import { deleteImages as deleteImageMutation } from '../graphql/mutations';
@@ -169,10 +167,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const slides = items.map((image) => {
         const urlNoSpaces = `${image.id}-${image.filename}`.replaceAll(' ', '%20');
         return ({
-            src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
+            src: `https://${projectConfig.getValue('imageDeliveryHost')}/public/${image.id}-${image.filename}`,
             alt: image.filename,
 
-            downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`,
+            downloadUrl: `https://${projectConfig.getValue('imageDeliveryHost')}/public/${urlNoSpaces}`,
             width: image.width,
             height: image.height,
         });
