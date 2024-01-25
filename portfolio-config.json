@@ -1,0 +1,13 @@
+{
+    "currentEnvironment": "dev",
+    "environments": {
+        "dev": {
+            "featuredTagId": "28c16442-5150-4b98-8607-f854e07e0b35",
+            "imageDeliveryHost": "d3fxm8v2c5j7cl.cloudfront.net"
+        },
+        "staging": {
+            "featuredTagId": "c0240971-8b4d-4aff-848a-4fc336629e37",
+            "imageDeliveryHost": "d2brh14yl9j2nl.cloudfront.net"
+        }
+    }
+}

@@ -1,16 +1,29 @@
 # React Photo Portfolio
 
-A full stack web app built with React, GraphQL, AWS Amplify, AWS AppSync, AWS Cognito, and AWS S3.
+The goal of this photo portfolio is to provide a simple, easily modifiable photo portfolio solution. The main feature is the ability to dynamically update website content from anywhere with no programming background. You can see a live example [here](https://rnorwood.com)
+
+This backend uses the following AWS products, mostly through the AWS Amplify framework
+- GraphQL
+- AppSync
+- Lambda
+- S3
+- Cognito
+- Cloudfront
+
+The front end is built with React and ReactRouter.
 
 ## Features
 - Responsive photo albums with [Yet Another React Lightbox](https://yet-another-react-lightbox.com/)
 - Ability to dynamically update photo content from anywhere via the admin user
 - Configurable list of Featured albums that display on the homescreen
+- Create custom tags to organize albums
 - Custom highlighted albums 
-#### Create, edit, and delete photo albums for admin user
-#### Cloudfront content delivery network to rapidly deliver responsive images. Implementation is a vanilla version of [this AWS example](https://github.com/aws-samples/image-optimization)
+- Use AWS CloudFront CDN to ensure that anyone all over the globe can quickly access any of your photos
+- Signed in users can download full-size images directly from the website.
 
-# Build instructions
+# Useage and modification
+
+## Build instructions
 
 ## Deploy back end and run app
 
@@ -39,21 +52,19 @@ Ensure you have properly configured Amplify CLI, see [here](https://docs.amplify
 
 4. Upload any images you want to show in the header carousel to your AWS S3 photo bucket with the prefix 'highlights/h'. This will allow them to be automatically pulled into the header carousel
 
-
 5. Start the app. Featured portion of the screen won't appear until you create a featured tag (need to add instructions on how to do that)
 ```npm start```
 
 6. Configure an admin user in AWS Cognito and add them to the user group 'portfolio-admin.' Once you log in with that user, you should be able to create albums, upload pictures, and create public tags.
 
-
+7. You will need to run the `function createDefaultTags()` from `helpers/upgrade_database.js` in order for the website to run. At this point, you also have to manually pull the ID of the 'featured' Tag and paste it in line 60 of `components/Carousel.js`. Future iterations will solve this problem in the setup script, but for now you are stuck with it. 
 
 
 ### Authentication
 This app is designed to use an Amplify Graphql API with primary mode set to Cognito User pool and secondary mode set to AWS API. This means that by default, a query run in a component will be authenticated using Cognito unless you specifiy to use AWS API. The default is the secure option.
 
 
-# Useful References:
-<!-- - [react-dropzone documentation](https://react-dropzone.js.org/) -->
+### Useful References:
 - [mdb react components](https://mdbootstrap.com/docs/standard)
 - [react router quick start](https://reactrouter.com/en/main/start/tutorial)
 - [lightbox documentation](https://yet-another-react-lightbox.com/documentation)

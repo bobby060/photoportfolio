@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/App.css";
+
 // import "@aws-amplify/ui-react/styles.css";
 import { Authenticator } from '@aws-amplify/ui-react';
 import {
@@ -18,12 +19,17 @@ import EditAlbum from './EditAlbum';
 import AllAlbums from './AllAlbums';
 import ManageAccount from './ManageAccount';
 
+import { Amplify } from 'aws-amplify';
+import amplifyconfig from '../amplifyconfiguration.json';
+import projectConfig from "../helpers/Config";
+import userObject from "../helpers/CurrentUser";
+
+Amplify.configure(amplifyconfig);
 
 // Dev
-// export const IMAGEDELIVERYHOST = 'd3fxm8v2c5j7cl.cloudfront.net';
+await projectConfig.updateConfig();
+export const IMAGEDELIVERYHOST = projectConfig.getValue('imageDeliveryHost');
 
-// STAGING
-export const IMAGEDELIVERYHOST = 'd2brh14yl9j2nl.cloudfront.net';
 
 
 

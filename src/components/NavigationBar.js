@@ -1,5 +1,6 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
     MDBContainer,
     MDBNavbar,
@@ -18,6 +19,7 @@ import {
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 import logo from '../logo192.png';
+import currentUser from '../helpers/CurrentUser';
 
 // import { useLocation } from "react-router-dom";
 // import { AlbumsContext } from '../helpers/AlbumsContext';
@@ -27,45 +29,27 @@ import logo from '../logo192.png';
 export default function NavigationBar() {
 
     const [showNav, setShowNav] = useState(false);
-    const user_item = useAuthenticator((context) => [context.user]);
+    const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
+    const userItem = useAuthenticator(context => [context.user]);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [username, setUserName] = useState(null);
+    const adminObject = new currentUser();
     // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
-    const { signOut } = useAuthenticator((context) => [context.user]);
     // const {albums} = useContext(AlbumsContext);
-    // const[currentAlbum,setCurrentAlbum] = useState("");
 
-    // let location = useLocation();
+    useEffect(() => {
+        adminObject.userName(setUserName);
 
-    // Updates current album each time location changes
-    // useEffect(() => {
-    //   setCurrentAlbumState();
-    // }, [location]);
+        adminObject.isAdmin(setIsAdmin);
+    }, [])
 
-    // Decodes the current album from the current path
-    // function setCurrentAlbumState(){
-    //   if(location.pathname.startsWith('/albums/')){
-    //     for(let i = 0; i < albums.length; i++){
-    //       if (urlhelperDecode(albums[i], location.pathname.slice(7,))) {
-    //         setCurrentAlbum(albums[i].title);
-    //         return;
-    //     }
-    //   }
-    // }
+    useEffect(() => {
+        adminObject.userName(setUserName);
 
-    //   setCurrentAlbum("");
-    // }
+        adminObject.isAdmin(setIsAdmin);
+    }, [authStatus]);
 
-    function isAdminGroup() {
-        if (authStatus.authStatus === 'configuring'
-            || !user_item.user
-            || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']) {
-            return false;
-        }
-        if (user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
-            return true;
-        }
-        return false;
-    }
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
@@ -88,7 +72,7 @@ export default function NavigationBar() {
                 <MDBNavbarItem>
                     <Link to={`/account`}>
                         <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                            {user_item.user.username}
+                            {(username) ? username : ''}
                         </MDBNavbarLink>
                     </Link>
                 </MDBNavbarItem>
@@ -103,18 +87,16 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (!isAdminGroup()) {
-            return;
-        }
-        return (
-            <MDBNavbarItem>
+        if (isAdmin) {
+            return (<MDBNavbarItem>
                 <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
                     <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
                         New Album
                     </NavLink>
                 </MDBNavbarLink>
-            </MDBNavbarItem>
-        );
+            </MDBNavbarItem>);
+        }
+        return;
     }
 
     return (

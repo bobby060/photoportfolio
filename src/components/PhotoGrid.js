@@ -4,7 +4,8 @@ import {
     MDBIcon,
 } from 'mdb-react-ui-kit';
 import { } from '@aws-amplify/ui-react';
-import { API, Storage } from 'aws-amplify';
+import { remove } from 'aws-amplify/storage';
+import { generateClient } from 'aws-amplify/api';
 
 import { IMAGEDELIVERYHOST } from './App';
 
@@ -26,6 +27,13 @@ import Image from "./Image";
 // setFeaturedImg - callback to set an image as the albums featured image
 // editMode - lets photogrid know if it is in edit mode
 // selectedAlbum - where photogrid is pulling photos from
+const client = generateClient({
+    authMode: 'apiKey'
+});
+
+const userGroupClient = generateClient({
+    authMode: 'userPool'
+});
 
 
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
@@ -48,14 +56,13 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
         setIsLoading(true);
 
-        const res = await API.graphql({
+        const res = await client.graphql({
             query: imagesByAlbumsID,
             variables: {
                 albumsID: selectedAlbum.id,
                 limit: 10,
                 nextToken: nextToken
             },
-            authMode: 'API_KEY',
         });
 
         setNextToken(res.data.imagesByAlbumsID.nextToken);
@@ -118,13 +125,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     async function getImages() {
         setIsLoading(true);
         // Pulls the image objects associated with the selected album
-        const res = await API.graphql({
+        const res = await client.graphql({
             query: imagesByAlbumsID,
             variables: {
                 albumsID: selectedAlbum.id,
                 limit: 10
             },
-            authMode: 'API_KEY',
         });
         const imgs = res.data.imagesByAlbumsID.items.map((img, i) => {
             img.index = i;
@@ -140,8 +146,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     // Deletes image object and source image on AWS
     async function deleteImage(image) {
         const newImages = items.filter((img) => img.id !== image.id);
-        await Storage.remove(`${image.id}-${image.name}`)
-        await API.graphql({
+        await remove({
+            key: `${image.id}-${image.filename}`
+        });
+        await userGroupClient.graphql({
             query: deleteImageMutation,
             variables: { input: { id: image.id } },
         });
