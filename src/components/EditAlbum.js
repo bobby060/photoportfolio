@@ -52,20 +52,25 @@ export default function EditAlbum() {
     const [deleting, setDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [allTags, setAllTags] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [currentTags, setCurrentTags] = useState([]);
     const navigate = useNavigate();
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
     let { album_id } = useParams();
-    const adminObject = new currentUser;
+    const adminObject = new currentUser();
 
     const { user } = useAuthenticator((context) => [context]);
 
     useEffect(() => {
+        adminObject.isAdmin(setIsAdmin);
+    }, []);
+
+    useEffect(() => {
         getAlbum();
         fetchTags();
-        if (!adminObject.isAdmin()) {
-            throw new Error('401, Not authorized');
+        if (!isAdmin) {
+            return;;
         }
     }, [album_id]);
 

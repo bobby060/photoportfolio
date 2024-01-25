@@ -24,6 +24,7 @@ import { urlhelperEncode } from '../helpers/urlhelper';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import fetchAlbums from '../helpers/fetchAlbums';
 import uploadImages from '../helpers/uploadImages';
+import currentUser from "../helpers/CurrentUser";
 
 const client = generateClient({
     authMode: 'userPool'
@@ -34,28 +35,25 @@ export default function CreateAlbum() {
     const { setAlbums } = useContext(AlbumsContext);
     const navigate = useNavigate();
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isAdmin, setIsAdmin] = useState('loading');
     const [isLoading, setIsLoading] = useState(false);
+    const userObject = new currentUser();
 
 
 
     useEffect(() => {
-        isAdminGroup();
-
+        userObject.isAdmin(setIsAdmin);
     }, []);
 
-    async function isAdminGroup() {
-        try {
-            const { accessToken } = (await fetchAuthSession()).tokens ?? {};
-            if (!accessToken
-                || !accessToken.payload['cognito:groups']
-                || accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-                console.log('redirecting...');
 
-                navigate('/');
-            }
+    useEffect(() => {
+        redirectIfNotAdmin();
+    }, [isAdmin]);
 
-        } catch (err) {
-            console.log(err);
+    function redirectIfNotAdmin() {
+        console.log(isAdmin);
+        if (!isAdmin) {
+            navigate('/');
         }
     }
 

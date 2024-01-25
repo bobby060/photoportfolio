@@ -34,7 +34,9 @@ export default function Album() {
     const [canEdit, setCanEdit] = useState(false);
     let { album_id } = useParams();
     const [featuredImg, setFeaturedImg] = useState([]);
-    const adminObject = new currentUser;
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    // adminObject.setTokens();
 
     // for storing images in current album
 
@@ -47,7 +49,22 @@ export default function Album() {
     // Initializes images after component render
     useEffect(() => {
         pullAlbum();
+        adminObject.isAdmin(setIsAdmin);
     }, [album_id, location]);
+
+    // useEffect(() => {
+    //     initIsAdmin();
+    // }, [authStatus]);
+
+    // function initIsAdmin() {
+    //     const a = adminObject.isAdmin();
+    //     setIsAdmin(a);
+    // }
+
+    const adminObject = new currentUser();
+    // adminObject.setTokens()
+
+
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
     async function findIndex(albums) {
@@ -146,7 +163,7 @@ export default function Album() {
 
 
     function ShowEditButton() {
-        if (adminObject.isAdmin()) {
+        if (isAdmin) {
             return (<MDBBtn floating onClick={() => setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
         }
 

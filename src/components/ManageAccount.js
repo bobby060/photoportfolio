@@ -12,7 +12,6 @@ import {
     MDBBtnGroup
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import { useNavigate } from "react-router-dom";
 
 import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
@@ -28,12 +27,14 @@ export default function ManageAccount() {
 
     // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
+    const [isAdmin, setIsAdmin] = useState(false);
     const adminObject = new currentUser();
     const [tags, setTags] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchTags();
+        adminObject.isAdmin(setIsAdmin);
     }, []);
 
 
@@ -112,7 +113,7 @@ export default function ManageAccount() {
         <MDBContainer>
             <h4 className="mt-2"> Manage Account Here</h4>
 
-            {adminObject.isAdmin() ? <AdminSettings /> : <></>}
+            {isAdmin ? <AdminSettings /> : <></>}
 
 
             <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>

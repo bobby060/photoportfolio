@@ -4,42 +4,45 @@ class currentUser {
     accessToken = null;
     idToken = null;
     loading = false;
+
     constructor() {
         // {this.username, this.userId, this.signinDetails} = null
-        this.setTokens();
-    }
-
-    async checkLoading() {
-        if (this.loading) {
-            await this.setTokens();
-        }
+        // this.setTokens();
     }
 
     async setTokens() {
-        const { access, id } = (await fetchAuthSession()).tokens ?? {};
-
-        this.accessToken = access;
-        this.idToken = id;
+        this.loading = true
+        const { accessToken, idToken } = (await fetchAuthSession()).tokens ?? {};
+        this.accessToken = accessToken;
+        this.idToken = idToken;
+        this.loading = false;
+        return;
     }
 
-    async isAdmin() {
-        await this.checkLoading();
+    // callback is a function expecting a boolean input
+    async isAdmin(callback) {
+        await this.setTokens();
+        // this.checkLoading().then((result) => {
         if (!this.accessToken
             || !this.accessToken.payload['cognito:groups']) {
-            return false;
+            callback(false);
         } else if (this.accessToken.payload['cognito:groups'][0] === "portfolio_admin") {
-            return true;
+            callback(true);
         } else {
-            return false;
+            callback(false);
         }
     }
 
-    async userName() {
+    // callback is a function expecting a string
+    async userName(callback) {
+        await this.setTokens();
+        // this.checkLoading().then((result) => {
         if (this.idToken) {
-            return this.idToken.payload['cognito:username']
+            callback(this.idToken.payload['cognito:username']);
         } else {
-            return null;
+            callback(null);
         }
+        // })
     }
 
 

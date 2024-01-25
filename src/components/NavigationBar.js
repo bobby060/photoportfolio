@@ -29,38 +29,27 @@ import currentUser from '../helpers/CurrentUser';
 export default function NavigationBar() {
 
     const [showNav, setShowNav] = useState(false);
-    const [accessTokenState, setAccessToken] = useState(null);
     const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const userItem = useAuthenticator(context => [context.user]);
-    const adminObject = new currentUser;
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [username, setUserName] = useState(null);
+    const adminObject = new currentUser();
     // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
     // const {albums} = useContext(AlbumsContext);
 
     useEffect(() => {
-        currentSession();
+        adminObject.userName(setUserName);
+
+        adminObject.isAdmin(setIsAdmin);
     }, [])
 
-    async function currentSession() {
-        try {
-            const { accessToken } = (await fetchAuthSession()).tokens ?? {};
-            setAccessToken(accessToken);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    function isAdminGroup() {
-        // await currentSession();
-        if (authStatus.authStatus === 'configuring'
-            || !accessTokenState
-            || !accessTokenState.payload['cognito:groups']) {
-            return false;
-        }
-        if (accessTokenState.payload['cognito:groups'][0] === "portfolio_admin") {
-            return true;
-        }
-        return false;
-    }
+    useEffect(() => {
+        adminObject.userName(setUserName);
+
+        adminObject.isAdmin(setIsAdmin);
+    }, [authStatus]);
+
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
@@ -83,7 +72,7 @@ export default function NavigationBar() {
                 <MDBNavbarItem>
                     <Link to={`/account`}>
                         <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                            {(accessTokenState) ? accessTokenState.payload.username : ''}
+                            {(username) ? username : ''}
                         </MDBNavbarLink>
                     </Link>
                 </MDBNavbarItem>
@@ -98,14 +87,14 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (adminObject.isAdmin()) {
-            <MDBNavbarItem>
+        if (isAdmin) {
+            return (<MDBNavbarItem>
                 <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
                     <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
                         New Album
                     </NavLink>
                 </MDBNavbarLink>
-            </MDBNavbarItem>
+            </MDBNavbarItem>);
         }
         return;
     }
