@@ -60,8 +60,8 @@ export default function FeaturedCarouselWrapper() {
         const result = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: {
-                // albumTagsId: featuredAlbumTag,
-                albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
+                albumTagsId: featuredAlbumTag,
+                // albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
             },
         });
         const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
