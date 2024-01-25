@@ -8,7 +8,7 @@ import {
     MDBIcon,
     MDBTypography
 } from 'mdb-react-ui-kit';
-import { Storage } from 'aws-amplify';
+import { list } from 'aws-amplify/storage';
 
 // Components
 import Carousel from 'react-bootstrap/Carousel';
@@ -16,7 +16,7 @@ import AllAlbums from './AllAlbums';
 import FeaturedCarouselWrapper from './Carousel';
 
 // Helpers
-import { IMAGEDELIVERYHOST } from './App';
+import projectConfig from "../helpers/Config";
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 
@@ -47,14 +47,15 @@ export default function Home() {
 
 
     async function getHeaderImgs() {
-        const response = await Storage.list('highlights/h', {
+        const response = await list({
+            prefix: 'highlights/h',
             options: {
                 listAll: true,
                 pageSize: 50,
             }
-        })
+        });
 
-        const urls = response.results.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
+        const urls = response.items.map((item) => `https://${projectConfig.getValue('imageDeliveryHost')}/public/${item.key}?width=1280`);
         setHeaderImgs(urls);
     }
 
@@ -123,7 +124,7 @@ export default function Home() {
                 <FeaturedCarouselWrapper />
             </MDBCol>
             <span id="albums" />
-            <MDBCol lg='10' className='me-auto ms-auto'>
+            <MDBCol lg='10' xl='8' className='me-auto ms-auto'>
                 {/*<AlbumCards/>*/}
                 <div className='p-3'>
                     <h2 className='m-0 fw-light'>

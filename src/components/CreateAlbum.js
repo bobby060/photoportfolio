@@ -1,5 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
     MDBRow,
     MDBCol,
@@ -14,9 +15,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 // Database
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { createAlbums, updateAlbums } from '../graphql/mutations';
-import { imagesByAlbumsID } from '../graphql/queries';
+import { createAlbums, updateAlbums, } from '../graphql/mutations';
+import { imagesByAlbumsID, listImages } from '../graphql/queries';
 
 
 // Helpers
@@ -24,25 +24,38 @@ import { urlhelperEncode } from '../helpers/urlhelper';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import fetchAlbums from '../helpers/fetchAlbums';
 import uploadImages from '../helpers/uploadImages';
+import currentUser from "../helpers/CurrentUser";
+
+const client = generateClient({
+    authMode: 'userPool'
+});
 
 
 export default function CreateAlbum() {
-    const user_item = useAuthenticator((context) => [context.user]);
     const { setAlbums } = useContext(AlbumsContext);
     const navigate = useNavigate();
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isAdmin, setIsAdmin] = useState('loading');
     const [isLoading, setIsLoading] = useState(false);
+    const userObject = new currentUser();
+
 
 
     useEffect(() => {
-        if (!user_item.user
-            || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-            || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-            console.log('redirecting...');
+        userObject.isAdmin(setIsAdmin);
+    }, []);
 
+
+    useEffect(() => {
+        redirectIfNotAdmin();
+    }, [isAdmin]);
+
+    function redirectIfNotAdmin() {
+        console.log(isAdmin);
+        if (!isAdmin) {
             navigate('/');
         }
-    }, [user_item, navigate]);
+    }
 
     // function handleNew(){
     // 	document.getElementById("createAlbumForm").submit();
@@ -68,42 +81,49 @@ export default function CreateAlbum() {
         // Ensures album has a name...
         const cleaned_title = (title.length === 0) ?
             `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
+        // Get a random image to ENSURE there is a featured Image, even tho this should be handled later
+        const placeHolderImageRes = await client.graphql({
+            query: listImages,
+            limit: 1
+        })
+
+        const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
+
+
         const data = {
             title: cleaned_title,
             desc: form.get("desc"),
             date: cleaned_date,
+            albumsFeaturedImageId: placeHolderImageId,
         };
-        const response = await API.graphql({
+        const response = await client.graphql({
             query: createAlbums,
             variables: { input: data },
         });
         const newAlbum = response.data.createAlbums;
         await uploadImages(newAlbum, selectedFiles);
 
-        const res = await API.graphql({
+        const res = await client.graphql({
             query: imagesByAlbumsID,
             variables: {
                 albumsID: newAlbum.id,
                 limit: 1
             },
-            authMode: 'API_KEY',
         });
 
         const img = res.data.imagesByAlbumsID.items[0]
-        console.log(img)
 
         const featured_img_query_data = {
             id: newAlbum.id,
             albumsFeaturedImageId: img.id
         }
-        const updateAlbumResponse = await API.graphql({
+        const updateAlbumResponse = await client.graphql({
             query: updateAlbums,
             variables: {
                 input: featured_img_query_data
             },
         })
         const new_album = updateAlbumResponse.data.updateAlbums;
-        console.log(new_album.albumsFeaturedImageId);
         const updatedAlbums = await fetchAlbums();
         setAlbums(updatedAlbums);
         console.log(`Created new album named: ${form.get("title")}`);
@@ -111,13 +131,7 @@ export default function CreateAlbum() {
         event.target.reset();
     }
 
-    // Ensures only authenticated users can view this route
-    if (!user_item.user
-        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-        return (<p> You don not have access, redirecting! </p>);
 
-    }
 
     function SubmitButtonWrapper() {
         if (selectedFiles.length < 1) return (

@@ -1,7 +1,7 @@
 // Not used anymore
 import React, { useEffect, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import {
 
     MDBCard,
@@ -19,8 +19,16 @@ import { urlhelperEncode } from '../helpers/urlhelper';
 import { IMAGEDELIVERYHOST } from './App';
 
 import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
+import projectConfig from '../helpers/Config';
+
+const client = generateClient({
+    authMode: 'apiKey'
+});
+
 
 export default function FeaturedCarouselWrapper() {
+
+    const featuredAlbumTag = projectConfig.getValue('featuredTagId');
 
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [windowSize, setWindowSize] = useState({
@@ -49,14 +57,12 @@ export default function FeaturedCarouselWrapper() {
 
     async function updateFeatured() {
 
-        const result = await API.graphql({
+        const result = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: {
-                // albumTagsId: '28c16442-5150-4b98-8607-f854e07e0b35',
-                albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
-
+                albumTagsId: featuredAlbumTag,
+                // albumTagsId: 'c0240971-8b4d-4aff-848a-4fc336629e37',
             },
-            authMode: 'API_KEY',
         });
         const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
         const newAlbums = taggedConnections.map((connection) => connection.albums);
@@ -96,34 +102,27 @@ export default function FeaturedCarouselWrapper() {
     const height = Math.min(...heightArray[0]) * (columnsMultplier());
     return (
         <div>
-            <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-1' touch={true} >
-                {featuredAlbums.map((album, i) =>
-                (
-                    <Carousel.Item itemID={i} style={{}} key={i}>
-                        {/*						<Link to={`/albums/${urlhelperEncode(album)}`} >
-							<img src = {`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`} className='h-100 w-100 ' alt='...' 
-							 style={{ width:'100%', height:'100%', 'objectFit': 'cover'}}/>
-						<Carousel.Caption className='' style={{'backgroundColor': 'rgba(0, 0, 0, 0.3)'}}>
-							<h5 >{album.title}</h5>
-							<p>{album.desc}</p>
-						</Carousel.Caption>
-						</Link>*/}
-
-                        <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
-                            <MDBCardImage overlay
-                                src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
-                                alt='...'
-                                style={{ 'objectFit': 'cover', height: height }}
-                                className='' />
-                            <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
-                                <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
-                                    <MDBTypography className='display-6'>{album.title}</MDBTypography>
-                                    <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-                                </MDBCardOverlay>
-                            </Link>
-                        </MDBCard>
-                    </Carousel.Item>
-                ))}
+            <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-2' touch={true} >
+                {featuredAlbums.map((album, i) => {
+                    return (
+                        <Carousel.Item itemID={i} style={{}} key={i}>
+                            <MDBCard background='dark' className='text-white  mb-2 bg-image' alignment='end'>
+                                <MDBCardImage overlay
+                                    src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+                                    alt='...'
+                                    style={{ 'objectFit': 'cover', height: height }}
+                                    className='' />
+                                <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+                                    <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
+                                        <MDBTypography className='display-6'>{album.title}</MDBTypography>
+                                        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+                                    </MDBCardOverlay>
+                                </Link>
+                            </MDBCard>
+                        </Carousel.Item>
+                    )
+                }
+                )}
             </Carousel>
         </div>
     );

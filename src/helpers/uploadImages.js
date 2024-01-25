@@ -1,5 +1,9 @@
-import { API, Storage } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+
+import { uploadData } from 'aws-amplify/storage';
 import { createImages, deleteImages } from '../graphql/mutations';
+
+const client = generateClient();
 
 
 export default async function uploadImages(targetAlbum, files) {
@@ -56,7 +60,7 @@ export default async function uploadImages(targetAlbum, files) {
             width: dims[1],
         }
         try {
-            const response = await API.graphql({
+            const response = await client.graphql({
                 query: createImages,
                 variables: { input: data },
             });
@@ -72,14 +76,18 @@ export default async function uploadImages(targetAlbum, files) {
 
         // Combining id and image name ensures uniqueness while preserving information
         try {
-            await Storage.put(url, image);
-
+            await uploadData({
+                key: url,
+                data: image
+            }
+            );
+            // throw new Error('storage error');
         } catch (error) {
             // Delete image object if S3 file doesn't upload
             console.warn('Image not uploaded. Error: ', error);
-            await API.graphql({
+            await client.graphql({
                 query: deleteImages,
-                variables: { id: newImageId }
+                variables: { input: { id: newImageId } }
             });
             return;
         }

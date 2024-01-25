@@ -9,11 +9,15 @@ import {
     MDBSpinner,
     MDBFile,
 } from 'mdb-react-ui-kit';
-import { API, Storage } from 'aws-amplify';
+import { remove } from 'aws-amplify/storage';
+import { generateClient } from 'aws-amplify/api';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import Tag from './Tag';
+
 
 // Database
 import {
@@ -28,8 +32,17 @@ import { fetchAlbums, fetchAllAlbumTags, fetchAlbum } from '../helpers/loaders';
 import { urlhelperEncode, urlhelperDecode } from '../helpers/urlhelper';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import uploadImages from '../helpers/uploadImages';
+import currentUser from '../helpers/CurrentUser';
 
-import { useAuthenticator } from '@aws-amplify/ui-react';
+
+
+const client = generateClient({
+    authMode: 'userPool'
+});
+
+const publicClient = generateClient({
+    authMode: 'apiKey'
+});
 
 
 
@@ -39,16 +52,26 @@ export default function EditAlbum() {
     const [deleting, setDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [allTags, setAllTags] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [currentTags, setCurrentTags] = useState([]);
     const navigate = useNavigate();
-    const user_item = useAuthenticator((context) => [context.user]);
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
     let { album_id } = useParams();
+    const adminObject = new currentUser();
+
+    const { user } = useAuthenticator((context) => [context]);
+
+    useEffect(() => {
+        adminObject.isAdmin(setIsAdmin);
+    }, []);
 
     useEffect(() => {
         getAlbum();
         fetchTags();
+        if (!isAdmin) {
+            return;;
+        }
     }, [album_id]);
 
 
@@ -109,7 +132,7 @@ export default function EditAlbum() {
             desc: form.get("desc"),
             date: date,
         };
-        const response = await API.graphql({
+        const response = await client.graphql({
             query: updateAlbums,
             variables: { input: data },
         });
@@ -133,20 +156,22 @@ export default function EditAlbum() {
         setAlbums(newAlbums);
 
         // Gets all the images associated with the old album ID
-        const imgs = await API.graphql({
+        const imgs = await publicClient.graphql({
             query: imagesByAlbumsID,
             variables: { albumsID: id }
         });
 
         // Deletes albums associated with old album
         imgs.data.imagesByAlbumsID.items.map(async (img) => {
-            await Storage.remove(`${img.id}-${img.filename}`);
-            await API.graphql({
+            await remove({
+                key: `${img.id}-${img.filename}`
+            });
+            await client.graphql({
                 query: deleteImages,
                 variables: { input: { id: img.id } },
             });
         });
-        await API.graphql({
+        await client.graphql({
             query: deleteAlbums,
             variables: { input: { id } },
         });
@@ -187,7 +212,7 @@ export default function EditAlbum() {
             title: name,
             privacy: 'public',
         };
-        await API.graphql({
+        await client.graphql({
             query: createAlbumTags,
             variables: { input: data },
         });
@@ -199,7 +224,7 @@ export default function EditAlbum() {
             albumsId: currentAlbum.id,
             albumTagsId: tag.id,
         }
-        await API.graphql({
+        await client.graphql({
             query: createAlbumTagsAlbums,
             variables: { input: data },
         })
@@ -211,7 +236,7 @@ export default function EditAlbum() {
         const data = {
             id: relationIdToRemove.id
         }
-        await API.graphql({
+        await client.graphql({
             query: deleteAlbumTagsAlbums,
             variables: { input: data },
         })
@@ -228,12 +253,6 @@ export default function EditAlbum() {
 
 
 
-
-    if (!user_item.user
-        || !user_item.user.signInUserSession.accessToken.payload['cognito:groups']
-        || user_item.user.signInUserSession.accessToken.payload['cognito:groups'][0] !== 'portfolio_admin') {
-        throw new Error('401, Not authorized');
-    }
 
 
 
@@ -274,13 +293,19 @@ export default function EditAlbum() {
                     </MDBCol>
                 </MDBRow>
                 <MDBRow className='d-flex justify-content-center'>
-                    <MDBCol lg='6'>
+                    <MDBCol sm='12'>
+                        <label for='file_upload'> Upload more images </label>
+                    </MDBCol>
+                    <MDBCol lg='6' className='d-flex' >
                         <MDBFile
+                            id='file_upload'
                             multiple
                             onChange={setFiles}
-                            className='m-1 mb-3'
-                            label='Add more photos to album'
+                            className='m-1 mb-1 flex-grow-1'
+                        // label='Add more photos to album'
                         />
+                        {/* Need to update so that UI makes more sense */}
+                        <MDBBtn disabled className="bg-dark m-1">Upload</MDBBtn>
                     </MDBCol>
                 </MDBRow>
                 <MDBRow className='d-flex justify-content-center align-items-center' >
