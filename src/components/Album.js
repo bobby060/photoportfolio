@@ -16,6 +16,7 @@ import { updateAlbums } from '../graphql/mutations';
 
 // Helper functions
 import { urlhelperDecode } from '../helpers/urlhelper';
+import { getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import fetchAlbums from '../helpers/fetchAlbums';
 import { AlbumsContext } from '../helpers/AlbumsContext';
 import projectConfig from '../helpers/Config';
@@ -31,18 +32,14 @@ export default function Album() {
     const { albums, setAlbums } = useContext(AlbumsContext);
     // const[album, setAlbum] = useState(null);
     const [albumIndex, setAlbumIndex] = useState(-1);
+    const [album, setAlbum] = useState([]);
     const [canEdit, setCanEdit] = useState(false);
-    let { album_id } = useParams();
+    let { album_url, album_id } = useParams();
     const [featuredImg, setFeaturedImg] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    // adminObject.setTokens();
-
-    // for storing images in current album
-
     const debug = false;
 
-    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
     let location = useLocation();
 
@@ -50,26 +47,16 @@ export default function Album() {
     useEffect(() => {
         pullAlbum();
         adminObject.isAdmin(setIsAdmin);
-    }, [album_id, location]);
-
-    // useEffect(() => {
-    //     initIsAdmin();
-    // }, [authStatus]);
-
-    // function initIsAdmin() {
-    //     const a = adminObject.isAdmin();
-    //     setIsAdmin(a);
-    // }
+    }, [album_url, location]);
 
     const adminObject = new currentUser();
-    // adminObject.setTokens()
 
 
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
     async function findIndex(albums) {
         for (let i = 0; i < albums.length; i++) {
-            if (urlhelperDecode(albums[i], album_id)) {
+            if (urlhelperDecode(albums[i], album_url)) {
                 return i;
             }
         }
@@ -84,19 +71,21 @@ export default function Album() {
             setCanEdit(false);
         }
         setAlbumIndex(-1);
+        const curAlbum = await getAlbumFromAlbumUrl(album_url);
+        console.log(curAlbum);
+        setAlbum(curAlbum);
         // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
         const newA = (albums.length < 1) ? await fetchAlbums() : albums;
 
         const index = await findIndex(newA);
         if (index < 0) {
-            throw new Error(`404. Album at url, ${album_id}, was not found!`);
+            throw new Error(`404. Album at url, ${album_url}, was not found!`);
         }// setSelectedAlbum(newA.at(index));
 
 
         if (albums.length < 1) setAlbums(newA);
         const data = {
             id: newA[index].albumsFeaturedImageId
-            // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
         }
         if (newA[index].albumsFeaturedImageId) {
             const image = await client.graphql({

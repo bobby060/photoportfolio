@@ -57,7 +57,7 @@ export default function EditAlbum() {
     const navigate = useNavigate();
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
-    let { album_id } = useParams();
+    let { album_url } = useParams();
     const adminObject = new currentUser();
 
     const { user } = useAuthenticator((context) => [context]);
@@ -72,18 +72,18 @@ export default function EditAlbum() {
         if (!isAdmin) {
             return;;
         }
-    }, [album_id]);
+    }, [album_url]);
 
 
 
     // Helper that determines which album in the albums list the url album_id is triggering the component to pull
     async function findIndex(albums) {
         for (let i = 0; i < albums.length; i++) {
-            if (urlhelperDecode(albums[i], album_id)) {
+            if (urlhelperDecode(albums[i], album_url)) {
                 return i;
             }
         }
-        throw new Error(`404. Album at url, ${album_id}, was not found!`);
+        throw new Error(`404. Album at url, ${album_url}, was not found!`);
     }
 
 
@@ -99,7 +99,7 @@ export default function EditAlbum() {
         const newA = (albums.length < 1) ? await fetchAlbums() : albums;
         const index = await findIndex(newA);
         if (index < 0) {
-            throw new Error(`404. Album at url, ${album_id}, was not found!`);
+            throw new Error(`404. Album at url, ${album_url}, was not found!`);
         }
         // Get album tags connections by album ID here
         const curAl = await fetchAlbum(albums[index].id);

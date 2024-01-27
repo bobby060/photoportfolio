@@ -16,9 +16,8 @@ import { Link } from 'react-router-dom';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
-import { IMAGEDELIVERYHOST } from './App';
 
-import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
+import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
 import projectConfig from '../helpers/Config';
 
 const client = generateClient({

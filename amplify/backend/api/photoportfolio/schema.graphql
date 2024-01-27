@@ -28,4 +28,9 @@ type Images @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], pr
   height: Int
   url: String
 }
+
+type Url @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
+ id: ID!
+ album: Albums @hasOne
+}
  
