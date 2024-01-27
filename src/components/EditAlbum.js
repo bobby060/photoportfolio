@@ -28,9 +28,8 @@ import {
 import { imagesByAlbumsID } from '../graphql/queries';
 
 // Helpers
-import { fetchAlbums, fetchAllAlbumTags, fetchAlbum } from '../helpers/loaders';
-import { urlhelperEncode, urlhelperDecode } from '../helpers/urlhelper';
-import { AlbumsContext } from '../helpers/AlbumsContext';
+import { fetchAllAlbumTags } from '../helpers/loaders';
+import { urlhelperEncode, getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import uploadImages from '../helpers/uploadImages';
 import currentUser from '../helpers/CurrentUser';
 
@@ -48,7 +47,6 @@ const publicClient = generateClient({
 
 export default function EditAlbum() {
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const { albums, setAlbums } = useContext(AlbumsContext);
     const [deleting, setDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [allTags, setAllTags] = useState([]);
@@ -75,18 +73,6 @@ export default function EditAlbum() {
     }, [album_url]);
 
 
-
-    // Helper that determines which album in the albums list the url album_id is triggering the component to pull
-    async function findIndex(albums) {
-        for (let i = 0; i < albums.length; i++) {
-            if (urlhelperDecode(albums[i], album_url)) {
-                return i;
-            }
-        }
-        throw new Error(`404. Album at url, ${album_url}, was not found!`);
-    }
-
-
     // tracks files uploaded by clicker, sets state object
     async function setFiles(event) {
         const files = event.target.files;
@@ -94,15 +80,9 @@ export default function EditAlbum() {
     }
 
     async function getAlbum() {
-        // setAlbumIndex(-1);
-        // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
-        const newA = (albums.length < 1) ? await fetchAlbums() : albums;
-        const index = await findIndex(newA);
-        if (index < 0) {
-            throw new Error(`404. Album at url, ${album_url}, was not found!`);
-        }
+
         // Get album tags connections by album ID here
-        const curAl = await fetchAlbum(albums[index].id);
+        const curAl = await getAlbumFromAlbumUrl(album_url);
         setCurrentAlbum(curAl);
 
         const t = Object.fromEntries(curAl.albumtagss.items.map((item, i) => [item.albumTagsId, i]));
@@ -139,8 +119,6 @@ export default function EditAlbum() {
         if (selectedFiles.length > 0) {
             await uploadImages(currentAlbum, selectedFiles);
         }
-        const updatedAlbums = await fetchAlbums();
-        setAlbums(updatedAlbums);
         console.log(`Updated album: ${form.get("title")}`);
         // After save, navigates to album
         navigate('../../albums/'.concat(urlhelperEncode(response.data.updateAlbums)));
@@ -150,10 +128,6 @@ export default function EditAlbum() {
         setDeleting(true);
         // Make sure you really want to delete...
         if (!window.confirm("Are you sure you want to delete this album?")) return;
-        // setAlbumIndex(-1);
-        // Remove album being deleted from the current list of albums
-        const newAlbums = albums.filter((album) => album.id !== id);
-        setAlbums(newAlbums);
 
         // Gets all the images associated with the old album ID
         const imgs = await publicClient.graphql({

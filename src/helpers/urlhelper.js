@@ -18,11 +18,15 @@ export async function getAlbumFromAlbumUrl(url) {
     const data = {
         id: url
     }
-    const res = await client.graphql({
-        query: getUrl,
-        variables: data
-    })
-    console.log(res.data.getUrl.album);
+    try {
+        const res = await client.graphql({
+            query: getUrl,
+            variables: data
+        })
+        return res.data.getUrl.album;
+    } catch (error) {
+        Error.throw('Album not found, ', error);
+    }
 }
 
 // takes an album and a url and returns true or false. Use: validating if a specific path is the right one for a given album
