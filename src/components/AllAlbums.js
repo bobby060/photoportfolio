@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import {
     MDBRow,
@@ -11,12 +11,12 @@ import {
     // MDBTypography,
 } from 'mdb-react-ui-kit';
 
-import { AlbumsContext } from '../helpers/AlbumsContext';
 import { Link } from 'react-router-dom';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
-import { albumTagsAlbumsByAlbumTagsId } from '../graphql/queries';
+import { listAlbums } from '../graphql/queries';
+import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
@@ -31,12 +31,13 @@ const client = generateClient({
 
 export default function AllAlbums() {
 
-    const { albums } = useContext(AlbumsContext);
+    // const { albums } = useContext(AlbumsContext);
     const [allTags, setAllTags] = useState([]);
     const [currentVisibleAlbums, setCurrentVisibleAlbums] = useState([]);
-    // const [nextToken, setNextToken] = useState([]);
-    const [selectedTagsIndexes, setSelectedTagsIndexes] = useState([]);
-    // const [visibleTagsIndexes, setVisibleTagsIndexes] = useState([]);
+    const [nextToken, setNextToken] = useState([]);
+
+    // Used 
+    const [selectedTagsIndexes, setSelectedTagsIndexes] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
     const [windowSize, setWindowSize] = useState({
@@ -49,8 +50,10 @@ export default function AllAlbums() {
         return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
     }
 
+    // Fetches list of tags and initial albums on load
     useEffect(() => {
         fetchTags();
+        fetchInitialAlbums();
     }, []);
 
     // Adds ability to adjust column layout after resize
@@ -67,10 +70,6 @@ export default function AllAlbums() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() => {
-        fetchTags();
-        setCurrentVisibleAlbums(albums);
-    }, [albums]);
 
     //  	Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
     //   Example  breakpoints = [0 ,  350, 750, 900, 1300]
@@ -103,22 +102,56 @@ export default function AllAlbums() {
     const imgHeight = getImgHeight();
     const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'object-fit': 'cover' }
 
-    // Holds the columns for the photo grid 
-    //  function reflowAlbums(albumsToReflow){
-    // 	  const newColumns = new Array(num_columns);
+    async function fetchInitialAlbums() {
+        setIsLoading(true);
+        const res = await client.graphql({
+            query: listAlbums,
+            variables: {
+                limit: 4,
+            }
+        });
 
-    // 	    // Splits the images into the right number of columns
-    // 	  for (let i = 0; i < albumsToReflow.length; i++) {
-    // 	    const item = albumsToReflow[i];
-    // 	    const columnIndex = i % num_columns;
+        setNextToken(res.data.listAlbums.nextToken);
+        setCurrentVisibleAlbums(res.data.listAlbums.items);
+        setIsLoading(false);
 
-    // 	    if (!newColumns[columnIndex]) {
-    // 	      newColumns[columnIndex] = [];
-    // 	    }
-    // 	    newColumns[columnIndex].push(item);
-    // 	   }
-    // 	   setColumns(newColumns);
-    // }
+    }
+
+    const fetchNextAlbums = useCallback(async () => {
+        if (isLoading || !nextToken) return;
+
+        setIsLoading(true);
+
+        if (Object.keys(selectedTagsIndexes).length < 1) {
+            const res = await client.graphql({
+                query: listAlbums,
+                variables: {
+                    limit: 4,
+                    nextToken: nextToken
+                }
+            })
+            const newAlbums = [...currentVisibleAlbums, ...res.data.listAlbums.items];
+
+            setCurrentVisibleAlbums(newAlbums);
+        } else {
+            const result = await client.graphql({
+                query: albumTagsAlbumsByAlbumTagsId,
+                variables: {
+                    albumTagsId: selectedTagsIndexes[0],
+                    limit: 2,
+                    nextToken: nextToken
+                },
+            });
+
+            const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
+            setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
+            const a = [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)];
+            setCurrentVisibleAlbums(a);
+        }
+
+        setIsLoading(false);
+    }, [nextToken]);
+
 
     // ///////////////////
     // TAGS
@@ -132,9 +165,12 @@ export default function AllAlbums() {
 
     async function getFilteredAlbums(tagIndexes) {
         setIsLoading(true);
-        const keys = Object.keys(tagIndexes);
-        if (keys.length < 1) {
-            setCurrentVisibleAlbums(albums);
+        const currentTagKeys = Object.keys(tagIndexes);
+        // Case no tags selected
+        if (currentTagKeys.length < 1) {
+            // Resets initial album pull
+            fetchInitialAlbums();
+            // Resets tags to unselected state
             const allTagsVisible = allTags.map((tag) => ({ ...tag, visible: true, selected: false }));
             setAllTags(allTagsVisible);
         } else {
@@ -143,18 +179,23 @@ export default function AllAlbums() {
             const result = await client.graphql({
                 query: albumTagsAlbumsByAlbumTagsId,
                 variables: {
-                    albumTagsId: tagIndexes[keys[0]],
+                    limit: 2,
+                    albumTagsId: tagIndexes[currentTagKeys[0]],
                 },
             });
             const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-            const allTagsInvisble = allTags.map((tag) => {
+            setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
+
+            // Hides all tags except the currently selected one. Later, update this to intersection instead
+            // of exclusion
+            const updatedTags = allTags.map((tag) => {
                 if (tag.index in tagIndexes) {
                     return { ...tag, visible: true, selected: true };
                 } else {
                     return { ...tag, visible: false }
                 }
             });
-            setAllTags(allTagsInvisble);
+            setAllTags(updatedTags);
             // Loop through to ensure intersection of all tags
             // console.log(taggedConnections);
             // Set visible tags to only display tags possible to select/deselect within current set
@@ -206,24 +247,6 @@ export default function AllAlbums() {
         );
     }
 
-    const responsiveItems = currentVisibleAlbums.map((album, i) => (
-        <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
-            <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
-                <MDBCardImage overlay
-                    src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
-                    alt='...'
-                    style={height_style}
-                    className='' />
-                <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))' }}>
-                    <MDBCardTitle>{album.title}</MDBCardTitle>
-                    {(album.desc.length > 0) ? <MDBCardText className='text-truncate'>{album.desc}</MDBCardText> : <></>}
-                    <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-                </MDBCardOverlay>
-                <div className='mask overlay'
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
-            </MDBCard>
-        </Link>
-    ));
 
     const placeHolderItems = [1, 2, 3, 4, 5, 6].map((a, i) => (
         <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
@@ -241,51 +264,68 @@ export default function AllAlbums() {
         </MDBCard>
     ));
 
-
-    function AlbumCards() {
-
-        if (isLoading || currentVisibleAlbums.length < 1) {
-
-            return (
-                <>
-                    <MDBRow className='me-0 mt-0'>
-                        <MDBCol className='d-flex justify-items-start'>
-                            <Tags
-                                tags={allTags}
-                            />
-                        </MDBCol>
-                    </MDBRow>
-                    <ResponsiveGrid
-                        items={placeHolderItems}
-                        breakpoints={breakPoints}
-                    />
-                </>
-            );
-        }
+    if (!currentVisibleAlbums) {
 
         return (
             <>
-                <MDBRow className='me-0'>
+                <MDBRow className='me-0 mt-0'>
                     <MDBCol className='d-flex justify-items-start'>
                         <Tags
                             tags={allTags}
                         />
                     </MDBCol>
                 </MDBRow>
+                <ResponsiveGrid
+                    items={placeHolderItems}
+                    breakpoints={breakPoints}
 
-                <div className="d-flex">
-                    <ResponsiveGrid
-                        items={responsiveItems}
-                        breakpoints={breakPoints}
-                    />
-                </div>
+                />
             </>
-
         );
     }
 
+
+    const responsiveItems =
+        currentVisibleAlbums.map((album, i) => (
+            <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
+                <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+                    <MDBCardImage overlay
+                        src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
+                        alt='...'
+                        style={height_style}
+                        className='' />
+                    <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))' }}>
+                        <MDBCardTitle>{album.title}</MDBCardTitle>
+                        {(album.desc.length > 0) ? <MDBCardText className='text-truncate'>{album.desc}</MDBCardText> : <></>}
+                        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
+                    </MDBCardOverlay>
+                    <div className='mask overlay'
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
+                </MDBCard>
+            </Link>
+        ));
+
+
     return (
-        <AlbumCards />
+        <>
+            <MDBRow className='me-0'>
+                <MDBCol className='d-flex justify-items-start'>
+                    <Tags
+                        tags={allTags}
+                    />
+                </MDBCol>
+            </MDBRow>
+
+            <div className="d-flex">
+                <ResponsiveGrid
+                    items={responsiveItems}
+                    breakpoints={breakPoints}
+                    loadNextItems={fetchNextAlbums}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                />
+            </div>
+        </>
     );
 
 

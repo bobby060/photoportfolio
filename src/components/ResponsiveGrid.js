@@ -8,9 +8,17 @@ export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () 
         width: window.innerWidth,
         height: window.innerHeight,
     });
+    const [yOffset, setYOffset] = useState(0);
 
     // Observer for infinite scroll
     const observerTarget = useRef(null);
+    const sizeRef = useRef();
+
+
+    useEffect(() => {
+        const y = sizeRef.current.offsetTop;
+        setYOffset(y);
+    }, []);
 
     // Initalizes intersection observer to call each time observer enters view
     useEffect(() => {
@@ -84,8 +92,8 @@ export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () 
 
 
     return (
-        <div>
-            <MDBRow className='m-1' style={{ minHeight: '100vh' }}>
+        <div ref={sizeRef}>
+            <MDBRow className='m-1' style={{ minHeight: `calc(100vh-${yOffset}` }}>
                 {columns.map((column, i) => (
                     <MDBCol className="column p-0" key={i}>
                         {column.map((item) => (
@@ -99,5 +107,4 @@ export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () 
         </div>
 
     )
-
 }

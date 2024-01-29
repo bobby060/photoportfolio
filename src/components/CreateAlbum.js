@@ -21,7 +21,6 @@ import { imagesByAlbumsID, listImages } from '../graphql/queries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
-import { AlbumsContext } from '../helpers/AlbumsContext';
 import fetchAlbums from '../helpers/fetchAlbums';
 import uploadImages from '../helpers/uploadImages';
 import currentUser from "../helpers/CurrentUser";
@@ -32,7 +31,6 @@ const client = generateClient({
 
 
 export default function CreateAlbum() {
-    const { setAlbums } = useContext(AlbumsContext);
     const navigate = useNavigate();
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isAdmin, setIsAdmin] = useState('loading');
@@ -124,8 +122,6 @@ export default function CreateAlbum() {
             },
         })
         const new_album = updateAlbumResponse.data.updateAlbums;
-        const updatedAlbums = await fetchAlbums();
-        setAlbums(updatedAlbums);
         console.log(`Created new album named: ${form.get("title")}`);
         navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
         event.target.reset();
