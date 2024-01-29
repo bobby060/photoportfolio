@@ -107,7 +107,7 @@ export default function AllAlbums() {
         const res = await client.graphql({
             query: listAlbums,
             variables: {
-                limit: 4,
+                limit: 8,
             }
         });
 
@@ -179,7 +179,7 @@ export default function AllAlbums() {
             const result = await client.graphql({
                 query: albumTagsAlbumsByAlbumTagsId,
                 variables: {
-                    limit: 2,
+                    limit: 8,
                     albumTagsId: tagIndexes[currentTagKeys[0]],
                 },
             });
