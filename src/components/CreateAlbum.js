@@ -15,7 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 // Database
-import { createAlbums, updateAlbums, } from '../graphql/mutations';
+import { createAlbums, updateAlbums, createUrl, deleteAlbums } from '../graphql/mutations';
 import { imagesByAlbumsID, listImages } from '../graphql/queries';
 
 
@@ -35,6 +35,7 @@ export default function CreateAlbum() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isAdmin, setIsAdmin] = useState('loading');
     const [isLoading, setIsLoading] = useState(false);
+    const [warningText, setWarningText] = useState('');
     const userObject = new currentUser();
 
 
@@ -94,58 +95,67 @@ export default function CreateAlbum() {
             date: cleaned_date,
             albumsFeaturedImageId: placeHolderImageId,
         };
+
         const response = await client.graphql({
             query: createAlbums,
             variables: { input: data },
         });
         const newAlbum = response.data.createAlbums;
+
+        const urlData = {
+            id: urlhelperEncode(newAlbum),
+            urlAlbumId: newAlbum.id
+        }
+        try {
+            await client.graphql({
+                query: createUrl,
+                variables: { input: urlData }
+            });
+
+        } catch (error) {
+            console.log('failed to create url for new album', error);
+            await client.graphql({
+                query: deleteAlbums,
+                variables: { albumId: newAlbum.id }
+            })
+            setWarningText('failed to create url for new album. Album deleted');
+        }
+
         await uploadImages(newAlbum, selectedFiles);
 
-        const res = await client.graphql({
-            query: imagesByAlbumsID,
-            variables: {
-                albumsID: newAlbum.id,
-                limit: 1
-            },
-        });
+        try {
+            const res = await client.graphql({
+                query: imagesByAlbumsID,
+                variables: {
+                    albumsID: newAlbum.id,
+                    limit: 1
+                },
+            });
 
-        const img = res.data.imagesByAlbumsID.items[0]
+            const img = res.data.imagesByAlbumsID.items[0]
 
-        const featured_img_query_data = {
-            id: newAlbum.id,
-            albumsFeaturedImageId: img.id
+            const featured_img_query_data = {
+                id: newAlbum.id,
+                albumsFeaturedImageId: img.id
+            }
+            const updateAlbumResponse = await client.graphql({
+                query: updateAlbums,
+                variables: {
+                    input: featured_img_query_data
+                },
+            })
+            const new_album = updateAlbumResponse.data.updateAlbums;
+            setWarningText(`Created new album named: ${form.get("title")}`)
+            console.log(`Created new album named: ${form.get("title")}`);
+            navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
+            event.target.reset();
+        } catch (error) {
+            console.warn('failed to update featured img for new album. Album still created');
+            setWarningText('failed to update featured img for new album. Album still created')
+            event.target.reset();
         }
-        const updateAlbumResponse = await client.graphql({
-            query: updateAlbums,
-            variables: {
-                input: featured_img_query_data
-            },
-        })
-        const new_album = updateAlbumResponse.data.updateAlbums;
-        console.log(`Created new album named: ${form.get("title")}`);
-        navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
-        event.target.reset();
     }
 
-
-
-    function SubmitButtonWrapper() {
-        if (selectedFiles.length < 1) return (
-            <>
-                <MDBBtn type='submit' className='bg-dark m-1' disabled>Create</MDBBtn>
-                <p>Select photos to enable create button</p>
-            </>
-        );
-        return (<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
-    }
-
-    function Loading() {
-
-        return (<>
-            <MDBSpinner className="mt-3"></MDBSpinner>
-            <p className='fw-light'>Creating album and uploading photos</p>
-        </>);
-    }
 
 
     return (
@@ -173,7 +183,29 @@ export default function CreateAlbum() {
                 <SubmitButtonWrapper />
             </form>
             {isLoading ? <Loading /> : <></>}
+            <p>{warningText}</p>
         </MDBContainer>
     )
+
+
+
+    function SubmitButtonWrapper() {
+        if (selectedFiles.length < 1) return (
+            <>
+                <MDBBtn type='submit' className='bg-dark m-1' disabled>Create</MDBBtn>
+                <p>Select photos to enable create button</p>
+            </>
+        );
+        return (<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
+    }
+
+    function Loading() {
+
+        return (<>
+            <MDBSpinner className="mt-3"></MDBSpinner>
+            <p className='fw-light'>Creating album and uploading photos</p>
+        </>);
+    }
+
 
 }

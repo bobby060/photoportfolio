@@ -31,8 +31,6 @@ export default function Album() {
     // const [featuredImg, setFeaturedImg] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    const debug = false;
-
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
     let location = useLocation();
 

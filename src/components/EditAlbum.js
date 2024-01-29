@@ -23,9 +23,10 @@ import Tag from './Tag';
 import {
     updateAlbums, deleteAlbums, deleteImages,
     createAlbumTags,
-    createAlbumTagsAlbums, deleteAlbumTagsAlbums
+    createAlbumTagsAlbums, deleteAlbumTagsAlbums,
+    createUrl, deleteUrl
 } from '../graphql/mutations';
-import { imagesByAlbumsID } from '../graphql/queries';
+import { getAlbums, imagesByAlbumsID } from '../graphql/queries';
 
 // Helpers
 import { fetchAllAlbumTags } from '../helpers/loaders';
@@ -87,15 +88,6 @@ export default function EditAlbum() {
 
         const t = Object.fromEntries(curAl.albumtagss.items.map((item, i) => [item.albumTagsId, i]));
         setCurrentTags(t);
-
-
-        // const data = {
-        // 	albumsID: currentAlbum.id,
-        // }
-        // const tags = await API.graphql({
-        // 	query: allTagsAlbumsByAlbumsId
-        // })
-
     }
 
     // Updates title, description, and date fields
@@ -116,6 +108,32 @@ export default function EditAlbum() {
             query: updateAlbums,
             variables: { input: data },
         });
+
+        try {
+            await client.graphql({
+                query: deleteUrl,
+                variables: { id: urlhelperEncode(currentAlbum) }
+            })
+        } catch (error) {
+            console.log('failed to delete old url object', error)
+        }
+
+        try {
+            await client.graphql({
+                query: createUrl,
+                variables: {
+                    input: {
+                        id: urlhelperEncode(response.data.updateAlbums),
+                        urlAlbumId: currentAlbum.id
+                    }
+                }
+            })
+        } catch (error) {
+            console.log('new url object not created', error);
+            // should add corrective actions here
+        }
+
+
         if (selectedFiles.length > 0) {
             await uploadImages(currentAlbum, selectedFiles);
         }
@@ -135,6 +153,13 @@ export default function EditAlbum() {
             variables: { albumsID: id }
         });
 
+        const albumToDelete = await publicClient.graphql({
+            query: getAlbums,
+            variables: {
+                id: id
+            }
+        })
+
         // Deletes albums associated with old album
         imgs.data.imagesByAlbumsID.items.map(async (img) => {
             await remove({
@@ -149,6 +174,15 @@ export default function EditAlbum() {
             query: deleteAlbums,
             variables: { input: { id } },
         });
+
+        const urlToDelete = urlhelperEncode(albumToDelete.data.getAlbums);
+
+        await client.graphql({
+            query: deleteUrl,
+            variables: {
+                input: { id: urlToDelete }
+            }
+        })
         console.log('album successfully deleted')
         // Go to root after deleting album
         navigate('../../');
@@ -215,19 +249,6 @@ export default function EditAlbum() {
             variables: { input: data },
         })
     }
-
-    //  async function deleteTag(id){
-    //  		// Need to also delete all related connections
-    //  			await API.graphql({
-    // 	      query: deleteAlbumTags,
-    // 	      variables: { input: { id } },
-    // 	    });
-    // 	    fetchTags();
-    //  		}
-
-
-
-
 
 
     function Loading() {
