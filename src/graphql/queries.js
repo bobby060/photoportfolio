@@ -56,8 +56,22 @@ export const getAlbums = /* GraphQL */ `
       title
       desc
       date
-      privacy
       Images {
+        items {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
         nextToken
         __typename
       }
@@ -88,6 +102,7 @@ export const getAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -107,7 +122,6 @@ export const listAlbums = /* GraphQL */ `
         title
         desc
         date
-        privacy
         Images {
           nextToken
           __typename
@@ -131,6 +145,7 @@ export const listAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -222,30 +237,15 @@ export const imagesByAlbumsID = /* GraphQL */ `
     }
   }
 `;
-export const getAlbumTagsAlbums = /* GraphQL */ `
-  query GetAlbumTagsAlbums($id: ID!) {
-    getAlbumTagsAlbums(id: $id) {
+export const getUrl = /* GraphQL */ `
+  query GetUrl($id: ID!) {
+    getUrl(id: $id) {
       id
-      albumTagsId
-      albumsId
-      albumTags {
-        id
-        title
-        privacy
-        AlbumsHaveTags {
-          nextToken
-          __typename
-        }
-        createdAt
-        updatedAt
-        __typename
-      }
-      albums {
+      album {
         id
         title
         desc
         date
-        privacy
         Images {
           nextToken
           __typename
@@ -269,6 +269,96 @@ export const getAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
+export const listUrls = /* GraphQL */ `
+  query ListUrls(
+    $filter: ModelUrlFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listUrls(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        album {
+          id
+          title
+          desc
+          date
+          privacy
+          createdAt
+          updatedAt
+          albumsFeaturedImageId
+          __typename
+        }
+        createdAt
+        updatedAt
+        urlAlbumId
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getAlbumTagsAlbums = /* GraphQL */ `
+  query GetAlbumTagsAlbums($id: ID!) {
+    getAlbumTagsAlbums(id: $id) {
+      id
+      albumTagsId
+      albumsId
+      albumTags {
+        id
+        title
+        privacy
+        AlbumsHaveTags {
+          nextToken
+          __typename
+        }
+        createdAt
+        updatedAt
+        __typename
+      }
+      albums {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -304,6 +394,7 @@ export const listAlbumTagsAlbums = /* GraphQL */ `
           title
           desc
           date
+          privacy
           createdAt
           updatedAt
           albumsFeaturedImageId
@@ -350,24 +441,10 @@ export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
           title
           desc
           date
+          privacy
           createdAt
           updatedAt
           albumsFeaturedImageId
-          featuredImage {
-            id
-            title
-            desc
-            filename
-            date
-            albumsID
-            index
-            width
-            height
-            url
-            createdAt
-            updatedAt
-            __typename
-          }
           __typename
         }
         createdAt
@@ -411,6 +488,7 @@ export const albumTagsAlbumsByAlbumsId = /* GraphQL */ `
           title
           desc
           date
+          privacy
           createdAt
           updatedAt
           albumsFeaturedImageId

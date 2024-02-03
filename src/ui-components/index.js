@@ -8,4 +8,6 @@ export { default as AlbumTagsCreateForm } from "./AlbumTagsCreateForm";
 export { default as AlbumTagsUpdateForm } from "./AlbumTagsUpdateForm";
 export { default as AlbumsCreateForm } from "./AlbumsCreateForm";
 export { default as AlbumsUpdateForm } from "./AlbumsUpdateForm";
+export { default as UrlCreateForm } from "./UrlCreateForm";
+export { default as UrlUpdateForm } from "./UrlUpdateForm";
 export { default as studioTheme } from "./studioTheme";

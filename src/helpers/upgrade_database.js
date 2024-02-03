@@ -2,9 +2,16 @@
 
 import { generateClient } from 'aws-amplify/api';
 
-import { listImages } from '../graphql/queries';
-import { updateImages, createAlbumTags } from '../graphql/mutations';
-const client = generateClient();
+import { listImages, listAlbums } from '../graphql/queries';
+import { updateImages, createAlbumTags, createUrl } from '../graphql/mutations';
+import { urlhelperEncode } from './urlhelper';
+const client = generateClient({
+    authMode: 'apiKey'
+});
+
+const userGroupClient = generateClient({
+    authMode: 'userPool'
+});
 
 
 const getMeta = async (url) => {
@@ -96,4 +103,34 @@ export async function createDefaultTags() {
     });
 
     console.log('created latest tag');
+}
+
+
+async function newUrl(album) {
+    const url = urlhelperEncode(album);
+
+    const data = {
+        id: url,
+        urlAlbumId: album.id
+    }
+    try {
+        const res = await userGroupClient.graphql({
+            query: createUrl,
+            variables: { input: data }
+        });
+
+        console.log('created url for album ', url);
+
+    } catch (error) {
+        console.log('failed to create url for album', url, error);
+    }
+}
+
+export async function createUrls() {
+    const apiData = await client.graphql({
+        query: listAlbums,
+    });
+
+    const albumsFromAPI = apiData.data.listAlbums.items;
+    await Promise.all(albumsFromAPI.map((album) => newUrl(album)));
 }

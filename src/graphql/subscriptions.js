@@ -132,6 +132,7 @@ export const onCreateAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -192,6 +193,7 @@ export const onUpdateAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -252,6 +254,7 @@ export const onDeleteAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -316,6 +319,141 @@ export const onDeleteImages = /* GraphQL */ `
     }
   }
 `;
+export const onCreateUrl = /* GraphQL */ `
+  subscription OnCreateUrl($filter: ModelSubscriptionUrlFilterInput) {
+    onCreateUrl(filter: $filter) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
+export const onUpdateUrl = /* GraphQL */ `
+  subscription OnUpdateUrl($filter: ModelSubscriptionUrlFilterInput) {
+    onUpdateUrl(filter: $filter) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
+export const onDeleteUrl = /* GraphQL */ `
+  subscription OnDeleteUrl($filter: ModelSubscriptionUrlFilterInput) {
+    onDeleteUrl(filter: $filter) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
 export const onCreateAlbumTagsAlbums = /* GraphQL */ `
   subscription OnCreateAlbumTagsAlbums(
     $filter: ModelSubscriptionAlbumTagsAlbumsFilterInput
@@ -364,6 +502,7 @@ export const onCreateAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -423,6 +562,7 @@ export const onUpdateAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -482,6 +622,7 @@ export const onDeleteAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
