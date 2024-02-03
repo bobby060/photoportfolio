@@ -92,7 +92,6 @@ export const createAlbums = /* GraphQL */ `
       title
       desc
       date
-      privacy
       Images {
         items {
           id
@@ -139,6 +138,7 @@ export const createAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -156,7 +156,6 @@ export const updateAlbums = /* GraphQL */ `
       title
       desc
       date
-      privacy
       Images {
         items {
           id
@@ -203,6 +202,7 @@ export const updateAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -220,7 +220,6 @@ export const deleteAlbums = /* GraphQL */ `
       title
       desc
       date
-      privacy
       Images {
         items {
           id
@@ -267,6 +266,7 @@ export const deleteAlbums = /* GraphQL */ `
         nextToken
         __typename
       }
+      privacy
       createdAt
       updatedAt
       albumsFeaturedImageId
@@ -340,6 +340,150 @@ export const deleteImages = /* GraphQL */ `
     }
   }
 `;
+export const createUrl = /* GraphQL */ `
+  mutation CreateUrl(
+    $input: CreateUrlInput!
+    $condition: ModelUrlConditionInput
+  ) {
+    createUrl(input: $input, condition: $condition) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
+export const updateUrl = /* GraphQL */ `
+  mutation UpdateUrl(
+    $input: UpdateUrlInput!
+    $condition: ModelUrlConditionInput
+  ) {
+    updateUrl(input: $input, condition: $condition) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
+export const deleteUrl = /* GraphQL */ `
+  mutation DeleteUrl(
+    $input: DeleteUrlInput!
+    $condition: ModelUrlConditionInput
+  ) {
+    deleteUrl(input: $input, condition: $condition) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;
 export const createAlbumTagsAlbums = /* GraphQL */ `
   mutation CreateAlbumTagsAlbums(
     $input: CreateAlbumTagsAlbumsInput!
@@ -389,6 +533,7 @@ export const createAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -426,7 +571,6 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
         title
         desc
         date
-        privacy
         Images {
           nextToken
           __typename
@@ -450,6 +594,7 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId
@@ -510,6 +655,7 @@ export const deleteAlbumTagsAlbums = /* GraphQL */ `
           nextToken
           __typename
         }
+        privacy
         createdAt
         updatedAt
         albumsFeaturedImageId

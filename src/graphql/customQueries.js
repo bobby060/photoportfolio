@@ -1,0 +1,115 @@
+export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
+  query AlbumTagsAlbumsByAlbumTagsId(
+    $albumTagsId: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelAlbumTagsAlbumsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    albumTagsAlbumsByAlbumTagsId(
+      albumTagsId: $albumTagsId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        albumTagsId
+        albumsId
+        albumTags {
+          id
+          title
+          privacy
+          createdAt
+          updatedAt
+          __typename
+        }
+        albums {
+          id
+          title
+          desc
+          date
+          createdAt
+          updatedAt
+          albumsFeaturedImageId
+          featuredImage {
+            id
+            title
+            desc
+            filename
+            date
+            albumsID
+            index
+            width
+            height
+            url
+            createdAt
+            updatedAt
+            __typename
+          }
+          __typename
+        }
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+
+export const getUrl = /* GraphQL */ `
+  query GetUrl($id: ID!) {
+    getUrl(id: $id) {
+      id
+      album {
+        id
+        title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+            items {
+                id
+                albumTagsId
+                albumsId
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      createdAt
+      updatedAt
+      urlAlbumId
+      __typename
+    }
+  }
+`;

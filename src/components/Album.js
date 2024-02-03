@@ -11,13 +11,10 @@ import { Link } from 'react-router-dom';
 import { useParams } from "react-router-dom";
 
 // Database
-import { getImages } from '../graphql/queries';
 import { updateAlbums } from '../graphql/mutations';
 
 // Helper functions
-import { urlhelperDecode } from '../helpers/urlhelper';
-import fetchAlbums from '../helpers/fetchAlbums';
-import { AlbumsContext } from '../helpers/AlbumsContext';
+import { getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import projectConfig from '../helpers/Config';
 import currentUser from '../helpers/CurrentUser';
 
@@ -28,21 +25,12 @@ const client = generateClient({
     authMode: 'apiKey'
 });
 export default function Album() {
-    const { albums, setAlbums } = useContext(AlbumsContext);
-    // const[album, setAlbum] = useState(null);
-    const [albumIndex, setAlbumIndex] = useState(-1);
+    const [album, setAlbum] = useState(null);
     const [canEdit, setCanEdit] = useState(false);
-    let { album_id } = useParams();
-    const [featuredImg, setFeaturedImg] = useState([]);
+    let { album_url, album_id } = useParams();
+    // const [featuredImg, setFeaturedImg] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    // adminObject.setTokens();
-
-    // for storing images in current album
-
-    const debug = false;
-
-    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
     let location = useLocation();
 
@@ -50,31 +38,9 @@ export default function Album() {
     useEffect(() => {
         pullAlbum();
         adminObject.isAdmin(setIsAdmin);
-    }, [album_id, location]);
-
-    // useEffect(() => {
-    //     initIsAdmin();
-    // }, [authStatus]);
-
-    // function initIsAdmin() {
-    //     const a = adminObject.isAdmin();
-    //     setIsAdmin(a);
-    // }
+    }, [album_url, location]);
 
     const adminObject = new currentUser();
-    // adminObject.setTokens()
-
-
-
-    // Helper that determines which album in the albums list the url album_id is triggering the component to pull
-    async function findIndex(albums) {
-        for (let i = 0; i < albums.length; i++) {
-            if (urlhelperDecode(albums[i], album_id)) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
     // Loads images associated with album being rendered
     async function pullAlbum() {
@@ -83,37 +49,14 @@ export default function Album() {
         } else {
             setCanEdit(false);
         }
-        setAlbumIndex(-1);
-        // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
-        const newA = (albums.length < 1) ? await fetchAlbums() : albums;
-
-        const index = await findIndex(newA);
-        if (index < 0) {
-            throw new Error(`404. Album at url, ${album_id}, was not found!`);
-        }// setSelectedAlbum(newA.at(index));
-
-
-        if (albums.length < 1) setAlbums(newA);
-        const data = {
-            id: newA[index].albumsFeaturedImageId
-            // id: 'af40de1c-8a91-42a9-96cd-8f89917a96c4'
-        }
-        if (newA[index].albumsFeaturedImageId) {
-            const image = await client.graphql({
-                query: getImages,
-                variables: data,
-            });
-            setFeaturedImg(image.data.getImages);
-        }
-
-        setAlbumIndex(index);
-        if (debug) { console.log(`images set`) }
+        const curAlbum = await getAlbumFromAlbumUrl(album_url);
+        await setAlbum(curAlbum);
     }
 
     // Sets a selected image as the album featured image
     async function updateFeaturedImg(image) {
         const data = {
-            id: albums[albumIndex].id,
+            id: album.id,
             albumsFeaturedImageId: image.image.id
         }
         const response = await client.graphql({
@@ -124,18 +67,13 @@ export default function Album() {
         })
         const new_album = response.data.updateAlbums;
         pullAlbum();
-        const newAlbums = albums.map((album) => {
-            if (album.id === new_album.id) return new_album;
-            return album;
-        });
-        setAlbums(newAlbums);
     }
 
     // Image handler functions
 
-    if (albumIndex < 0) {
+    if (!album) {
         return (
-            <div className='d-flex align-items-end' style={{ height: '500px' }}>
+            <div className='d-flex align-items-end' style={{ height: '400px' }}>
                 <div
                     style={{ background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0) 20%, hsla(0, 0%, 0%, 0.5))', width: '100%' }}
                     className="d-flex align-items-end">
@@ -158,7 +96,7 @@ export default function Album() {
             </div>);
     }
 
-    const date = new Date(albums[albumIndex].date);
+    const date = new Date(album.date);
 
 
 
@@ -200,8 +138,8 @@ export default function Album() {
             }
         }
         const imgWidth = getBreakpoint();
-        const imgRatio = (featuredImg) ? featuredImg.height / featuredImg.width : 1;
-        const featuredImageUrl = (featuredImg) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${featuredImg.id}-${featuredImg.filename}?width=${imgWidth}` : "";
+        const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
+        const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${imgWidth}` : "";
         const imgHeight = Math.min(windowSize.width * imgRatio, 400);
 
         const parallaxStyle = {
@@ -222,12 +160,12 @@ export default function Album() {
                     <MDBContainer >
                         <div className='text-justify-start text-light'>
                             <div className='ms-3 d-flex justify-items-start align-items-end'>
-                                <h2 className="p-0 d-inline-block text-start ">{albums[albumIndex].title}</h2>
+                                <h2 className="p-0 d-inline-block text-start ">{album.title}</h2>
                                 <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
                                 <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
                             </div>
 
-                            <p className='text-start ms-3 me-3'>{albums[albumIndex].desc} </p>
+                            <p className='text-start ms-3 me-3'>{album.desc} </p>
                         </div>
                     </MDBContainer>
 
@@ -243,7 +181,7 @@ export default function Album() {
             <MDBContainer breakpoint='xl'>
                 <PhotoGrid
                     setFeaturedImg={updateFeaturedImg}
-                    selectedAlbum={albums[albumIndex]}
+                    selectedAlbum={album}
                     editMode={canEdit}
                     signedIn={authStatus.authStatus === "authenticated"}
 

@@ -23,14 +23,14 @@ import Tag from './Tag';
 import {
     updateAlbums, deleteAlbums, deleteImages,
     createAlbumTags,
-    createAlbumTagsAlbums, deleteAlbumTagsAlbums
+    createAlbumTagsAlbums, deleteAlbumTagsAlbums,
+    createUrl, deleteUrl
 } from '../graphql/mutations';
-import { imagesByAlbumsID } from '../graphql/queries';
+import { getAlbums, imagesByAlbumsID } from '../graphql/queries';
 
 // Helpers
-import { fetchAlbums, fetchAllAlbumTags, fetchAlbum } from '../helpers/loaders';
-import { urlhelperEncode, urlhelperDecode } from '../helpers/urlhelper';
-import { AlbumsContext } from '../helpers/AlbumsContext';
+import { fetchAllAlbumTags } from '../helpers/loaders';
+import { urlhelperEncode, getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import uploadImages from '../helpers/uploadImages';
 import currentUser from '../helpers/CurrentUser';
 
@@ -48,7 +48,6 @@ const publicClient = generateClient({
 
 export default function EditAlbum() {
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const { albums, setAlbums } = useContext(AlbumsContext);
     const [deleting, setDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [allTags, setAllTags] = useState([]);
@@ -57,7 +56,7 @@ export default function EditAlbum() {
     const navigate = useNavigate();
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
-    let { album_id } = useParams();
+    let { album_url } = useParams();
     const adminObject = new currentUser();
 
     const { user } = useAuthenticator((context) => [context]);
@@ -72,19 +71,7 @@ export default function EditAlbum() {
         if (!isAdmin) {
             return;;
         }
-    }, [album_id]);
-
-
-
-    // Helper that determines which album in the albums list the url album_id is triggering the component to pull
-    async function findIndex(albums) {
-        for (let i = 0; i < albums.length; i++) {
-            if (urlhelperDecode(albums[i], album_id)) {
-                return i;
-            }
-        }
-        throw new Error(`404. Album at url, ${album_id}, was not found!`);
-    }
+    }, [album_url]);
 
 
     // tracks files uploaded by clicker, sets state object
@@ -94,28 +81,13 @@ export default function EditAlbum() {
     }
 
     async function getAlbum() {
-        // setAlbumIndex(-1);
-        // If albums wasn't already set, fetch them. This should be removed by better data handling in future versions.
-        const newA = (albums.length < 1) ? await fetchAlbums() : albums;
-        const index = await findIndex(newA);
-        if (index < 0) {
-            throw new Error(`404. Album at url, ${album_id}, was not found!`);
-        }
+
         // Get album tags connections by album ID here
-        const curAl = await fetchAlbum(albums[index].id);
+        const curAl = await getAlbumFromAlbumUrl(album_url);
         setCurrentAlbum(curAl);
 
         const t = Object.fromEntries(curAl.albumtagss.items.map((item, i) => [item.albumTagsId, i]));
         setCurrentTags(t);
-
-
-        // const data = {
-        // 	albumsID: currentAlbum.id,
-        // }
-        // const tags = await API.graphql({
-        // 	query: allTagsAlbumsByAlbumsId
-        // })
-
     }
 
     // Updates title, description, and date fields
@@ -136,11 +108,35 @@ export default function EditAlbum() {
             query: updateAlbums,
             variables: { input: data },
         });
+
+        try {
+            await client.graphql({
+                query: deleteUrl,
+                variables: { id: urlhelperEncode(currentAlbum) }
+            })
+        } catch (error) {
+            console.log('failed to delete old url object', error)
+        }
+
+        try {
+            await client.graphql({
+                query: createUrl,
+                variables: {
+                    input: {
+                        id: urlhelperEncode(response.data.updateAlbums),
+                        urlAlbumId: currentAlbum.id
+                    }
+                }
+            })
+        } catch (error) {
+            console.log('new url object not created', error);
+            // should add corrective actions here
+        }
+
+
         if (selectedFiles.length > 0) {
             await uploadImages(currentAlbum, selectedFiles);
         }
-        const updatedAlbums = await fetchAlbums();
-        setAlbums(updatedAlbums);
         console.log(`Updated album: ${form.get("title")}`);
         // After save, navigates to album
         navigate('../../albums/'.concat(urlhelperEncode(response.data.updateAlbums)));
@@ -150,16 +146,19 @@ export default function EditAlbum() {
         setDeleting(true);
         // Make sure you really want to delete...
         if (!window.confirm("Are you sure you want to delete this album?")) return;
-        // setAlbumIndex(-1);
-        // Remove album being deleted from the current list of albums
-        const newAlbums = albums.filter((album) => album.id !== id);
-        setAlbums(newAlbums);
 
         // Gets all the images associated with the old album ID
         const imgs = await publicClient.graphql({
             query: imagesByAlbumsID,
             variables: { albumsID: id }
         });
+
+        const albumToDelete = await publicClient.graphql({
+            query: getAlbums,
+            variables: {
+                id: id
+            }
+        })
 
         // Deletes albums associated with old album
         imgs.data.imagesByAlbumsID.items.map(async (img) => {
@@ -175,6 +174,15 @@ export default function EditAlbum() {
             query: deleteAlbums,
             variables: { input: { id } },
         });
+
+        const urlToDelete = urlhelperEncode(albumToDelete.data.getAlbums);
+
+        await client.graphql({
+            query: deleteUrl,
+            variables: {
+                input: { id: urlToDelete }
+            }
+        })
         console.log('album successfully deleted')
         // Go to root after deleting album
         navigate('../../');
@@ -241,19 +249,6 @@ export default function EditAlbum() {
             variables: { input: data },
         })
     }
-
-    //  async function deleteTag(id){
-    //  		// Need to also delete all related connections
-    //  			await API.graphql({
-    // 	      query: deleteAlbumTags,
-    // 	      variables: { input: { id } },
-    // 	    });
-    // 	    fetchTags();
-    //  		}
-
-
-
-
 
 
     function Loading() {

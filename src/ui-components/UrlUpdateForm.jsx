@@ -6,16 +6,16 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
+import { Button, Flex, Grid } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { generateClient } from "aws-amplify/api";
-import { getAlbumTags } from "../graphql/queries";
-import { updateAlbumTags } from "../graphql/mutations";
+import { getUrl } from "../graphql/queries";
+import { updateUrl } from "../graphql/mutations";
 const client = generateClient();
-export default function AlbumTagsUpdateForm(props) {
+export default function UrlUpdateForm(props) {
   const {
     id: idProp,
-    albumTags: albumTagsModelProp,
+    url: urlModelProp,
     onSuccess,
     onError,
     onSubmit,
@@ -24,42 +24,31 @@ export default function AlbumTagsUpdateForm(props) {
     overrides,
     ...rest
   } = props;
-  const initialValues = {
-    title: "",
-    privacy: "",
-  };
-  const [title, setTitle] = React.useState(initialValues.title);
-  const [privacy, setPrivacy] = React.useState(initialValues.privacy);
+  const initialValues = {};
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    const cleanValues = albumTagsRecord
-      ? { ...initialValues, ...albumTagsRecord }
+    const cleanValues = urlRecord
+      ? { ...initialValues, ...urlRecord }
       : initialValues;
-    setTitle(cleanValues.title);
-    setPrivacy(cleanValues.privacy);
     setErrors({});
   };
-  const [albumTagsRecord, setAlbumTagsRecord] =
-    React.useState(albumTagsModelProp);
+  const [urlRecord, setUrlRecord] = React.useState(urlModelProp);
   React.useEffect(() => {
     const queryData = async () => {
       const record = idProp
         ? (
             await client.graphql({
-              query: getAlbumTags.replaceAll("__typename", ""),
+              query: getUrl.replaceAll("__typename", ""),
               variables: { id: idProp },
             })
-          )?.data?.getAlbumTags
-        : albumTagsModelProp;
-      setAlbumTagsRecord(record);
+          )?.data?.getUrl
+        : urlModelProp;
+      setUrlRecord(record);
     };
     queryData();
-  }, [idProp, albumTagsModelProp]);
-  React.useEffect(resetStateValues, [albumTagsRecord]);
-  const validations = {
-    title: [],
-    privacy: [],
-  };
+  }, [idProp, urlModelProp]);
+  React.useEffect(resetStateValues, [urlRecord]);
+  const validations = {};
   const runValidationTasks = async (
     fieldName,
     currentValue,
@@ -85,10 +74,7 @@ export default function AlbumTagsUpdateForm(props) {
       padding="20px"
       onSubmit={async (event) => {
         event.preventDefault();
-        let modelFields = {
-          title: title ?? null,
-          privacy: privacy ?? null,
-        };
+        let modelFields = {};
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
             if (Array.isArray(modelFields[fieldName])) {
@@ -118,10 +104,10 @@ export default function AlbumTagsUpdateForm(props) {
             }
           });
           await client.graphql({
-            query: updateAlbumTags.replaceAll("__typename", ""),
+            query: updateUrl.replaceAll("__typename", ""),
             variables: {
               input: {
-                id: albumTagsRecord.id,
+                id: urlRecord.id,
                 ...modelFields,
               },
             },
@@ -136,59 +122,9 @@ export default function AlbumTagsUpdateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "AlbumTagsUpdateForm")}
+      {...getOverrideProps(overrides, "UrlUpdateForm")}
       {...rest}
     >
-      <TextField
-        label="Title"
-        isRequired={false}
-        isReadOnly={false}
-        value={title}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              title: value,
-              privacy,
-            };
-            const result = onChange(modelFields);
-            value = result?.title ?? value;
-          }
-          if (errors.title?.hasError) {
-            runValidationTasks("title", value);
-          }
-          setTitle(value);
-        }}
-        onBlur={() => runValidationTasks("title", title)}
-        errorMessage={errors.title?.errorMessage}
-        hasError={errors.title?.hasError}
-        {...getOverrideProps(overrides, "title")}
-      ></TextField>
-      <TextField
-        label="Privacy"
-        isRequired={false}
-        isReadOnly={false}
-        value={privacy}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              title,
-              privacy: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.privacy ?? value;
-          }
-          if (errors.privacy?.hasError) {
-            runValidationTasks("privacy", value);
-          }
-          setPrivacy(value);
-        }}
-        onBlur={() => runValidationTasks("privacy", privacy)}
-        errorMessage={errors.privacy?.errorMessage}
-        hasError={errors.privacy?.hasError}
-        {...getOverrideProps(overrides, "privacy")}
-      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -200,7 +136,7 @@ export default function AlbumTagsUpdateForm(props) {
             event.preventDefault();
             resetStateValues();
           }}
-          isDisabled={!(idProp || albumTagsModelProp)}
+          isDisabled={!(idProp || urlModelProp)}
           {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
         <Flex
@@ -212,7 +148,7 @@ export default function AlbumTagsUpdateForm(props) {
             type="submit"
             variation="primary"
             isDisabled={
-              !(idProp || albumTagsModelProp) ||
+              !(idProp || urlModelProp) ||
               Object.values(errors).some((e) => e?.hasError)
             }
             {...getOverrideProps(overrides, "SubmitButton")}
