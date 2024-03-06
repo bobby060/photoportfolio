@@ -201,7 +201,15 @@ export default function AllAlbums() {
             // Update albums to reflect
             setSelectedTagsIndexes(tagIndexes);
             const newVisAlbums = taggedConnections.map((connection) => connection.albums);
-            setCurrentVisibleAlbums(newVisAlbums);
+            // filter here
+
+            const sortedAlbums = newVisAlbums.sort((a, b) => {
+                const aDate = new Date(a.date);
+                const bDate = new Date(b.date);
+                return bDate - aDate;
+            });
+
+            setCurrentVisibleAlbums(sortedAlbums);
         }
         setIsLoading(false);
         // gets filtered albums based on the current tag
