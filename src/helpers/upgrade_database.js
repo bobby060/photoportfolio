@@ -3,7 +3,7 @@
 import { generateClient } from 'aws-amplify/api';
 
 import { listImages, listAlbums } from '../graphql/queries';
-import { updateImages, createAlbumTags, createUrl } from '../graphql/mutations';
+import { updateImages, createAlbumTags, createUrl, updateAlbums } from '../graphql/mutations';
 import { urlhelperEncode } from './urlhelper';
 const client = generateClient({
     authMode: 'apiKey'
@@ -82,6 +82,58 @@ export async function upgradeDB() {
     console.log('all images upgraded')
 
 }
+
+async function upgradeAlbum(album) {
+    const updatedAlbum = { id: album.id, type: 'Album' };
+    console.log(album);
+
+    const response = await userGroupClient.graphql({
+        query: updateAlbums,
+        variables: { input: updatedAlbum },
+    });
+
+    if (response) {
+        console.log(response);
+        console.log(`upgraded ${album.id}`)
+    }
+}
+
+
+export async function upgradeAlbums() {
+    var next = null;
+
+    const res = await client.graphql({
+        query: listAlbums,
+        variables: {
+            limit: 10,
+        },
+    })
+
+    next = res.data.listAlbums.nextToken;
+
+    await Promise.all(res.data.listAlbums.items.map((album) => upgradeAlbum(album)));
+
+    while (next) {
+        const res = await client.graphql({
+            query: listAlbums,
+            variables: {
+                limit: 10,
+                nextToken: next
+            },
+        })
+
+        next = res.data.listAlbums.nextToken;
+
+        await Promise.all(res.data.listAlbums.items.map((album) => upgradeAlbum(album)));
+
+    }
+
+    console.log('all albums upgraded');
+
+
+}
+
+
 
 export async function createDefaultTags() {
     const data = {

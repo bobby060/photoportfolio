@@ -15,8 +15,7 @@ import { Link } from 'react-router-dom';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
-import { listAlbums } from '../graphql/queries';
-import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
+import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQueries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
@@ -105,14 +104,14 @@ export default function AllAlbums() {
     async function fetchInitialAlbums() {
         setIsLoading(true);
         const res = await client.graphql({
-            query: listAlbums,
+            query: albumByDate,
             variables: {
                 limit: 8,
             }
         });
 
-        setNextToken(res.data.listAlbums.nextToken);
-        setCurrentVisibleAlbums(res.data.listAlbums.items);
+        setNextToken(res.data.albumByDate.nextToken);
+        setCurrentVisibleAlbums(res.data.albumByDate.items);
         setIsLoading(false);
 
     }
@@ -124,13 +123,13 @@ export default function AllAlbums() {
 
         if (Object.keys(selectedTagsIndexes).length < 1) {
             const res = await client.graphql({
-                query: listAlbums,
+                query: albumByDate,
                 variables: {
                     limit: 4,
                     nextToken: nextToken
                 }
             })
-            const newAlbums = [...currentVisibleAlbums, ...res.data.listAlbums.items];
+            const newAlbums = [...currentVisibleAlbums, ...res.data.albumByDate.items];
 
             setCurrentVisibleAlbums(newAlbums);
         } else {

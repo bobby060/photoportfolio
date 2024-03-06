@@ -113,3 +113,57 @@ export const getUrl = /* GraphQL */ `
     }
   }
 `;
+
+export const albumByDate = /* GraphQL */ `
+  query albumByDate(
+    $filter: ModelAlbumsFilterInput
+    $limit: Int
+    $nextToken: String
+    ) {
+    albumByDate(
+     type: "Album",
+     sortDirection: DESC,
+     filter: $filter,
+     limit: $limit,
+     nextToken: $nextToken
+     ){
+        items {
+            id
+            title
+            desc
+            date
+            Images {
+              nextToken
+              __typename
+            }
+            featuredImage {
+              id
+              title
+              desc
+              filename
+              date
+              albumsID
+              index
+              width
+              height
+              url
+              createdAt
+              updatedAt
+              __typename
+            }
+            albumtagss {
+              nextToken
+              __typename
+            }
+            privacy
+            createdAt
+            updatedAt
+            albumsFeaturedImageId
+            __typename
+          }
+          nextToken
+          __typename
+    }
+  }
+
+`;

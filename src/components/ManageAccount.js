@@ -19,7 +19,7 @@ import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
 import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
 import currentUser from "../helpers/CurrentUser";
 import projectConfig from "../helpers/Config";
-import { createUrls } from "../helpers/upgrade_database";
+import { upgradeAlbums } from "../helpers/upgrade_database";
 
 const client = generateClient();
 
@@ -101,7 +101,7 @@ export default function ManageAccount() {
                     <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
                 </form>
                 <hr className="hr" />
-                <MDBBtn className="bg-dark m-1" onClick={() => createUrls()}>Update DB</MDBBtn>
+                <MDBBtn className="bg-dark m-1" onClick={() => upgradeAlbums()}>Update DB</MDBBtn>
             </MDBCol>
         );
     }

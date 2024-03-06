@@ -94,6 +94,7 @@ export default function CreateAlbum() {
             desc: form.get("desc"),
             date: cleaned_date,
             albumsFeaturedImageId: placeHolderImageId,
+            type: 'Album'
         };
 
         const response = await client.graphql({

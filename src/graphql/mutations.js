@@ -90,6 +90,7 @@ export const createAlbums = /* GraphQL */ `
     createAlbums(input: $input, condition: $condition) {
       id
       title
+      type
       desc
       date
       Images {
@@ -154,6 +155,7 @@ export const updateAlbums = /* GraphQL */ `
     updateAlbums(input: $input, condition: $condition) {
       id
       title
+      type
       desc
       date
       Images {
@@ -218,6 +220,7 @@ export const deleteAlbums = /* GraphQL */ `
     deleteAlbums(input: $input, condition: $condition) {
       id
       title
+      type
       desc
       date
       Images {
@@ -350,6 +353,7 @@ export const createUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -398,6 +402,7 @@ export const updateUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -446,6 +451,7 @@ export const deleteUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -508,6 +514,7 @@ export const createAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {
@@ -569,6 +576,7 @@ export const updateAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {
@@ -630,6 +638,7 @@ export const deleteAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {

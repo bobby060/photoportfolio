@@ -26,11 +26,13 @@ export default function AlbumsUpdateForm(props) {
   } = props;
   const initialValues = {
     title: "",
+    type: "",
     desc: "",
     date: "",
     privacy: "",
   };
   const [title, setTitle] = React.useState(initialValues.title);
+  const [type, setType] = React.useState(initialValues.type);
   const [desc, setDesc] = React.useState(initialValues.desc);
   const [date, setDate] = React.useState(initialValues.date);
   const [privacy, setPrivacy] = React.useState(initialValues.privacy);
@@ -40,6 +42,7 @@ export default function AlbumsUpdateForm(props) {
       ? { ...initialValues, ...albumsRecord }
       : initialValues;
     setTitle(cleanValues.title);
+    setType(cleanValues.type);
     setDesc(cleanValues.desc);
     setDate(cleanValues.date);
     setPrivacy(cleanValues.privacy);
@@ -63,6 +66,7 @@ export default function AlbumsUpdateForm(props) {
   React.useEffect(resetStateValues, [albumsRecord]);
   const validations = {
     title: [],
+    type: [{ type: "Required" }],
     desc: [],
     date: [],
     privacy: [],
@@ -111,6 +115,7 @@ export default function AlbumsUpdateForm(props) {
         event.preventDefault();
         let modelFields = {
           title: title ?? null,
+          type,
           desc: desc ?? null,
           date: date ?? null,
           privacy: privacy ?? null,
@@ -175,6 +180,7 @@ export default function AlbumsUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               title: value,
+              type,
               desc,
               date,
               privacy,
@@ -193,6 +199,34 @@ export default function AlbumsUpdateForm(props) {
         {...getOverrideProps(overrides, "title")}
       ></TextField>
       <TextField
+        label="Type"
+        isRequired={true}
+        isReadOnly={false}
+        value={type}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              type: value,
+              desc,
+              date,
+              privacy,
+            };
+            const result = onChange(modelFields);
+            value = result?.type ?? value;
+          }
+          if (errors.type?.hasError) {
+            runValidationTasks("type", value);
+          }
+          setType(value);
+        }}
+        onBlur={() => runValidationTasks("type", type)}
+        errorMessage={errors.type?.errorMessage}
+        hasError={errors.type?.hasError}
+        {...getOverrideProps(overrides, "type")}
+      ></TextField>
+      <TextField
         label="Desc"
         isRequired={false}
         isReadOnly={false}
@@ -202,6 +236,7 @@ export default function AlbumsUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc: value,
               date,
               privacy,
@@ -231,6 +266,7 @@ export default function AlbumsUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc,
               date: value,
               privacy,
@@ -258,6 +294,7 @@ export default function AlbumsUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc,
               date,
               privacy: value,
