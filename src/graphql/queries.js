@@ -54,6 +54,7 @@ export const getAlbums = /* GraphQL */ `
     getAlbums(id: $id) {
       id
       title
+      type
       desc
       date
       Images {
@@ -120,6 +121,63 @@ export const listAlbums = /* GraphQL */ `
       items {
         id
         title
+        desc
+        date
+        Images {
+          nextToken
+          __typename
+        }
+        featuredImage {
+          id
+          title
+          desc
+          filename
+          date
+          albumsID
+          index
+          width
+          height
+          url
+          createdAt
+          updatedAt
+          __typename
+        }
+        albumtagss {
+          nextToken
+          __typename
+        }
+        privacy
+        createdAt
+        updatedAt
+        albumsFeaturedImageId
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const albumByDate = /* GraphQL */ `
+  query AlbumByDate(
+    $type: String!
+    $date: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelAlbumsFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    albumByDate(
+      type: $type
+      date: $date
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        title
+        type
         desc
         date
         Images {
@@ -244,6 +302,7 @@ export const getUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -294,6 +353,7 @@ export const listUrls = /* GraphQL */ `
         album {
           id
           title
+          type
           desc
           date
           privacy
@@ -333,6 +393,7 @@ export const getAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {
@@ -392,6 +453,7 @@ export const listAlbumTagsAlbums = /* GraphQL */ `
         albums {
           id
           title
+          type
           desc
           date
           privacy
@@ -439,6 +501,7 @@ export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
         albums {
           id
           title
+          type
           desc
           date
           privacy
@@ -486,6 +549,7 @@ export const albumTagsAlbumsByAlbumsId = /* GraphQL */ `
         albums {
           id
           title
+          type
           desc
           date
           privacy

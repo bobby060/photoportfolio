@@ -15,8 +15,7 @@ import { Link } from 'react-router-dom';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
-import { listAlbums } from '../graphql/queries';
-import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
+import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQueries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
@@ -105,14 +104,14 @@ export default function AllAlbums() {
     async function fetchInitialAlbums() {
         setIsLoading(true);
         const res = await client.graphql({
-            query: listAlbums,
+            query: albumByDate,
             variables: {
                 limit: 8,
             }
         });
 
-        setNextToken(res.data.listAlbums.nextToken);
-        setCurrentVisibleAlbums(res.data.listAlbums.items);
+        setNextToken(res.data.albumByDate.nextToken);
+        setCurrentVisibleAlbums(res.data.albumByDate.items);
         setIsLoading(false);
 
     }
@@ -124,13 +123,13 @@ export default function AllAlbums() {
 
         if (Object.keys(selectedTagsIndexes).length < 1) {
             const res = await client.graphql({
-                query: listAlbums,
+                query: albumByDate,
                 variables: {
                     limit: 4,
                     nextToken: nextToken
                 }
             })
-            const newAlbums = [...currentVisibleAlbums, ...res.data.listAlbums.items];
+            const newAlbums = [...currentVisibleAlbums, ...res.data.albumByDate.items];
 
             setCurrentVisibleAlbums(newAlbums);
         } else {
@@ -202,7 +201,15 @@ export default function AllAlbums() {
             // Update albums to reflect
             setSelectedTagsIndexes(tagIndexes);
             const newVisAlbums = taggedConnections.map((connection) => connection.albums);
-            setCurrentVisibleAlbums(newVisAlbums);
+            // filter here
+
+            const sortedAlbums = newVisAlbums.sort((a, b) => {
+                const aDate = new Date(a.date);
+                const bDate = new Date(b.date);
+                return bDate - aDate;
+            });
+
+            setCurrentVisibleAlbums(sortedAlbums);
         }
         setIsLoading(false);
         // gets filtered albums based on the current tag

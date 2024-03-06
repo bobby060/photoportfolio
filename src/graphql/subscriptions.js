@@ -84,6 +84,7 @@ export const onCreateAlbums = /* GraphQL */ `
     onCreateAlbums(filter: $filter) {
       id
       title
+      type
       desc
       date
       Images {
@@ -145,6 +146,7 @@ export const onUpdateAlbums = /* GraphQL */ `
     onUpdateAlbums(filter: $filter) {
       id
       title
+      type
       desc
       date
       Images {
@@ -206,6 +208,7 @@ export const onDeleteAlbums = /* GraphQL */ `
     onDeleteAlbums(filter: $filter) {
       id
       title
+      type
       desc
       date
       Images {
@@ -326,6 +329,7 @@ export const onCreateUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -371,6 +375,7 @@ export const onUpdateUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -416,6 +421,7 @@ export const onDeleteUrl = /* GraphQL */ `
       album {
         id
         title
+        type
         desc
         date
         Images {
@@ -477,6 +483,7 @@ export const onCreateAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {
@@ -537,6 +544,7 @@ export const onUpdateAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {
@@ -597,6 +605,7 @@ export const onDeleteAlbumTagsAlbums = /* GraphQL */ `
       albums {
         id
         title
+        type
         desc
         date
         Images {

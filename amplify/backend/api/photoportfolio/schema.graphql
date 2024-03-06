@@ -7,9 +7,10 @@ type AlbumTags  @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"]
 
 type Albums @model @auth(rules: [{allow: groups, groups: ["portfolio_admin"], provider: userPools}, {allow: public, operations: [read]}]) {
   id: ID!
-  title: String
+  title: String 
+  type: String! @index(name: "albumByDate", sortKeyFields: ["date"], queryField: "albumByDate")
   desc: String
-  date: AWSDateTime
+  date: AWSDateTime 
   Images: [Images] @hasMany(indexName: "byAlbums", fields: ["id"])
   featuredImage: Images @hasOne
   albumtagss: [AlbumTags] @manyToMany(relationName: "AlbumTagsAlbums")

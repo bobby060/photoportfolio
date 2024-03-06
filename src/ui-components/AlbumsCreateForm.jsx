@@ -24,17 +24,20 @@ export default function AlbumsCreateForm(props) {
   } = props;
   const initialValues = {
     title: "",
+    type: "",
     desc: "",
     date: "",
     privacy: "",
   };
   const [title, setTitle] = React.useState(initialValues.title);
+  const [type, setType] = React.useState(initialValues.type);
   const [desc, setDesc] = React.useState(initialValues.desc);
   const [date, setDate] = React.useState(initialValues.date);
   const [privacy, setPrivacy] = React.useState(initialValues.privacy);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     setTitle(initialValues.title);
+    setType(initialValues.type);
     setDesc(initialValues.desc);
     setDate(initialValues.date);
     setPrivacy(initialValues.privacy);
@@ -42,6 +45,7 @@ export default function AlbumsCreateForm(props) {
   };
   const validations = {
     title: [],
+    type: [{ type: "Required" }],
     desc: [],
     date: [],
     privacy: [],
@@ -90,6 +94,7 @@ export default function AlbumsCreateForm(props) {
         event.preventDefault();
         let modelFields = {
           title,
+          type,
           desc,
           date,
           privacy,
@@ -156,6 +161,7 @@ export default function AlbumsCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title: value,
+              type,
               desc,
               date,
               privacy,
@@ -174,6 +180,34 @@ export default function AlbumsCreateForm(props) {
         {...getOverrideProps(overrides, "title")}
       ></TextField>
       <TextField
+        label="Type"
+        isRequired={true}
+        isReadOnly={false}
+        value={type}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              type: value,
+              desc,
+              date,
+              privacy,
+            };
+            const result = onChange(modelFields);
+            value = result?.type ?? value;
+          }
+          if (errors.type?.hasError) {
+            runValidationTasks("type", value);
+          }
+          setType(value);
+        }}
+        onBlur={() => runValidationTasks("type", type)}
+        errorMessage={errors.type?.errorMessage}
+        hasError={errors.type?.hasError}
+        {...getOverrideProps(overrides, "type")}
+      ></TextField>
+      <TextField
         label="Desc"
         isRequired={false}
         isReadOnly={false}
@@ -183,6 +217,7 @@ export default function AlbumsCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc: value,
               date,
               privacy,
@@ -212,6 +247,7 @@ export default function AlbumsCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc,
               date: value,
               privacy,
@@ -239,6 +275,7 @@ export default function AlbumsCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              type,
               desc,
               date,
               privacy: value,
