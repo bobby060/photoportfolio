@@ -53,6 +53,9 @@ export default function EditAlbum() {
     const [allTags, setAllTags] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [currentTags, setCurrentTags] = useState([]);
+
+
+    const [totalUploaded, setTotalUploaded] = useState(0);
     const navigate = useNavigate();
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
@@ -139,7 +142,7 @@ export default function EditAlbum() {
 
 
         if (selectedFiles.length > 0) {
-            await uploadImages(currentAlbum, selectedFiles);
+            await uploadImages(currentAlbum, selectedFiles, setTotalUploaded);
         }
         console.log(`Updated album: ${form.get("title")}`);
         // After save, navigates to album
@@ -258,7 +261,7 @@ export default function EditAlbum() {
     function Loading() {
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>
-            {(selectedFiles.length > 0) ? <p className='fw-light'>Saving album and uploading photos</p> : <p className='fw-light'>Saving album</p>}
+            {(selectedFiles.length > 0) ? <p className='fw-light'>Saving album and uploading image {totalUploaded} of {selectedFiles.length}</p> : <p className='fw-light'>Saving album</p>}
         </>);
     }
 
