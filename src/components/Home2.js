@@ -115,25 +115,26 @@ export default function Home() {
     return (
         <div>
             <HeaderCarousel />
-            <div className='p-3'>
-                <h2 className='m-0 fw-light'>
+            {/* <div className='pt-2'>
+                <h2 className='mb-0 fw-light'>
                     Featured Albums
                 </h2>
-            </div>
+            </div> */}
             <MDBCol lg='10' xl='8' className='me-auto ms-auto'>
                 <FeaturedCarouselWrapper />
             </MDBCol>
             <span id="albums" />
             <MDBCol lg='10' xl='8' className='me-auto ms-auto'>
                 {/*<AlbumCards/>*/}
-                <div className='p-3'>
+                {/* <div className='p-1'>
                     <h2 className='m-0 fw-light'>
                         All Albums
                     </h2>
-                </div>
+                </div> */}
                 <hr className="hr m-0" />
                 <AllAlbums />
             </MDBCol>
+            {/* Floating card above splash image */}
             <MDBCard
                 alignment='start'
                 className='text-dark p-3'
@@ -158,6 +159,8 @@ export default function Home() {
                     </div>
                 </MDBCardBody>
             </MDBCard>
+
+            {/* jump to arrow */}
             <a href="#albums">
                 <MDBIcon fas icon="angle-down" size='4x' color='white-50'
                     style={{

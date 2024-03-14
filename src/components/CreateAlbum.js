@@ -35,6 +35,7 @@ export default function CreateAlbum() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isAdmin, setIsAdmin] = useState('loading');
     const [isLoading, setIsLoading] = useState(false);
+    const [totalUploaded, setTotalUploaded] = useState(0);
     const [warningText, setWarningText] = useState('');
     const userObject = new currentUser();
 
@@ -122,7 +123,7 @@ export default function CreateAlbum() {
             setWarningText('failed to create url for new album. Album deleted');
         }
 
-        await uploadImages(newAlbum, selectedFiles);
+        await uploadImages(newAlbum, selectedFiles, setTotalUploaded);
 
         try {
             const res = await client.graphql({
@@ -204,7 +205,7 @@ export default function CreateAlbum() {
 
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>
-            <p className='fw-light'>Creating album and uploading photos</p>
+            <p className='fw-light'>Creating album and uploading photo {totalUploaded} of {selectedFiles.length}</p>
         </>);
     }
 

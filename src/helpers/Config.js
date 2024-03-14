@@ -29,6 +29,7 @@ class Config {
         return;
     }
 
+    // Environment currently active: dev or staging
     getCurrentEnvironment() {
         return config.currentEnvironment;
     }

@@ -6,9 +6,11 @@ import { createImages, deleteImages } from '../graphql/mutations';
 const client = generateClient();
 
 
-export default async function uploadImages(targetAlbum, files) {
+export default async function uploadImages(targetAlbum, files, returnTotalUploaded = () => { }) {
 
     const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+
+    let totalUploaded = 0;
 
     function getExifDate() {
 
@@ -91,6 +93,9 @@ export default async function uploadImages(targetAlbum, files) {
             });
             return;
         }
+
+        totalUploaded = totalUploaded + 1;
+        returnTotalUploaded(totalUploaded);
 
         console.log(`${image.name} uploaded`)
     }

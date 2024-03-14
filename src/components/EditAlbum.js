@@ -53,6 +53,9 @@ export default function EditAlbum() {
     const [allTags, setAllTags] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [currentTags, setCurrentTags] = useState([]);
+
+
+    const [totalUploaded, setTotalUploaded] = useState(0);
     const navigate = useNavigate();
 
     const [currentAlbum, setCurrentAlbum] = useState(null);
@@ -112,7 +115,11 @@ export default function EditAlbum() {
         try {
             await client.graphql({
                 query: deleteUrl,
-                variables: { id: urlhelperEncode(currentAlbum) }
+                variables: {
+                    input: {
+                        id: urlhelperEncode(currentAlbum)
+                    }
+                }
             })
         } catch (error) {
             console.log('failed to delete old url object', error)
@@ -135,7 +142,7 @@ export default function EditAlbum() {
 
 
         if (selectedFiles.length > 0) {
-            await uploadImages(currentAlbum, selectedFiles);
+            await uploadImages(currentAlbum, selectedFiles, setTotalUploaded);
         }
         console.log(`Updated album: ${form.get("title")}`);
         // After save, navigates to album
@@ -254,7 +261,7 @@ export default function EditAlbum() {
     function Loading() {
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>
-            {(selectedFiles.length > 0) ? <p className='fw-light'>Saving album and uploading photos</p> : <p className='fw-light'>Saving album</p>}
+            {(selectedFiles.length > 0) ? <p className='fw-light'>Saving album and uploading image {totalUploaded} of {selectedFiles.length}</p> : <p className='fw-light'>Saving album</p>}
         </>);
     }
 
@@ -278,31 +285,31 @@ export default function EditAlbum() {
     return (
         <>
             <form onSubmit={updateAlbum}>
-                <MDBRow className='mt-3 d-flex justify-content-center'>
+                {/* Title, date, and description fields fields */}
+                <MDBRow className='p-2 d-flex justify-content-center'>
                     <MDBCol xl='3' lg='5' md='6'>
                         <MDBInput className='mb-3' label='Title' name='title' type='text' defaultValue={currentAlbum.title} />
                         <MDBInput className='mb-3' label='Date' name='date' type='date' defaultValue={dateString} />
                     </MDBCol>
                     <MDBCol xl='3' lg='5' md='6'>
                         <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} defaultValue={currentAlbum.desc} />
-                    </MDBCol>
-                </MDBRow>
-                <MDBRow className='d-flex justify-content-center'>
-                    <MDBCol sm='12'>
-                        <label for='file_upload'> Upload more images </label>
-                    </MDBCol>
-                    <MDBCol lg='6' className='d-flex' >
                         <MDBFile
                             id='file_upload'
                             multiple
                             onChange={setFiles}
-                            className='m-1 mb-1 flex-grow-1'
+                            className='flex-grow-1'
                         // label='Add more photos to album'
                         />
-                        {/* Need to update so that UI makes more sense */}
-                        <MDBBtn disabled className="bg-dark m-1">Upload</MDBBtn>
                     </MDBCol>
+
                 </MDBRow>
+                {/* File upload */}
+                {/* <MDBRow className='p-1 d-flex justify-content-center'>
+                    <MDBCol sm='12'>
+                        <label for='file_upload'> Upload more images </label>
+                    </MDBCol>
+
+                </MDBRow> */}
                 <MDBRow className='d-flex justify-content-center align-items-center' >
                     <MDBCol className='d-flex justify-content-center' lg='5'>
                         <MDBBtn className='m-1' title='Delete Album' onClick={() => deleteAlbum(currentAlbum.id)} color='dark' data-mdb-toggle="tooltip" >
@@ -314,8 +321,9 @@ export default function EditAlbum() {
                 </MDBRow>
 
                 {(isLoading) ? <Loading /> : <></>}
-            </form>
-            <MDBRow className='d-flex justify-content-center align-items-center' >
+            </form >
+            {/* UI for adding/removing tags */}
+            < MDBRow className='pt-2 d-flex justify-content-center align-items-center' >
                 <MDBCol className='d-flex justify-content-center flex-wrap' lg='5'>
                     {allTags.map((tag, i) => (
                         <Tag
@@ -330,7 +338,7 @@ export default function EditAlbum() {
                         <MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='rounded' size='sm' onKeyDown={handleCreateTagEnter} />
                     </div>
                 </MDBCol>
-            </MDBRow>
+            </MDBRow >
         </>
 
     )

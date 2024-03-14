@@ -108,6 +108,7 @@ export default function Album() {
         return;
     }
 
+    // Shows the top portion of album, including title, description, and featured image
     function AlbumHeader() {
 
         const [windowSize, setWindowSize] = useState({
@@ -152,25 +153,32 @@ export default function Album() {
         }
 
         return (
-            <div className='d-flex align-items-end' style={parallaxStyle}>
-                <div
-                    style={{ background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0) 20%, hsla(0, 0%, 0%, 0.5))', width: '100%' }}
-                    className="d-flex align-items-end">
-                    <ShowEditButton />
-                    <MDBContainer >
-                        <div className='text-justify-start text-light'>
-                            <div className='ms-3 d-flex justify-items-start align-items-end'>
-                                <h2 className="p-0 d-inline-block text-start ">{album.title}</h2>
-                                <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
-                                <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
-                            </div>
+            <>
+                <div className='d-flex align-items-end' style={parallaxStyle}>
+                    <div
+                        style={{ background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0) 20%, hsla(0, 0%, 0%, 0.5))', width: '100%' }}
+                        className="d-flex align-items-end">
+                        <ShowEditButton />
+                        <MDBContainer >
+                            <div className='text-justify-start text-light'>
+                                <div className='ms-3 d-flex justify-items-start align-items-end'>
+                                    <h2 className="p-0 d-inline-block text-start ">{album.title}</h2>
+                                    <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
+                                    <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
+                                </div>
 
-                            <p className='text-start ms-3 me-3'>{album.desc} </p>
-                        </div>
-                    </MDBContainer>
+
+                            </div>
+                        </MDBContainer>
+
+
+                    </div>
 
                 </div>
-            </div>
+                <MDBContainer breakpoint='xl'>
+                    <p className='text-start ms-1 me-1 mt-2 p-1'>{album.desc}</p >
+                </MDBContainer>
+            </>
         );
     }
 
