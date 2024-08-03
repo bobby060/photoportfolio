@@ -1,3 +1,19 @@
+/* 
+AllAlbums.js
+React Component
+Responsive grid of all albums. Only fetches a certain amount of options at a time. 
+
+Essentially a wrapper for ResponsiveGrid
+
+Relies on two pieces of external data that must be fetched after load:
+- AlbumTags: available tags to filter by, from the server
+- Albums: First n albums, load on scroll
+
+
+
+Author: Robert Norwood, OCT 2023
+*/
+
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -8,7 +24,6 @@ import {
     MDBCardText,
     MDBCardOverlay,
     MDBCardImage,
-    // MDBTypography,
 } from 'mdb-react-ui-kit';
 
 import { Link } from 'react-router-dom';
@@ -27,16 +42,21 @@ const client = generateClient({
     authMode: 'apiKey'
 });
 
-
 export default function AllAlbums() {
 
     // const { albums } = useContext(AlbumsContext);
     const [allTags, setAllTags] = useState([]);
+
+    // All albums fetched from server
     const [currentVisibleAlbums, setCurrentVisibleAlbums] = useState([]);
+
+    // API token for next set of albums to fetch from server
     const [nextToken, setNextToken] = useState([]);
 
-    // Used 
+    // Stores indexes for which tags are selected in the current album
     const [selectedTagsIndexes, setSelectedTagsIndexes] = useState({});
+
+    // Displays visual indicators when waiting on fetches
     const [isLoading, setIsLoading] = useState(false);
 
     const [windowSize, setWindowSize] = useState({
@@ -44,18 +64,24 @@ export default function AllAlbums() {
         height: window.innerHeight,
     });
 
+    /**
+     * @brief Formats date input
+     * 
+     * @param {string} date 
+     * @returns formatted date
+     */
     function dateFormat(date) {
         const d = new Date(date);
         return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
     }
 
-    // Fetches list of tags and initial albums on load
+    // Fetches list of tags and first 10 albums on load
     useEffect(() => {
         fetchTags();
         fetchInitialAlbums();
     }, []);
 
-    // Adds ability to adjust column layout after resize
+    // Updates the windowsize state object on resize
     useEffect(() => {
         const handleResize = () => {
             setWindowSize({
@@ -70,15 +96,19 @@ export default function AllAlbums() {
     }, []);
 
 
-    //  	Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
-    //   Example  breakpoints = [0 ,  350, 750, 900, 1300]
-    //         number columns = [0 ,   1 ,  2 , 3  ,   4 ]
-    //         Window with of 850 will have 2 columns. 2000 will have 4
-
+    /*  Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
+        Example  breakpoints = [0 ,  350, 750, 900, 1300]
+        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
+        Window with of 850 will have 2 columns. 2000 will have 4
+     */
     const breakPoints = [0, 350, 750, 1200];
     // const breakPoints = [0,0];
 
-    // Gets breakpoint for current width
+    /** 
+     * @brief How many columns to have, based on width
+     * 
+     * @returns number of columns
+     */
     function getBreakpoint() {
         const cur_width = windowSize.width;
         for (let i = breakPoints.length - 1; i >= 0; i--) {
@@ -88,6 +118,7 @@ export default function AllAlbums() {
 
 
     // Responsiveness functions
+    // TODO: make an actual function
     const num_columns = getBreakpoint();
     function getImgHeight() {
         if (windowSize.width < 750) {
@@ -99,8 +130,13 @@ export default function AllAlbums() {
         }
     }
     const imgHeight = getImgHeight();
+
+    // Ensures cover image always fills its container width-wise
     const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'object-fit': 'cover' }
 
+    /**
+     * @brief fetches the first 8 albums from API
+     */
     async function fetchInitialAlbums() {
         setIsLoading(true);
         const res = await client.graphql({
@@ -116,11 +152,13 @@ export default function AllAlbums() {
 
     }
 
+    // Fetches next 4 albums
     const fetchNextAlbums = useCallback(async () => {
         if (isLoading || !nextToken) return;
 
         setIsLoading(true);
 
+        // Case: no tags are selected. Load all albums in date order
         if (Object.keys(selectedTagsIndexes).length < 1) {
             const res = await client.graphql({
                 query: albumByDate,
@@ -132,7 +170,9 @@ export default function AllAlbums() {
             const newAlbums = [...currentVisibleAlbums, ...res.data.albumByDate.items];
 
             setCurrentVisibleAlbums(newAlbums);
-        } else {
+        }
+        // Case: tags selected. Only pull albums by the currently selected tag (right now tags act more like folders)
+        else {
             const result = await client.graphql({
                 query: albumTagsAlbumsByAlbumTagsId,
                 variables: {
@@ -155,6 +195,12 @@ export default function AllAlbums() {
     // ///////////////////
     // TAGS
     // //////////////////
+
+    /**
+     * @brief fetches all tags except featured albums and latest
+     * 
+     * Sets the AllTags with which are selected
+     */
     async function fetchTags() {
         const tags = await fetchPublicAlbumTags();
         const tagsSelected = tags.map((tag, i) => ({ ...tag, selected: false, visible: true, index: i }))
@@ -162,6 +208,11 @@ export default function AllAlbums() {
         setAllTags(tagsSelected);
     }
 
+    /**
+     * @brief gets albums associated with selected tags
+     * 
+     * @param {object} tagIndexes Tag indexes
+     */
     async function getFilteredAlbums(tagIndexes) {
         setIsLoading(true);
         const currentTagKeys = Object.keys(tagIndexes);
@@ -185,7 +236,7 @@ export default function AllAlbums() {
             const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
             setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
 
-            // Hides all tags except the currently selected one. Later, update this to intersection instead
+            // Hides all tags except the currently selected one. TODO, update this to intersection instead
             // of exclusion
             const updatedTags = allTags.map((tag) => {
                 if (tag.index in tagIndexes) {
@@ -196,7 +247,6 @@ export default function AllAlbums() {
             });
             setAllTags(updatedTags);
             // Loop through to ensure intersection of all tags
-            // console.log(taggedConnections);
             // Set visible tags to only display tags possible to select/deselect within current set
             // Update albums to reflect
             setSelectedTagsIndexes(tagIndexes);
@@ -215,11 +265,26 @@ export default function AllAlbums() {
         // gets filtered albums based on the current tag
     }
 
+    /**
+     * @brief when new tag selected, get the new albums based on that tag
+     * 
+     * Used as callback for onselect
+     * 
+     * @param {*} tag - tag to select
+     */
     async function onSelectTag(tag) {
         const newSelectedTags = { ...selectedTagsIndexes, [tag.index]: tag.id };
         getFilteredAlbums(newSelectedTags);
     }
 
+
+    /**
+     * @brief actions when unselecting tag
+     * 
+     * Reverse of onSelectTag. Used as callback for onDeselect
+     * 
+     * @param {*} tag - tag to deselect
+     */
     async function onDeselectTag(tag) {
         const newSelectedTags = selectedTagsIndexes;
         delete newSelectedTags[tag.index];
@@ -229,8 +294,13 @@ export default function AllAlbums() {
     // async function deselectAllTags(){
     // 	getFilteredAlbums({});
     // }
-
+    /**
+     *  @brief React Component holding album tags 
+     * @param {*} tag objects 
+     * @returns 
+     */
     function Tags({ tags }) {
+        // Placeholder for while tags are loading
         if (tags.length < 1) {
             return (
                 <>
@@ -240,6 +310,7 @@ export default function AllAlbums() {
         // console.log(tags);
         return (
             <div className='p-1 pb-0'>
+                {/* Add items specific to this album to the fetched tag objects */}
                 {tags.map((tag) => (
                     (tag.visible) ? <Tag
                         key={tag.id}
@@ -249,12 +320,18 @@ export default function AllAlbums() {
                         onDeselect={() => onDeselectTag(tag)}
                     /> : <></>
                 ))}
+                {/* TODO: Maybe implement this later */}
                 {/*<MDBBtn rounded className='text-light m-1' size='sm' color='dark' onClick={()=>deselectAllTags()}>Clear</MDBBtn>*/}
             </div>
         );
     }
 
+    //////////////////
+    // END TAGS. Following is basic construction of core component
+    /////////////////
 
+
+    // Placeholder albums
     const placeHolderItems = [1, 2, 3, 4, 5, 6].map((a, i) => (
         <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
             <MDBCardImage overlay
@@ -271,6 +348,7 @@ export default function AllAlbums() {
         </MDBCard>
     ));
 
+    // If albums have not yet been fetched from server, display responsive grid of placeholder albums
     if (!currentVisibleAlbums) {
 
         return (
@@ -291,7 +369,7 @@ export default function AllAlbums() {
         );
     }
 
-
+    // Map each album object into a wrapped react element
     const responsiveItems =
         currentVisibleAlbums.map((album, i) => (
             <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
@@ -312,7 +390,7 @@ export default function AllAlbums() {
             </Link>
         ));
 
-
+    // Return component under normal conditions (data sucessfully fetched from server)
     return (
         <>
             <MDBRow className='me-0'>

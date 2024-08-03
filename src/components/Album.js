@@ -1,3 +1,16 @@
+/* 
+Album.js
+Contains component for Album wrapper
+
+Contains extra options that can only be executed by an admin user group user
+
+Basically is just a PhotoGrid wrapped in an album header
+
+
+Author: Robert Norwood, OCT 2023
+*/
+
+
 import React, { useState, useEffect, useContext } from 'react';
 import {
     MDBBtn,
@@ -24,7 +37,14 @@ import PhotoGrid from './PhotoGrid';
 const client = generateClient({
     authMode: 'apiKey'
 });
+
+
+const userGroupClient = generateClient({
+    authMode: 'userPool'
+});
+
 export default function Album() {
+    // State variables
     const [album, setAlbum] = useState(null);
     const [canEdit, setCanEdit] = useState(false);
     let { album_url, album_id } = useParams();
@@ -59,7 +79,7 @@ export default function Album() {
             id: album.id,
             albumsFeaturedImageId: image.image.id
         }
-        const response = await client.graphql({
+        const response = await userGroupClient.graphql({
             query: updateAlbums,
             variables: {
                 input: data
@@ -71,6 +91,7 @@ export default function Album() {
 
     // Image handler functions
 
+    // Placeholder while loading
     if (!album) {
         return (
             <div className='d-flex align-items-end' style={{ height: '400px' }}>
@@ -99,7 +120,7 @@ export default function Album() {
     const date = new Date(album.date);
 
 
-
+    // React Component for edit button. Only shows if user is admin.
     function ShowEditButton() {
         if (isAdmin) {
             return (<MDBBtn floating onClick={() => setCanEdit(true)} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
@@ -108,9 +129,10 @@ export default function Album() {
         return;
     }
 
-    // Shows the top portion of album, including title, description, and featured image
+    // React Component that shows the top portion of album, including title, description, and featured image
     function AlbumHeader() {
 
+        // Makes AlbumHeader responsive
         const [windowSize, setWindowSize] = useState({
             width: window.innerWidth,
             height: window.innerHeight,
@@ -138,11 +160,14 @@ export default function Album() {
                 if (breakpoints[i] < cur_width) return breakpoints[i + 1];
             }
         }
+
+        // Math to make sure image height is appropriate based on width. Min height is 400px
         const imgWidth = getBreakpoint();
         const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
         const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${imgWidth}` : "";
         const imgHeight = Math.min(windowSize.width * imgRatio, 400);
 
+        // Style for header image
         const parallaxStyle = {
             backgroundImage: `url(${featuredImageUrl})`,
             backgroundAttachment: 'fixed',
@@ -182,6 +207,7 @@ export default function Album() {
         );
     }
 
+    // Returns header followed by photogrid of photos. Passes key traits as props. Outlet is where Edit component is rendered
     return (
         <>
             <AlbumHeader />

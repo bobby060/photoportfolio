@@ -3,16 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import { generateClient } from 'aws-amplify/api';
 import {
-
     MDBCard,
     MDBCardText,
     MDBCardOverlay,
     MDBCardImage,
     MDBTypography
-
 } from 'mdb-react-ui-kit';
 import { Link } from 'react-router-dom';
-
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
@@ -26,9 +23,7 @@ const client = generateClient({
 
 
 export default function FeaturedCarouselWrapper() {
-
     const featuredAlbumTag = projectConfig.getValue('featuredTagId');
-
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [windowSize, setWindowSize] = useState({
         width: window.innerWidth,

@@ -1,3 +1,13 @@
+/** Image.js
+ * @brief React Component for one album image
+ * 
+ * Takes an image object and classname (what is that?) as input and fetches the image
+ * 
+ * Needs to be updated to refetch images and show loading
+ * 
+ * @author: Robert Norwood
+ * @date October, 2023
+ */
 import React from 'react';
 import projectConfig from '../helpers/Config';
 
@@ -7,6 +17,8 @@ export default function Image({ img_obj, className }) {
     // const lg = 1280;
     const delivery_domain = `https://${projectConfig.getValue('imageDeliveryHost')}/public`;
     const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
+
+    // TODO: Add placeholder image and better data fetching logic
 
     // function image_loader(url){
     //   let retries = 0;

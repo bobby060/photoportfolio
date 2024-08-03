@@ -1,3 +1,12 @@
+/**PhotoGrid.js
+ * @brief base React Component that  really displays album
+ * 
+ * @todo combine with Album component
+ * 
+ * @author Robert Norwood
+ * @date October, 2023 
+ */
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     MDBBtn,
@@ -33,16 +42,28 @@ const userGroupClient = generateClient({
     authMode: 'userPool'
 });
 
-
+/**
+ * @param {
+ *  setFeaturedImg - callback for setting the feature image
+ *  selectedAlbum - album object to display
+ *  editMode - should user be able to set featured img or delete etc
+ *  signedIn - is there a user signed in
+ * } 
+ * @returns React Component
+ */
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
     const [open, setOpen] = React.useState(false);
+
     // Tracks index for Lightbox
     const [index, setIndex] = React.useState(0);
+
     // Stores items to display in grid/lightbox
     const [items, setItems] = useState([]);
+
     // Observer for infinite scroll
     const observerTarget = useRef(null);
+
     // Holds next token for data
     const [nextToken, setNextToken] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -73,12 +94,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         // }
     }, [nextToken]);
 
+    // Fetches initial data upon load
     useEffect(() => {
         if (index < items.length - 1) {
             fetchData();
         }
     }, [index]);
-
 
 
     // Initalizes intersection observer to call each time observer enters view
@@ -163,7 +184,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     //   item.index = i;
     //   return item;});
 
-    // Slides object for lightbox doesn't hold full image object, just the url 
+    // Slides object for lightbox doesn't hold full image object, just the url
     const slides = items.map((image) => {
         const urlNoSpaces = `${image.id}-${image.filename}`.replaceAll(' ', '%20');
         return ({
@@ -199,6 +220,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         </MDBBtn>);
     }
 
+    // Wrapper for setting an image as the featured image
     function MakeFeaturedWrapper(image) {
         if (!setFeaturedImg || !editMode) {
             return;
