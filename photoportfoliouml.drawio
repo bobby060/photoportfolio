@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36" version="24.7.6">
+  <diagram name="Page-1" id="efa7a0a1-bf9b-a30e-e6df-94a7791c09e9">
+    <mxGraphModel dx="990" dy="1410" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="291" pageHeight="413" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="19" value="&lt;p style=&quot;margin: 4px 0px 0px; text-align: center; text-decoration: underline; font-size: 15px;&quot;&gt;&lt;b style=&quot;font-size: 15px;&quot;&gt;Url&lt;/b&gt;&lt;/p&gt;&lt;hr style=&quot;font-size: 15px;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;id: String!&lt;br style=&quot;font-size: 15px;&quot;&gt;urlAlbumId: Album Id&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;CreatedAt: AWSDateTime&lt;/span&gt;&lt;br style=&quot;font-size: 15px;&quot;&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;UpdatedAt: AWSDateTime&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;br style=&quot;font-size: 15px;&quot;&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=15;fontFamily=Helvetica;html=1;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="1" vertex="1">
+          <mxGeometry x="600" y="138.36" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="&lt;p style=&quot;margin: 4px 0px 0px; text-align: center; text-decoration: underline; font-size: 15px;&quot;&gt;&lt;b style=&quot;font-size: 15px;&quot;&gt;AlbumTags&lt;/b&gt;&lt;/p&gt;&lt;hr style=&quot;font-size: 15px;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;id: ID!&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;privacy: String&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;title: String&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;CreatedAt: AWSDateTime&lt;/span&gt;&lt;br style=&quot;font-size: 15px;&quot;&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;UpdatedAt:&amp;nbsp;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;AWSDateTime&lt;/span&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=15;fontFamily=Helvetica;html=1;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="1" vertex="1">
+          <mxGeometry x="490" y="410.86" width="200" height="137.5" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="&lt;p style=&quot;margin: 4px 0px 0px; text-align: center; text-decoration: underline; font-size: 15px;&quot;&gt;&lt;b style=&quot;font-size: 15px;&quot;&gt;Images&lt;/b&gt;&lt;/p&gt;&lt;hr style=&quot;font-size: 15px;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;id: ID!&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;albumsID: Album ID&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;date: AWSDateTime&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; background-color: initial;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%220..n%22%20style%3D%22resizable%3D0%3Balign%3Dleft%3BverticalAlign%3Dtop%3BlabelBackgroundColor%3D%23ffffff%3BfontSize%3D15%3BstrokeColor%3D%23003366%3Bshadow%3D1%3BfillColor%3D%23D4E1F5%3BfontColor%3D%23003366%22%20connectable%3D%220%22%20vertex%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20x%3D%22300%22%20y%3D%22201.13192000000026%22%20as%3D%22geometry%22%2F%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3EAWS&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;desc: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;filename: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;height: Int&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;title: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;url: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;width: Int&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;CreatedAt:&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;AWSDateTime&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;UpdatedAt:&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;AWSDateTime&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=15;fontFamily=Helvetica;html=1;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="1" vertex="1">
+          <mxGeometry x="230" y="448.36" width="210" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="&lt;p style=&quot;margin: 4px 0px 0px; text-align: center; text-decoration: underline; font-size: 15px;&quot;&gt;&lt;b style=&quot;font-size: 15px;&quot;&gt;Albums&lt;/b&gt;&lt;/p&gt;&lt;hr style=&quot;font-size: 15px;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;id: ID!&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;title: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;privacy: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;type: String!&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;desc: String&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;date: AWSDateTime&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;albumsFeaturedImageId: Image ID&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;createdAt: AWSDateTime&lt;/span&gt;&lt;br style=&quot;font-size: 15px;&quot;&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;updatedAt:&amp;nbsp;&lt;span style=&quot;background-color: initial; font-size: 15px;&quot;&gt;AWSDateTime&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 8px; font-size: 15px;&quot;&gt;&lt;br style=&quot;font-size: 15px;&quot;&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=15;fontFamily=Helvetica;html=1;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="1" vertex="1">
+          <mxGeometry x="120" y="130" width="250" height="218.36" as="geometry" />
+        </mxCell>
+        <mxCell id="36" value="" style="endArrow=open;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.822;exitDx=0;exitDy=0;exitPerimeter=0;fontSize=15;" parent="1" source="25" target="20" edge="1">
+          <mxGeometry y="160" as="geometry">
+            <mxPoint x="80" y="268.36" as="sourcePoint" />
+            <mxPoint x="240" y="268.36" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="37" value="0..n" style="resizable=0;align=left;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="36" connectable="0" vertex="1">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="90" value="" style="endArrow=open;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;fontSize=15;" parent="1" source="25" target="21" edge="1">
+          <mxGeometry x="620" y="340" as="geometry">
+            <mxPoint x="700" y="448.36" as="sourcePoint" />
+            <mxPoint x="860" y="448.36" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="91" value="1" style="resizable=0;align=left;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="90" connectable="0" vertex="1">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="92" value="0...n" style="resizable=0;align=right;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" parent="90" connectable="0" vertex="1">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="40" y="-25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VKVhPvbVx1ytla7cqEYG-115" value="" style="endArrow=open;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;entryX=-0.019;entryY=0.575;entryDx=0;entryDy=0;exitX=1.01;exitY=0.602;exitDx=0;exitDy=0;exitPerimeter=0;entryPerimeter=0;fontSize=15;" edge="1" parent="1" source="25" target="19">
+          <mxGeometry x="1119.36" y="540" as="geometry">
+            <mxPoint x="310" y="288.36" as="sourcePoint" />
+            <mxPoint x="310" y="198.36" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VKVhPvbVx1ytla7cqEYG-116" value="1" style="resizable=0;align=right;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" connectable="0" vertex="1" parent="VKVhPvbVx1ytla7cqEYG-115">
+          <mxGeometry x="1" relative="1" as="geometry">
+            <mxPoint x="4" y="3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VKVhPvbVx1ytla7cqEYG-119" value="1" style="resizable=0;align=right;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366;direction=south;" connectable="0" vertex="1" parent="1">
+          <mxGeometry x="389.99999954311716" y="228.36" as="geometry" />
+        </mxCell>
+        <mxCell id="VKVhPvbVx1ytla7cqEYG-120" value="0..n" style="resizable=0;align=left;verticalAlign=top;labelBackgroundColor=#ffffff;fontSize=15;strokeColor=#003366;shadow=1;fillColor=#D4E1F5;fontColor=#003366" connectable="0" vertex="1" parent="1">
+          <mxGeometry x="610" y="378.3619200000003" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
