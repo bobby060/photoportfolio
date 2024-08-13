@@ -10,6 +10,7 @@ This backend uses the following AWS products
 - Cognito
 - Cloudfront
 
+![resource diagram](https://github.com/bobby060/photoportfolio/blob/dev/ResourceDiagrams.jpg)
 The front end is built with React and ReactRouter.
 
 ## Features
@@ -61,7 +62,8 @@ Ensure you have properly configured Amplify CLI, see [here](https://docs.amplify
 
 7. You will need to run the `function createDefaultTags()` from `helpers/upgrade_database.js` in order for the website to run. At this point, you also have to manually pull the ID of the 'featured' Tag and paste it in line 60 of `components/Carousel.js`. Future iterations will solve this problem in the setup script, but for now you are stuck with it. 
 
-
+### Database Design
+![database design](https://github.com/bobby060/photoportfolio/blob/dev/photoportfoliouml.jpg)
 ### Authentication
 This app is designed to use an Amplify Graphql API with primary mode set to Cognito User pool and secondary mode set to AWS API. This means that by default, a query run in a component will be authenticated using Cognito unless you specifiy to use AWS API. The default is the secure option.
 
