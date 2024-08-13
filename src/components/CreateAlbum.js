@@ -27,27 +27,46 @@ const client = generateClient({
     authMode: 'userPool'
 });
 
-
+/**
+ * @brief React Component for creating an album
+ * 
+ * 
+ * @returns 
+ */
 export default function CreateAlbum() {
     const navigate = useNavigate();
+
+    // Files in file picker selected for update
     const [selectedFiles, setSelectedFiles] = useState([]);
+
+    // Whether or not current user is admin
     const [isAdmin, setIsAdmin] = useState('loading');
+
     const [isLoading, setIsLoading] = useState(false);
+
+    // Total pics uploaded sucessfully
     const [totalUploaded, setTotalUploaded] = useState(0);
+
+    // Error message text
     const [warningText, setWarningText] = useState('');
+
     const userObject = new currentUser();
 
 
-
+    // Updates isAdmin state
     useEffect(() => {
         userObject.isAdmin(setIsAdmin);
     }, []);
 
 
+    // Redirects away from this page if user isn't admin
     useEffect(() => {
         redirectIfNotAdmin();
     }, [isAdmin]);
 
+    /** 
+     * @brief redirects to root route if not admin
+     */
     function redirectIfNotAdmin() {
         console.log(isAdmin);
         if (!isAdmin) {
@@ -68,20 +87,31 @@ export default function CreateAlbum() {
 
     // Creates a new Album object along with the associated URL object. Also uploads all images currently in file picker
     // 
+    /**
+     * @brief creates a new album
+     * 
+     * Uses the current component state to create a new album
+     * 
+     * @param {*} event form event
+     */
     async function newAlbum(event) {
         event.preventDefault();
         setIsLoading(true);
         const form = new FormData(event.target);
+
         // Date in format 2023-11-11T00:00:00.000Z
         const date = form.get("date") + 'T00:00:00.000Z';
         const cur_date = new Date();
+
         // Sets default date to current time if not set by user
         const cleaned_date = (date === 'T00:00:00.000Z') ? cur_date.toISOString() : date;
         const title = form.get("title");
+
         // Ensures album has a name...
         const cleaned_title = (title.length === 0) ?
             `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
-        // Get a random image to ENSURE there is a featured Image, even tho this should be handled later
+
+        // Get a random image to ENSURE there is a featured Image, even tho this SHOULD be handled later
         const placeHolderImageRes = await client.graphql({
             query: listImages,
             limit: 1
@@ -89,7 +119,7 @@ export default function CreateAlbum() {
 
         const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
 
-        // Data for image object
+        // Data for image document
         const imageObjectData = {
             title: cleaned_title,
             desc: form.get("desc"),
@@ -98,11 +128,14 @@ export default function CreateAlbum() {
             type: 'Album'
         };
 
+        // Try to create album
         const response = await client.graphql({
             query: createAlbums,
             variables: { input: imageObjectData },
         });
         const newAlbum = response.data.createAlbums;
+
+        // TODO: Need error handling
 
         // Data for url
         const urlData = {
@@ -129,6 +162,7 @@ export default function CreateAlbum() {
         // Uploads images while updating totaluploaded
         await uploadImages(newAlbum, selectedFiles, setTotalUploaded);
 
+        // Update featured image to the first image uploaded to the album
         try {
             const res = await client.graphql({
                 query: imagesByAlbumsID,
@@ -151,8 +185,9 @@ export default function CreateAlbum() {
                 },
             })
             const new_album = updateAlbumResponse.data.updateAlbums;
-            setWarningText(`Created new album named: ${form.get("title")}`)
+            // setWarningText(`Created new album named: ${form.get("title")}`)
             console.log(`Created new album named: ${form.get("title")}`);
+            // Navigate after creating image
             navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
             event.target.reset();
         } catch (error) {
@@ -207,7 +242,7 @@ export default function CreateAlbum() {
         return (<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
     }
 
-    // Loading indicator that displays upload progress x of y style
+    // Loading indicator that displays upload progress in format x of y
     function Loading() {
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>

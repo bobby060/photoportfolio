@@ -5,8 +5,15 @@ import {
 } from 'mdb-react-ui-kit';
 
 
-// Takes two optional inputs, onSelect and onDeselect functions, along with the initial selection state.
+/** @brief React Component for an Album Tag
+ * 
+ * @param {Bool} selected, whether or not selected 
+ * @param onSelect callback for action to take on select
+ * @param onDeselect callback for action to take on deselect
+ */
 export default function Tag({ selected = false, onSelect = () => { }, onDeselect = () => { }, name }) {
+
+    // Local state for selected status
     const [isSelected, setIsSeleted] = useState(selected);
 
     function handleClick() {

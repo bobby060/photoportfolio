@@ -3,6 +3,13 @@ import {
     MDBFooter, MDBContainer, MDBRow, MDBCol, MDBIcon,
 } from 'mdb-react-ui-kit';
 
+
+/**
+ * @brief React Component for the Footer
+ * 
+ * 
+ * 
+ */
 export default function Footer() {
 
     return (

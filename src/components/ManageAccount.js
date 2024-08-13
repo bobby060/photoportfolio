@@ -6,24 +6,29 @@ import {
     MDBListGroupItem,
     MDBBtn,
     MDBContainer,
-    MDBSpinner,
     MDBIcon,
     MDBRadio,
-    MDBBtnGroup
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { useNavigate } from "react-router-dom";
 
-import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
+import { fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
-import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
+import { albumTagsAlbumsByAlbumTagsId } from "../graphql/queries";
 import currentUser from "../helpers/CurrentUser";
 import projectConfig from "../helpers/Config";
 import { upgradeAlbums } from "../helpers/upgrade_database";
 
 const client = generateClient();
 
-
+/**
+ * @brief React Component for the manage account page
+ * 
+ * Provides acess for admin to
+ * - manage tags
+ * - manually change the environment
+ * 
+ */
 export default function ManageAccount() {
 
     // const user_item = useAuthenticator((context) => [context.user]);
@@ -44,6 +49,15 @@ export default function ManageAccount() {
         setTags(loadedTags);
     }
 
+    /**
+     * @brief delete an Album Tag
+     * 
+     * with confirmation
+     * First deletes all Tag Connections to that tag, then deletes the tag itself
+     * 
+     * @param {*} tag 
+     * @returns 
+     */
     async function deleteTag(tag) {
         if (!window.confirm(`Are you sure you want to delete the tag ${tag.title}?`)) return;
 
@@ -68,6 +82,11 @@ export default function ManageAccount() {
 
     }
 
+    /**
+     * @brief set current environment
+     * 
+     * @param {*} event 
+     */
     async function updateBranch(event) {
         event.preventDefault();
         const form = new FormData(event.target);
@@ -89,7 +108,9 @@ export default function ManageAccount() {
                         <MDBBtn tag='a' color='none' style={{ color: '#000000' }} onClick={() => { deleteTag(tag) }} ><MDBIcon className="" fas icon="trash" /></MDBBtn>
                     </MDBListGroupItem>))}
                 </MDBListGroup>
-                <p className="mt-1">Change branch</p>
+
+
+                <p className="mt-1">Change current environment</p>
                 <form className="m-1" onSubmit={updateBranch}>
                     {(projectConfig.getCurrentEnvironment() === 'dev') ? (
                         <>
@@ -108,16 +129,19 @@ export default function ManageAccount() {
 
     const { signOut } = useAuthenticator((context) => [context.user]);
 
+    // Redirect to sign in if user isn't authenticated
     if (authStatus.authStatus === "unauthenticated") {
         navigate('/signin');
     }
 
+    //  
     return (
         <MDBContainer>
             <h4 className="mt-2"> Manage Account Here</h4>
 
             {isAdmin ? <AdminSettings /> : <></>}
-
+            {/* Non-admin users don't have any options right now! This would be where 
+            those options would be added in the future */}
 
             <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>
         </MDBContainer>
