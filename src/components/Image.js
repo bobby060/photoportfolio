@@ -35,7 +35,7 @@ export default function Image({ img_obj, className }) {
                 if (response.status === 429 && retries < maxRetries) {
                     console.warn(`Image request failed with 429 status code. Retrying...`);
                     retries++;
-                    fetchImage();
+                    setTimeout(fetchImage, 1000);
                     return;
                 } else if (response.ok) {
                     return response.blob();
