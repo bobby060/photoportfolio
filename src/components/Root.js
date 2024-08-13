@@ -1,6 +1,13 @@
+/**Root.js
+* @brief Root component for Photo Portfolio project
+ * 
+ * Houses all other components
+ *  * 
+ * @author Robert Norwood
+ * @date October, 2023 
+ */
 import React, { useState, useEffect } from "react";
 import "../css/App.css";
-// import "@aws-amplify/ui-react/styles.css";
 import {
     View,
 } from '@aws-amplify/ui-react';
@@ -11,13 +18,17 @@ import {
 
 
 // Components
+// Headroom lets navbar disappear on down scroll, but reappear whenever scroll up
 import Headroom from 'react-headroom';
+
+// Nav bar and footer components always avalabile
 import NavigationBar from './NavigationBar';
 import Footer from './Footer';
 
 
 export default function Root() {
 
+    // Selected album gets passed a context to the outlet.
     const [selectedAlbum, setSelectedAlbum] = useState([]);
     const [albums, setAlbums] = useState([]);
 
@@ -30,6 +41,7 @@ export default function Root() {
                 <NavigationBar />
             </Headroom >
 
+            {/* Outlet where child routes are housed */}
             <Outlet
                 context={[selectedAlbum, setSelectedAlbum]} />
             <Footer />

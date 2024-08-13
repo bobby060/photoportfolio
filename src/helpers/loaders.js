@@ -1,3 +1,7 @@
+/** loaders.js
+ * 
+ * Common loaders that are used multiple times
+ */
 import { generateClient } from 'aws-amplify/api';
 
 import { listAlbums, listAlbumTags, getAlbums } from '../graphql/queries';
@@ -7,6 +11,11 @@ const client = generateClient({
     authMode: 'apiKey'
 });
 
+/**
+ * @brief lists all albums from newest to oldest
+ * 
+ * @returns List of albums objects
+ */
 export async function fetchAlbums() {
     const apiData = await client.graphql({
         query: listAlbums,
@@ -43,6 +52,13 @@ export async function fetchAlbums() {
 //   }
 
 
+/**
+ * @brief fetch an album by its id
+ * 
+ * 
+ * @param {String} id 
+ * @returns {Object} Album
+ */
 export async function fetchAlbum(id) {
     const data = {
         id: id
@@ -57,6 +73,13 @@ export async function fetchAlbum(id) {
     return result.data.getAlbums;
 }
 
+/**
+ * @brief fetch all Tags
+ * 
+ * Including public and private tags
+ * 
+ * @returns list of album tags
+ */
 export async function fetchAllAlbumTags() {
     const tagsData = await client.graphql({
         query: listAlbumTags,
@@ -64,6 +87,13 @@ export async function fetchAllAlbumTags() {
     return tagsData.data.listAlbumTags.items;
 }
 
+/**
+ * @brief fetches public album tags
+ * 
+ * Excludes tags that aren't public facing (like 'featured' and 'latest')
+ * 
+ * @returns list of album tags
+ */
 export async function fetchPublicAlbumTags() {
     const variables = {
         filter: {

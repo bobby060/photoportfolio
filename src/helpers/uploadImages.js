@@ -1,3 +1,12 @@
+/** uploadImages.js
+ * 
+ * Methods related to uploading images
+ * 
+ * @author Robert Norwood
+ * 
+ * @date 10/10/2024
+ * 
+ */
 import { generateClient } from 'aws-amplify/api';
 
 import { uploadData } from 'aws-amplify/storage';
@@ -6,12 +15,22 @@ import { createImages, deleteImages } from '../graphql/mutations';
 const client = generateClient();
 
 
+/**
+ * @brief upload images
+ * 
+ * @param {Object} targetAlbum Album to upload to
+ * @param {*} files Files to upload
+ * @param {*} returnTotalUploaded callback to update the total images sucessfully uploaded
+ * @returns 
+ */
 export default async function uploadImages(targetAlbum, files, returnTotalUploaded = () => { }) {
 
     const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
 
     let totalUploaded = 0;
 
+    // Originally intended to extract date from photo. Right now 
+    // simply sets date to current date
     function getExifDate() {
 
         // if (photo.name.endsWith(".jpg" || ".jpeg")){
@@ -35,8 +54,17 @@ export default async function uploadImages(targetAlbum, files, returnTotalUpload
     }
 
 
+    /**
+     * @brief uploads one image
+     * 
+     * Creates image object and stores in database. Uploads image to storage.
+     * 
+     * @param {*} image image file
+     * @returns None
+     */
     async function newImage(image) {
 
+        // Won't upload images of invalid type (or files that aren't images)
         if (!validImageTypes.includes(image['type'])) {
             console.warn(`file ${image.name} is not a valid file type!`);
             return;
@@ -46,12 +74,13 @@ export default async function uploadImages(targetAlbum, files, returnTotalUpload
         let uploadedImg = {};
         let url = '';
 
-        // Gets height for image
+        // Gets height, width for image
         const img = new Image();
         img.src = window.URL.createObjectURL(image);
         await img.decode();
         const dims = [img.naturalHeight, img.naturalWidth];
 
+        // Package data for image database entry
         const data = {
             title: image.name,
             desc: "",
@@ -69,21 +98,21 @@ export default async function uploadImages(targetAlbum, files, returnTotalUpload
 
             uploadedImg = response?.data?.createImages;
             newImageId = uploadedImg.id;
+
+            // Image url (S3 object key) is combination of id and image name ensures uniqueness while preserving image title
             url = `${uploadedImg.id}-${image.name}`;
-            // Need to add error handling here\
         } catch (error) {
             console.warn('Error creating image: ', image.name, error);
             return;
         }
 
-        // Combining id and image name ensures uniqueness while preserving information
         try {
+            // Upload to S3
             await uploadData({
                 key: url,
                 data: image
             }
             );
-            // throw new Error('storage error');
         } catch (error) {
             // Delete image object if S3 file doesn't upload
             console.warn('Image not uploaded. Error: ', error);
@@ -97,9 +126,11 @@ export default async function uploadImages(targetAlbum, files, returnTotalUpload
         totalUploaded = totalUploaded + 1;
         returnTotalUploaded(totalUploaded);
 
-        console.log(`${image.name} uploaded`)
+        console.log(`${image.name} sucessfully uploaded`)
     }
 
+
+    // Upload each image individually
     if (files.length > 0) {
         const files_array = Array.from(files)
         console.log(`starting uploads`)

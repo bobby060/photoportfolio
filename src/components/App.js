@@ -32,7 +32,7 @@ export const IMAGEDELIVERYHOST = projectConfig.getValue('imageDeliveryHost');
 
 
 
-
+// react Router initialization. See React Router docs for more information. https://reactrouter.com/en/main
 const router = createBrowserRouter([
     {
         path: "/",

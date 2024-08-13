@@ -1,3 +1,5 @@
+
+// No longer used
 import { generateClient } from 'aws-amplify/api';
 
 
@@ -10,6 +12,11 @@ const client = generateClient({
 
 
 // puts image objects in albums and returns them
+/**
+ * @brief Gets the featured images for a set of albums
+ * @param {*} albums 
+ * @returns 
+ */
 export default async function getFeaturedImgs(albums) {
 
     const newA = (albums.length < 1) ? await fetchAlbums() : albums;
