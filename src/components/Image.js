@@ -1,5 +1,19 @@
-import React from 'react';
+/** Image.js
+ * @brief React Component for one album image
+ * 
+ * Takes an image object and classname (what is that?) as input and fetches the image
+ * 
+ * In order to add repeated requests, removed srcset. This increases the data usage of this site. Shouldn't be a 
+ * big issue on modern devices, but a small throughput issue and could increase costs
+ * 
+ * @author: Robert Norwood
+ * @date 8/11/2024
+ */
+import React, { useState, useEffect } from 'react';
 import projectConfig from '../helpers/Config';
+
+
+import { MDBSpinner } from 'mdb-react-ui-kit';
 
 export default function Image({ img_obj, className }) {
     // const small = 300;
@@ -8,53 +22,54 @@ export default function Image({ img_obj, className }) {
     const delivery_domain = `https://${projectConfig.getValue('imageDeliveryHost')}/public`;
     const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
 
+    const [img, setImg] = useState();
+
     // function image_loader(url){
-    //   let retries = 0;
-    //   const maxRetries = 4;
+    let retries = 0;
+    const maxRetries = 4;
 
-    //   const loadImage =  () => {
-    //   fetch(imageUrl)
-    //     .then(response => {
-    //       if (response.status === 429 && retries < maxRetries) {
-    //         console.warn(`Image request failed with 429 status code. Retrying...`);
-    //         retries++;
-    //         setTimeout(loadImage, 1000);
-    //       } else if (response.ok) {
-    //         return response.blob();
-    //       } else {
-    //         throw new Error(`Image request failed with status code ${response.status}`);
-    //       }
-    //     })
-    //     .then(blob => {
-    //       const image = new Image();
-    //       image.src = URL.createObjectURL(blob);
-    //       return image;
-    //     })
-    //     .catch(error => {
-    //       console.error(error);
-    //       return null;
-    //     });
-    // };
+    // Attempt to fetch image up to 4 times.
+    const fetchImage = () => {
+        fetch(`${img_url}?width=1920`)
+            .then(response => {
+                if (response.status === 429 && retries < maxRetries) {
+                    console.warn(`Image request failed with 429 status code. Retrying...`);
+                    retries++;
+                    fetchImage();
+                    return;
+                } else if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error(`Image request failed with status code ${response.status}`);
+                }
+            })
+            .then(blob => {
+                const imgObj = URL.createObjectURL(blob);
+                setImg(imgObj);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
 
-    // return loadImage();
 
-    // }
+    useEffect(() => {
+        fetchImage();
+    }, []);
+
+    if (!img) {
+        return (
+            <MDBSpinner role='loading'>
+                <span className='visually-hidden'>Loading...</span>
+            </MDBSpinner>
+        )
+    }
+
 
     return (
         <picture>
-            <source
-                type="image/avif"
-                srcSet={`${img_url}?width=300&format=avif 300w, ${img_url}?width=768&format=avif 768w,  ${img_url}?width=1280&format=avif 1280w`}
-                sizes="(max-width: 300px) 300px, (max-width: 768px) 768px, 1280px"
-            />
-            <source
-                type="image/jpeg"
-                srcSet={`${img_url}?width=300&format=jpeg 300w, ${img_url}?width=768&format=jpeg 768w,  ${img_url}?width=1280&format=jpeg 1280w`}
-                sizes="(max-width: 300px) 300px, (max-width: 768px) 768px, 1280px"
-            />
-            <img src={`${img_url}?width=1920`} className={className} loading='lazy' alt={img_url} />
-        </picture>
-    );
+            <img src={img} className={className} loading='lazy' alt={img_url} />
+        </picture>);
 
 
 }

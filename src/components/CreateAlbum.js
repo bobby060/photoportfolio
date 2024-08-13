@@ -1,6 +1,5 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { generateClient } from 'aws-amplify/api';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import {
     MDBRow,
     MDBCol,
@@ -21,7 +20,6 @@ import { imagesByAlbumsID, listImages } from '../graphql/queries';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
-import fetchAlbums from '../helpers/fetchAlbums';
 import uploadImages from '../helpers/uploadImages';
 import currentUser from "../helpers/CurrentUser";
 
@@ -68,6 +66,8 @@ export default function CreateAlbum() {
         setSelectedFiles(files);
     }
 
+    // Creates a new Album object along with the associated URL object. Also uploads all images currently in file picker
+    // 
     async function newAlbum(event) {
         event.preventDefault();
         setIsLoading(true);
@@ -89,8 +89,8 @@ export default function CreateAlbum() {
 
         const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
 
-
-        const data = {
+        // Data for image object
+        const imageObjectData = {
             title: cleaned_title,
             desc: form.get("desc"),
             date: cleaned_date,
@@ -100,14 +100,16 @@ export default function CreateAlbum() {
 
         const response = await client.graphql({
             query: createAlbums,
-            variables: { input: data },
+            variables: { input: imageObjectData },
         });
         const newAlbum = response.data.createAlbums;
 
+        // Data for url
         const urlData = {
             id: urlhelperEncode(newAlbum),
             urlAlbumId: newAlbum.id
         }
+        // Tries to create url object
         try {
             await client.graphql({
                 query: createUrl,
@@ -115,6 +117,7 @@ export default function CreateAlbum() {
             });
 
         } catch (error) {
+            // Deletes album if fails to create url
             console.log('failed to create url for new album', error);
             await client.graphql({
                 query: deleteAlbums,
@@ -123,6 +126,7 @@ export default function CreateAlbum() {
             setWarningText('failed to create url for new album. Album deleted');
         }
 
+        // Uploads images while updating totaluploaded
         await uploadImages(newAlbum, selectedFiles, setTotalUploaded);
 
         try {
@@ -164,6 +168,7 @@ export default function CreateAlbum() {
         <MDBContainer className=''>
             <h2 className="mt-2"> Create new album </h2>
             <form id="createAlbumForm" onSubmit={newAlbum}>
+                {/* Form containing title, date, and description */}
                 <MDBRow className=' justify-content-center'>
                     <MDBCol xl='3' lg='5' md='6'>
                         <MDBInput className='mb-3' label='Title' name='title' type='text' />
@@ -173,6 +178,7 @@ export default function CreateAlbum() {
                         <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} />
                     </MDBCol>
                 </MDBRow>
+                {/* File selector */}
                 <MDBRow className=' justify-content-center'>
                     <MDBCol xl='3' lg='5' md='6'>
                         <MDBFile
@@ -190,7 +196,7 @@ export default function CreateAlbum() {
     )
 
 
-
+    // Submit button that only enables once files are selected
     function SubmitButtonWrapper() {
         if (selectedFiles.length < 1) return (
             <>
@@ -201,8 +207,8 @@ export default function CreateAlbum() {
         return (<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
     }
 
+    // Loading indicator that displays upload progress x of y style
     function Loading() {
-
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>
             <p className='fw-light'>Creating album and uploading photo {totalUploaded} of {selectedFiles.length}</p>

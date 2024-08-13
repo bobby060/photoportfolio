@@ -1,3 +1,5 @@
+/* Custom graphql queries, speciically that add additionally recursive depth when pulling album tags etc */
+
 export const albumTagsAlbumsByAlbumTagsId = /* GraphQL */ `
   query AlbumTagsAlbumsByAlbumTagsId(
     $albumTagsId: ID!

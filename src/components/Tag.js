@@ -5,6 +5,7 @@ import {
 } from 'mdb-react-ui-kit';
 
 
+// Takes two optional inputs, onSelect and onDeselect functions, along with the initial selection state.
 export default function Tag({ selected = false, onSelect = () => { }, onDeselect = () => { }, name }) {
     const [isSelected, setIsSeleted] = useState(selected);
 

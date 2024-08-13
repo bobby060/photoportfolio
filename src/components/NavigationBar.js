@@ -1,3 +1,10 @@
+/**NavigationBar.js
+ * @brief React Component for the photo portfolio navigation bar
+ * 
+ * @author Robert Norwood
+ * @date October, 2023 
+ */
+
 import { React, useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';

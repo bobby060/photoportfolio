@@ -1,70 +1,70 @@
 {
-  "api": {
-    "photoportfolio": {
-      "dependsOn": [
-        {
-          "attributes": [
-            "UserPoolId"
-          ],
-          "category": "auth",
-          "resourceName": "photoportfolio7e5401aa"
+    "api": {
+        "photoportfolio": {
+            "dependsOn": [
+                {
+                    "attributes": [
+                        "UserPoolId"
+                    ],
+                    "category": "auth",
+                    "resourceName": "photoportfolio7e5401aa"
+                }
+            ],
+            "output": {
+                "authConfig": {
+                    "additionalAuthenticationProviders": [
+                        {
+                            "apiKeyConfig": {
+                                "apiKeyExpirationDate": "2024-10-21T08:55:56.007Z",
+                                "apiKeyExpirationDays": 90,
+                                "description": "graphqlportfolio"
+                            },
+                            "authenticationType": "API_KEY"
+                        }
+                    ],
+                    "defaultAuthentication": {
+                        "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+                        "userPoolConfig": {
+                            "userPoolId": "authphotoportfolio7e5401aa"
+                        }
+                    }
+                }
+            },
+            "providerPlugin": "awscloudformation",
+            "service": "AppSync"
         }
-      ],
-      "output": {
-        "authConfig": {
-          "additionalAuthenticationProviders": [
-            {
-              "apiKeyConfig": {
-                "apiKeyExpirationDate": "2024-03-21T08:55:56.007Z",
-                "apiKeyExpirationDays": 90,
-                "description": "graphqlportfolio"
-              },
-              "authenticationType": "API_KEY"
-            }
-          ],
-          "defaultAuthentication": {
-            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-            "userPoolConfig": {
-              "userPoolId": "authphotoportfolio7e5401aa"
-            }
-          }
+    },
+    "auth": {
+        "photoportfolio7e5401aa": {
+            "customAuth": false,
+            "dependsOn": [],
+            "frontendAuthConfig": {
+                "mfaConfiguration": "OFF",
+                "mfaTypes": [
+                    "SMS"
+                ],
+                "passwordProtectionSettings": {
+                    "passwordPolicyCharacters": [],
+                    "passwordPolicyMinLength": 8
+                },
+                "signupAttributes": [
+                    "EMAIL"
+                ],
+                "socialProviders": [],
+                "usernameAttributes": [],
+                "verificationMechanisms": [
+                    "EMAIL"
+                ]
+            },
+            "providerPlugin": "awscloudformation",
+            "service": "Cognito"
         }
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "AppSync"
+    },
+    "storage": {
+        "portfoliostorage": {
+            "dependsOn": [],
+            "providerPlugin": "awscloudformation",
+            "service": "S3"
+        }
     }
-  },
-  "auth": {
-    "photoportfolio7e5401aa": {
-      "customAuth": false,
-      "dependsOn": [],
-      "frontendAuthConfig": {
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 8
-        },
-        "signupAttributes": [
-          "EMAIL"
-        ],
-        "socialProviders": [],
-        "usernameAttributes": [],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
-      },
-      "providerPlugin": "awscloudformation",
-      "service": "Cognito"
-    }
-  },
-  "storage": {
-    "portfoliostorage": {
-      "dependsOn": [],
-      "providerPlugin": "awscloudformation",
-      "service": "S3"
-    }
-  }
 }
