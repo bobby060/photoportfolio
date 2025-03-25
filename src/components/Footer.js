@@ -42,18 +42,7 @@ export default function Footer() {
                                         </a>
                                     </div>
                                 </MDBCol>
-                                <MDBCol md="6">
-                                    <div className='mt-2'>
-                                        <MDBIcon fab icon="facebook" className="me-3" />
-                                        <a href="https://www.facebook.com/bobby.norwood.84/" target="_new" className='me-4 text-reset'>Facebook
-                                        </a>
-                                    </div>
-                                    <div className='mt-2'>
-                                        <MDBIcon fab icon="etsy" className="me-3" />
-                                        <a href="https://www.etsy.com/shop/rnorwoodphoto" target="_new" className='me-4 text-reset'>Etsy
-                                        </a>
-                                    </div>
-                                </MDBCol>
+
                             </MDBRow>
                         </MDBCol>
                     </MDBRow>
