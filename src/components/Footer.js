@@ -48,7 +48,7 @@ export default function Footer() {
                     </MDBRow>
                 </MDBContainer>
                 <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
-                    © 2024 Robert Norwood
+                    © {new Date().getFullYear()} Robert Norwood
                 </div>
             </section>
 

@@ -16,10 +16,7 @@ class currentUser {
     idToken = null;
     loading = false;
 
-    constructor() {
-        // {this.username, this.userId, this.signinDetails} = null
-        // this.setTokens();
-    }
+
 
     /**
      * @brief Get current auth session and set tokens

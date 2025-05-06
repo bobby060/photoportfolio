@@ -7,7 +7,6 @@
 
 import { React, useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import {
     MDBContainer,
     MDBNavbar,
@@ -17,46 +16,37 @@ import {
     MDBNavbarItem,
     MDBNavbarLink,
     MDBCollapse,
-    // MDBDropdown,
-    // MDBDropdownMenu,
-    // MDBDropdownToggle,
-    // MDBDropdownItem,
-    // MDBTooltip,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
 import logo from '../logo192.png';
 import currentUser from '../helpers/CurrentUser';
 
-// import { useLocation } from "react-router-dom";
-// import { AlbumsContext } from '../helpers/AlbumsContext';
-// import {urlhelperDecode} from '../helpers/urlhelper';
 
 
 export default function NavigationBar() {
-
-    const [showNav, setShowNav] = useState(false);
-    const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
-    const userItem = useAuthenticator(context => [context.user]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [username, setUserName] = useState(null);
-    const adminObject = new currentUser();
-    // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
-    // const {albums} = useContext(AlbumsContext);
+    const [showNav, setShowNav] = useState(false);
+    const [userInfo, setUserInfo] = useState({
+        username: null,
+        isAdmin: false
+    });
 
     useEffect(() => {
-        adminObject.userName(setUserName);
+        const adminObject = new currentUser();
 
-        adminObject.isAdmin(setIsAdmin);
-    }, [])
+        const fetchUserInfo = async () => {
+            let userName = null;
+            let isAdmin = false;
 
-    useEffect(() => {
-        adminObject.userName(setUserName);
+            await adminObject.userName((username) => userName = username);
+            await adminObject.isAdmin((adminStatus) => isAdmin = adminStatus);
 
-        adminObject.isAdmin(setIsAdmin);
-    }, [authStatus]);
+            setUserInfo({ username: userName, isAdmin });
+        };
 
+        fetchUserInfo();
+    }, []); // Empty dependency array since we only want this to run once on mount
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
@@ -71,7 +61,6 @@ export default function NavigationBar() {
                         </Link>
                     </MDBNavbarItem>
                 </MDBNavbarNav>
-
             );
         }
         return (
@@ -79,7 +68,7 @@ export default function NavigationBar() {
                 <MDBNavbarItem>
                     <Link to={`/account`}>
                         <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                            {(username) ? username : ''}
+                            {userInfo.username || ''}
                         </MDBNavbarLink>
                     </Link>
                 </MDBNavbarItem>
@@ -94,16 +83,18 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (isAdmin) {
-            return (<MDBNavbarItem>
-                <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                    <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                        New Album
-                    </NavLink>
-                </MDBNavbarLink>
-            </MDBNavbarItem>);
+        if (authStatus.authStatus === 'authenticated') {
+            return (
+                <MDBNavbarItem>
+                    <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
+                        <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
+                            New Album
+                        </NavLink>
+                    </MDBNavbarLink>
+                </MDBNavbarItem>
+            );
         }
-        return;
+        return null;
     }
 
     return (
@@ -139,19 +130,14 @@ export default function NavigationBar() {
                                 </NavLink>
                             </MDBNavbarLink>
                         </MDBNavbarItem>
+                        {/* <MDBNavbarItem>
+                            <MDBNavbarLink onClick={() => setState({ ...state, showNav: false })}>
+                                <NavLink to={`/projects`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
+                                    Projects
+                                </NavLink>
+                            </MDBNavbarLink>
+                        </MDBNavbarItem> */}
                         <NewAlbumWrapper />
-                        {/*                <MDBNavbarItem>
-                  <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
-                    <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
-                    </NavLink>
-                  </MDBNavbarLink>            
-                </MDBNavbarItem>*/}
-
-                        {/*                <MDBNavbarItem >
-                  <MDBNavbarLink>
-                  <DropdownWrapper/>
-                  </MDBNavbarLink>
-                </MDBNavbarItem>*/}
                     </MDBNavbarNav>
                     <SignInWrapper />
                 </MDBCollapse>

@@ -1,5 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
-// import {EXIF} from 'exif-js';
+import React, { useState, useEffect } from 'react';
 import {
     MDBRow,
     MDBCol,
@@ -11,7 +10,6 @@ import {
 } from 'mdb-react-ui-kit';
 import { remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -62,11 +60,9 @@ export default function EditAlbum() {
     let { album_url } = useParams();
     const adminObject = new currentUser();
 
-    const { user } = useAuthenticator((context) => [context]);
-
     useEffect(() => {
         adminObject.isAdmin(setIsAdmin);
-    }, []);
+    }, [adminObject]);
 
     useEffect(() => {
         getAlbum();
@@ -334,7 +330,7 @@ export default function EditAlbum() {
                             onSelect={() => addTagToAlbum(allTags[i])}
                             onDeselect={() => removeTagFromAlbum(allTags[i])}
                         />))}
-                    <div className='m-1' style={{ 'min-width': '60px' }}>
+                    <div className='m-1' style={{ 'minWidth': '60px' }}>
                         <MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='rounded' size='sm' onKeyDown={handleCreateTagEnter} />
                     </div>
                 </MDBCol>

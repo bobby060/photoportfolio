@@ -12,17 +12,17 @@ import CreateAlbum from './CreateAlbum';
 import Root from './Root';
 import ErrorPage from './ErrorPage';
 import SignIn from './Signin';
-import Home from './Home2';
+import Home from './Home';
 import AboutPage from './AboutPage';
 import Album from './Album';
 import EditAlbum from './EditAlbum';
 import AllAlbums from './AllAlbums';
+import AllProjects from './AllProjects';
 import ManageAccount from './ManageAccount';
 
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../amplifyconfiguration.json';
 import projectConfig from "../helpers/Config";
-import userObject from "../helpers/CurrentUser";
 
 Amplify.configure(amplifyconfig);
 
@@ -65,6 +65,10 @@ const router = createBrowserRouter([
                     {
                         path: "albums",
                         element: <AllAlbums />,
+                    },
+                    {
+                        path: "projects",
+                        element: <AllProjects />,
                     },
                     {
                         path: "albums/:album_url/:album_id?",

@@ -55,7 +55,7 @@ export default function Image({ img_obj, className }) {
 
     useEffect(() => {
         fetchImage();
-    }, []);
+    });
 
     if (!img) {
         return (

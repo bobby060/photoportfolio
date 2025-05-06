@@ -132,7 +132,7 @@ export default function AllAlbums() {
     const imgHeight = getImgHeight();
 
     // Ensures cover image always fills its container width-wise
-    const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'object-fit': 'cover' }
+    const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'objectFit': 'cover' }
 
     /**
      * @brief fetches the first 8 albums from API
