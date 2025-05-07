@@ -32,29 +32,29 @@ import currentUser from '../helpers/CurrentUser';
 
 // Components
 import PhotoGrid from './PhotoGrid';
+import EditAlbum from './EditAlbum';
 
 const userGroupClient = generateClient({
     authMode: 'userPool'
 });
 
-export default function Album({ album_url, children }) {
+export default function Album({ album_url }) {
     const [state, setState] = useState({
         album: null,
-        canEdit: false,
-        isAdmin: false,
+        canEdit: false, // Whether the user can edit the album
+        isAdmin: false, // Whether the user is an admin
     });
+
+    const [editMode, setEditMode] = useState(false);
 
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
 
     // Initializes images after component render
     useEffect(() => {
-
         adminObject.isAdmin((isAdmin) => setState({ ...state, isAdmin: isAdmin }));
     }, [authStatus.authStatus, album_url]);
 
-    async function setCanEdit(canEdit) {
-        setState({ ...state, canEdit: canEdit });
-    }
+
 
     const adminObject = new currentUser();
 
@@ -63,6 +63,8 @@ export default function Album({ album_url, children }) {
         const curAlbum = await getAlbumFromAlbumUrl(album_url);
         setState({ ...state, album: curAlbum });
     }
+
+
 
     // Sets a selected image as the album featured image
     async function updateFeaturedImg(image) {
@@ -82,6 +84,7 @@ export default function Album({ album_url, children }) {
 
     // Placeholder while loading
     if (!state.album) {
+        pullAlbum();
         return (
             <div className='d-flex align-items-end' style={{ height: '400px' }}>
                 <div
@@ -104,12 +107,18 @@ export default function Album({ album_url, children }) {
 
     const date = new Date(state.album.date);
 
+    function setEditModeAndPullAlbum(editMode) {
+        setEditMode(editMode);
+        pullAlbum();
+    }
+
+
+
     // React Component for edit button. Only shows if user is admin.
     function ShowEditButton() {
-        if (authStatus.authStatus === 'authenticated') {
-            return (<MDBBtn floating onClick={() => setState({ ...state, canEdit: true })}
-                color='light' className='m-2'>
-                <Link href={`/albums/${album_url}/edit`} className='text-dark'><MDBIcon far icon="edit" /></Link>
+        if (state.isAdmin) {
+            return (<MDBBtn floating onClick={() => setEditMode(true)}
+                color='light' className='m-2'><MDBIcon far icon="edit" />
             </MDBBtn>);
         }
         return null;
@@ -186,16 +195,17 @@ export default function Album({ album_url, children }) {
         );
     }
 
-    // Returns header followed by photogrid of photos. Passes key traits as props. Children is where Edit component is rendered
+    // Returns header followed by photogrid of photos. Passes key traits as props. 
     return (
         <>
             <AlbumHeader />
-            {children}
+            {
+                (editMode) ? <EditAlbum album_url={album_url} setEditMode={setEditModeAndPullAlbum} /> : <></>}
             <MDBContainer breakpoint='xl'>
                 <PhotoGrid
                     setFeaturedImg={updateFeaturedImg}
                     selectedAlbum={state.album}
-                    editMode={state.canEdit}
+                    editMode={state.editMode}
                     signedIn={authStatus.authStatus === "authenticated"}
                 />
             </MDBContainer>
