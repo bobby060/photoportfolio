@@ -1,3 +1,5 @@
+
+"use client"
 /**Home2.js
  * @brief Home page component
  * 

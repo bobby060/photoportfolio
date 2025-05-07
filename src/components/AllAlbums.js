@@ -14,6 +14,8 @@ Relies on two pieces of external data that must be fetched after load:
 Author: Robert Norwood, OCT 2023
 */
 
+"use client"
+
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -26,7 +28,7 @@ import {
     MDBCardImage,
 } from 'mdb-react-ui-kit';
 
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
@@ -333,7 +335,7 @@ export default function AllAlbums() {
 
     // Placeholder albums
     const placeHolderItems = [1, 2, 3, 4, 5, 6].map((a, i) => (
-        <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+        <MDBCard key={i} background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
             <MDBCardImage overlay
                 src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
                 alt='...'
@@ -350,7 +352,6 @@ export default function AllAlbums() {
 
     // If albums have not yet been fetched from server, display responsive grid of placeholder albums
     if (!currentVisibleAlbums) {
-
         return (
             <>
                 <MDBRow className='me-0 mt-0'>
@@ -363,7 +364,6 @@ export default function AllAlbums() {
                 <ResponsiveGrid
                     items={placeHolderItems}
                     breakpoints={breakPoints}
-
                 />
             </>
         );
@@ -372,7 +372,7 @@ export default function AllAlbums() {
     // Map each album object into a wrapped react element
     const responsiveItems =
         currentVisibleAlbums.map((album, i) => (
-            <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
+            <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light text-decoration-none" key={i}>
                 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                     <MDBCardImage overlay
                         src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}

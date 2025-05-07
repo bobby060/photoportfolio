@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import {
     MDBRow,
@@ -10,12 +11,9 @@ import {
 } from 'mdb-react-ui-kit';
 import { remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
-
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
-import { Link } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Tag from './Tag';
-
 
 // Database
 import {
@@ -32,8 +30,6 @@ import { urlhelperEncode, getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import uploadImages from '../helpers/uploadImages';
 import currentUser from '../helpers/CurrentUser';
 
-
-
 const client = generateClient({
     authMode: 'userPool'
 });
@@ -42,22 +38,16 @@ const publicClient = generateClient({
     authMode: 'apiKey'
 });
 
-
-
-export default function EditAlbum() {
+export default function EditAlbum({ album_url }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [deleting, setDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [allTags, setAllTags] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [currentTags, setCurrentTags] = useState([]);
-
-
     const [totalUploaded, setTotalUploaded] = useState(0);
-    const navigate = useNavigate();
-
+    const router = useRouter();
     const [currentAlbum, setCurrentAlbum] = useState(null);
-    let { album_url } = useParams();
     const adminObject = new currentUser();
 
     useEffect(() => {
@@ -68,10 +58,9 @@ export default function EditAlbum() {
         getAlbum();
         fetchTags();
         if (!isAdmin) {
-            return;;
+            return;
         }
     }, [album_url]);
-
 
     // tracks files uploaded by clicker, sets state object
     async function setFiles(event) {
@@ -80,7 +69,6 @@ export default function EditAlbum() {
     }
 
     async function getAlbum() {
-
         // Get album tags connections by album ID here
         const curAl = await getAlbumFromAlbumUrl(album_url);
         setCurrentAlbum(curAl);
@@ -90,7 +78,6 @@ export default function EditAlbum() {
     }
 
     // Updates title, description, and date fields
-    // Doesn't error handle if user deletes date and title, need to fix
     async function updateAlbum(event) {
         event.preventDefault();
         setIsLoading(true);
@@ -133,16 +120,14 @@ export default function EditAlbum() {
             })
         } catch (error) {
             console.log('new url object not created', error);
-            // should add corrective actions here
         }
-
 
         if (selectedFiles.length > 0) {
             await uploadImages(currentAlbum, selectedFiles, setTotalUploaded);
         }
         console.log(`Updated album: ${form.get("title")}`);
         // After save, navigates to album
-        navigate('../../albums/'.concat(urlhelperEncode(response.data.updateAlbums)));
+        router.push(`/albums/${urlhelperEncode(response.data.updateAlbums)}`);
     }
 
     async function deleteAlbum(id) {
@@ -188,28 +173,21 @@ export default function EditAlbum() {
         })
         console.log('album successfully deleted')
         // Go to root after deleting album
-        navigate('../../');
+        router.push('/');
     }
 
-
-
-    // //////////////////////////////////////
     // TAGS
-    // /////////////////////////////////////
-
     async function fetchTags() {
         const tags = await fetchAllAlbumTags();
         setAllTags(tags);
     }
 
     const handleCreateTagEnter = event => {
-        // event.preventDefault();
         if (event.key === 'Enter') {
             console.log(`enter key pressed, tag name is ${event.target.value}`);
             createTag(event.target.value);
             event.target.value = "";
         }
-
     }
 
     async function createTag(name) {
@@ -239,7 +217,6 @@ export default function EditAlbum() {
             query: createAlbumTagsAlbums,
             variables: { input: data },
         })
-
     }
 
     async function removeTagFromAlbum(tag) {
@@ -253,7 +230,6 @@ export default function EditAlbum() {
         })
     }
 
-
     function Loading() {
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>
@@ -264,10 +240,8 @@ export default function EditAlbum() {
     if (!currentAlbum) {
         return (
             <MDBSpinner className='m-3'>
-
             </MDBSpinner>);
     }
-
 
     // Ensures the date is formatted correctly
     const date = new Date(currentAlbum.date);
@@ -294,38 +268,29 @@ export default function EditAlbum() {
                             multiple
                             onChange={setFiles}
                             className='flex-grow-1'
-                        // label='Add more photos to album'
                         />
                     </MDBCol>
-
                 </MDBRow>
-                {/* File upload */}
-                {/* <MDBRow className='p-1 d-flex justify-content-center'>
-                    <MDBCol sm='12'>
-                        <label for='file_upload'> Upload more images </label>
-                    </MDBCol>
-
-                </MDBRow> */}
                 <MDBRow className='d-flex justify-content-center align-items-center' >
                     <MDBCol className='d-flex justify-content-center' lg='5'>
                         <MDBBtn className='m-1' title='Delete Album' onClick={() => deleteAlbum(currentAlbum.id)} color='dark' data-mdb-toggle="tooltip" >
                             Delete Album
                         </MDBBtn>
                         <MDBBtn type='submit' className="bg-dark m-1">Save</MDBBtn>
-                        <MDBBtn className="bg-dark m-1"><Link className='text-light' to={`/albums/${urlhelperEncode(currentAlbum)}`}>Cancel</Link></MDBBtn>
+                        <Link href={`/albums/${urlhelperEncode(currentAlbum)}`} className="text-decoration-none">
+                            <MDBBtn className="bg-dark m-1">Cancel</MDBBtn>
+                        </Link>
                     </MDBCol>
                 </MDBRow>
-
                 {(isLoading) ? <Loading /> : <></>}
-            </form >
+            </form>
             {/* UI for adding/removing tags */}
-            < MDBRow className='pt-2 d-flex justify-content-center align-items-center' >
+            <MDBRow className='pt-2 d-flex justify-content-center align-items-center' >
                 <MDBCol className='d-flex justify-content-center flex-wrap' lg='5'>
                     {allTags.map((tag, i) => (
                         <Tag
                             key={i}
                             selected={(tag.id in currentTags) ? true : false}
-                            // selected={false}
                             name={tag.title}
                             onSelect={() => addTagToAlbum(allTags[i])}
                             onDeselect={() => removeTagFromAlbum(allTags[i])}
@@ -334,9 +299,8 @@ export default function EditAlbum() {
                         <MDBInput label='New Tag (press enter to create)' id='newTag' type='text' className='rounded' size='sm' onKeyDown={handleCreateTagEnter} />
                     </div>
                 </MDBCol>
-            </MDBRow >
+            </MDBRow>
         </>
-
     )
 }
 

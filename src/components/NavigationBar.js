@@ -1,3 +1,5 @@
+"use client"
+
 /**NavigationBar.js
  * @brief React Component for the photo portfolio navigation bar
  * 
@@ -6,7 +8,7 @@
  */
 
 import { React, useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import Link from 'next/link';
 import {
     MDBContainer,
     MDBNavbar,
@@ -19,10 +21,7 @@ import {
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
-import logo from '../logo192.png';
 import currentUser from '../helpers/CurrentUser';
-
-
 
 export default function NavigationBar() {
     const authStatus = useAuthenticator(context => [context.authStatus]);
@@ -46,7 +45,7 @@ export default function NavigationBar() {
         };
 
         fetchUserInfo();
-    }, []); // Empty dependency array since we only want this to run once on mount
+    }, []);
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
@@ -54,7 +53,7 @@ export default function NavigationBar() {
             return (
                 <MDBNavbarNav className='ms-auto'>
                     <MDBNavbarItem className="ms-lg-auto" onClick={() => setShowNav(false)}>
-                        <Link to={`/signin`}>
+                        <Link href="/signin">
                             <MDBNavbarLink tabIndex={-1} aria-disabled='true'>
                                 Sign In
                             </MDBNavbarLink>
@@ -66,17 +65,12 @@ export default function NavigationBar() {
         return (
             <MDBNavbarNav className='ms-auto w-auto'>
                 <MDBNavbarItem>
-                    <Link to={`/account`}>
+                    <Link href="/account" passHref legacyBehavior>
                         <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
                             {userInfo.username || ''}
                         </MDBNavbarLink>
                     </Link>
                 </MDBNavbarItem>
-                {/* <MDBNavbarItem>
-                    <MDBNavbarLink onClick={signOut} tabIndex={-1} aria-disabled='true'>
-                        Sign Out
-                    </MDBNavbarLink>
-                </MDBNavbarItem> */}
             </MDBNavbarNav>
         );
     }
@@ -87,9 +81,9 @@ export default function NavigationBar() {
             return (
                 <MDBNavbarItem>
                     <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                        <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                            New Album
-                        </NavLink>
+                        <Link href="/new" className="text-decoration-none">
+                            <span className="text-muted">New Album</span>
+                        </Link>
                     </MDBNavbarLink>
                 </MDBNavbarItem>
             );
@@ -100,9 +94,9 @@ export default function NavigationBar() {
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
             <MDBContainer fluid >
-                <img src={logo} className='pe-2' style={{ height: '40px' }} alt='RNorwood logo' />
-                <Link to="/home">
-                    <MDBNavbarBrand href='#'>
+                <img src="/logo192.png" className='pe-2' style={{ height: '40px' }} alt='RNorwood logo' />
+                <Link href="/" >
+                    <MDBNavbarBrand>
                         Robert Norwood
                     </MDBNavbarBrand>
                 </Link>
@@ -118,25 +112,18 @@ export default function NavigationBar() {
                     <MDBNavbarNav className='w-auto'>
                         <MDBNavbarItem>
                             <MDBNavbarLink onClick={() => setShowNav(false)}>
-                                <NavLink to={`/home`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                                    Home
-                                </NavLink>
+                                <Link href="/" className="text-decoration-none">
+                                    <span className="text-muted">Home</span>
+                                </Link>
                             </MDBNavbarLink>
                         </MDBNavbarItem>
                         <MDBNavbarItem>
                             <MDBNavbarLink onClick={() => setShowNav(false)}>
-                                <NavLink to={`/home#albums`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                                    Albums
-                                </NavLink>
+                                <Link href="/albums" className="text-decoration-none">
+                                    <span className="text-muted">Albums</span>
+                                </Link>
                             </MDBNavbarLink>
                         </MDBNavbarItem>
-                        {/* <MDBNavbarItem>
-                            <MDBNavbarLink onClick={() => setState({ ...state, showNav: false })}>
-                                <NavLink to={`/projects`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                                    Projects
-                                </NavLink>
-                            </MDBNavbarLink>
-                        </MDBNavbarItem> */}
                         <NewAlbumWrapper />
                     </MDBNavbarNav>
                     <SignInWrapper />

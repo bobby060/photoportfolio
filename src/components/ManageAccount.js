@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from "react";
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -10,7 +11,7 @@ import {
     MDBRadio,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { useNavigate } from "react-router-dom";
+import { redirect } from 'next/navigation';
 
 import { fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
@@ -36,7 +37,6 @@ export default function ManageAccount() {
     const [isAdmin, setIsAdmin] = useState(false);
     const adminObject = new currentUser();
     const [tags, setTags] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchTags();
@@ -131,7 +131,7 @@ export default function ManageAccount() {
 
     // Redirect to sign in if user isn't authenticated
     if (authStatus.authStatus === "unauthenticated") {
-        navigate('/signin');
+        redirect('/signin');
     }
 
     //  

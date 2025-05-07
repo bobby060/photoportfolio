@@ -1,4 +1,3 @@
-// Not used anymore
 import React, { useEffect, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import { generateClient } from 'aws-amplify/api';
@@ -9,7 +8,7 @@ import {
     MDBCardImage,
     MDBTypography
 } from 'mdb-react-ui-kit';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
@@ -32,7 +31,7 @@ export default function FeaturedCarouselWrapper() {
 
     useEffect(() => {
         updateFeatured();
-    }, []);
+    }, [featuredAlbumTag]);
 
     // Adds ability to adjust column layout after resize
     useEffect(() => {
@@ -50,7 +49,6 @@ export default function FeaturedCarouselWrapper() {
 
 
     async function updateFeatured() {
-
         const result = await client.graphql({
             query: albumTagsAlbumsByAlbumTagsId,
             variables: {
@@ -106,7 +104,7 @@ export default function FeaturedCarouselWrapper() {
                                     alt='...'
                                     style={{ 'objectFit': 'cover', height: height }}
                                     className='' />
-                                <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
+                                <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light">
                                     <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
                                         <MDBTypography className='display-6'>{album.title}</MDBTypography>
                                         <MDBCardText>{dateFormat(album.date)}</MDBCardText>

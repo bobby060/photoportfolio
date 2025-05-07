@@ -29,7 +29,28 @@ export function urlhelperEncode(album) {
     const ending = album.id.slice(-2);
     const new_name = album.title.toLowerCase().replace(' ', '-');
     const url = new_name.concat("-", ending);
-    return url
+    return url;
+}
+
+/**
+ * @brief Given an album, returns it's url
+ * 
+ * Format for url is the Album name, split with '-', followed
+ * by the last two digits of the album id
+ * 
+ * Example: title "Killer Whales" with an id of "e4ef3321"
+ * would have a url of "killer-whales-21" 
+ * 
+ * @param {Object} album Album object 
+ * @returns {String} url
+ */
+export function urlhelperEncodeUrlSafe(album) {
+    const ending = album.id.slice(-2);
+    const new_name = album.title.toLowerCase().replace(' ', '-');
+    const url = new_name.concat("-", ending);
+    // Make URL safe by encoding special characters and removing any remaining unsafe characters
+    const urlSafe = encodeURIComponent(url);
+    return urlSafe;
 }
 
 
@@ -47,9 +68,13 @@ export function urlhelperEncode(album) {
  */
 export async function getAlbumFromAlbumUrl(url) {
 
+
+    // Decode the URL to remove any encoded characters
+    const decodedUrl = decodeURIComponent(url);
+
     // Use graphql query to fetch the album associated with url
     const data = {
-        id: url
+        id: decodedUrl
     }
     try {
         const res = await client.graphql({
@@ -59,9 +84,11 @@ export async function getAlbumFromAlbumUrl(url) {
         // Return album object
         return res.data.getUrl.album;
     } catch (error) {
-        Error.throw('Album not found, ', error);
+        console.error(error);
+        throw new Error('Album not found, ' + error);
     }
 }
+
 
 /**
  * @brief takes an album and a url and returns true or false

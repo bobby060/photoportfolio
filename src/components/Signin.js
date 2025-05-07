@@ -1,29 +1,27 @@
 // components/signin.js
+"use client"
 import React from 'react';
-
 import { useEffect } from "react";
 import '@aws-amplify/ui-react/styles.css';
 import '../css/auth_css.css';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-
-
-import { useNavigate, useLocation } from 'react-router';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SignIn() {
     const { route } = useAuthenticator((context) => [context.route]);
-    const location = useLocation();
-    const navigate = useNavigate();
-    let from = location.state?.from?.pathname || '/';
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const from = searchParams.get('from') || '/';
+
     useEffect(() => {
         if (route === 'authenticated') {
-            navigate(from, { replace: true });
+            router.push(from);
         }
-    }, [route, navigate, from]);
+    }, [route, router, from]);
 
     return (
         <View className="auth-wrapper">
-            <Authenticator className="pt-3 ">
-
+            <Authenticator className="pt-3">
             </Authenticator>
 
             <p className="fw-lighter m-2">An account allows you to download images. </p>

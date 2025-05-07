@@ -10,6 +10,7 @@ Basically is just a PhotoGrid wrapped in an album header
 Author: Robert Norwood, OCT 2023
 */
 
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -19,9 +20,7 @@ import {
 } from 'mdb-react-ui-kit';
 import { generateClient } from 'aws-amplify/api';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { Outlet, useLocation } from "react-router-dom";
-import { Link } from 'react-router-dom';
-import { useParams } from "react-router-dom";
+import Link from 'next/link';
 
 // Database
 import { updateAlbums } from '../graphql/mutations';
@@ -34,16 +33,11 @@ import currentUser from '../helpers/CurrentUser';
 // Components
 import PhotoGrid from './PhotoGrid';
 
-
-
 const userGroupClient = generateClient({
     authMode: 'userPool'
 });
 
-export default function Album() {
-    let { album_url } = useParams();
-    // const [featuredImg, setFeaturedImg] = useState([]);
-
+export default function Album({ album_url, children }) {
     const [state, setState] = useState({
         album: null,
         canEdit: false,
@@ -51,24 +45,23 @@ export default function Album() {
     });
 
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
-    let location = useLocation();
 
     // Initializes images after component render
     useEffect(() => {
-        pullAlbum();
+
         adminObject.isAdmin((isAdmin) => setState({ ...state, isAdmin: isAdmin }));
-    }, [authStatus.authStatus, location.pathname]);
+    }, [authStatus.authStatus, album_url]);
+
+    async function setCanEdit(canEdit) {
+        setState({ ...state, canEdit: canEdit });
+    }
 
     const adminObject = new currentUser();
 
     // Loads images associated with album being rendered
     async function pullAlbum() {
-        let canEdit = false;
-        if (location.pathname.endsWith('edit')) {
-            canEdit = true;
-        }
         const curAlbum = await getAlbumFromAlbumUrl(album_url);
-        setState({ ...state, album: curAlbum, canEdit: canEdit });
+        setState({ ...state, album: curAlbum });
     }
 
     // Sets a selected image as the album featured image
@@ -87,8 +80,6 @@ export default function Album() {
         pullAlbum();
     }
 
-    // Image handler functions
-
     // Placeholder while loading
     if (!state.album) {
         return (
@@ -96,9 +87,6 @@ export default function Album() {
                 <div
                     style={{ background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0) 20%, hsla(0, 0%, 0%, 0.5))', width: '100%' }}
                     className="d-flex align-items-end">
-                    {/*            <MDBSpinner role='status'>
-              <span className='visually-hidden'>Loading...</span>
-            </MDBSpinner>*/}
                     <MDBContainer >
                         <div className='text-justify-start text-light placeholder-glow'>
                             <div className='ms-3 d-flex justify-items-start align-items-end'>
@@ -110,26 +98,25 @@ export default function Album() {
                             <p className='text-start ms-3 me-3 placeholder col-9'></p>
                         </div>
                     </MDBContainer>
-
                 </div>
             </div>);
     }
 
     const date = new Date(state.album.date);
 
-
     // React Component for edit button. Only shows if user is admin.
     function ShowEditButton() {
         if (authStatus.authStatus === 'authenticated') {
-            return (<MDBBtn floating onClick={() => setState({ ...state, canEdit: true })} color='light' className='m-2'><Link to="edit" className='text-dark'><MDBIcon far icon="edit" /></Link></MDBBtn>);
+            return (<MDBBtn floating onClick={() => setState({ ...state, canEdit: true })}
+                color='light' className='m-2'>
+                <Link href={`/albums/${album_url}/edit`} className='text-dark'><MDBIcon far icon="edit" /></Link>
+            </MDBBtn>);
         }
-
-        return;
+        return null;
     }
 
     // React Component that shows the top portion of album, including title, description, and featured image
     function AlbumHeader() {
-
         // Makes AlbumHeader responsive
         const [windowSize, setWindowSize] = useState({
             width: window.innerWidth,
@@ -148,7 +135,6 @@ export default function Album() {
 
             return () => window.removeEventListener('resize', handleResize);
         }, []);
-
 
         const breakpoints = [0, 750, 1200, 1920];
 
@@ -189,14 +175,9 @@ export default function Album() {
                                     <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
                                     <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
                                 </div>
-
-
                             </div>
                         </MDBContainer>
-
-
                     </div>
-
                 </div>
                 <MDBContainer breakpoint='xl'>
                     <p className='text-start ms-1 me-1 mt-2 p-1'>{state.album.desc}</p >
@@ -205,23 +186,21 @@ export default function Album() {
         );
     }
 
-    // Returns header followed by photogrid of photos. Passes key traits as props. Outlet is where Edit component is rendered
+    // Returns header followed by photogrid of photos. Passes key traits as props. Children is where Edit component is rendered
     return (
         <>
             <AlbumHeader />
-            <Outlet />
+            {children}
             <MDBContainer breakpoint='xl'>
                 <PhotoGrid
                     setFeaturedImg={updateFeaturedImg}
                     selectedAlbum={state.album}
                     editMode={state.canEdit}
                     signedIn={authStatus.authStatus === "authenticated"}
-
                 />
             </MDBContainer>
         </>
     );
-
 }
 
 
