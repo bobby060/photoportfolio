@@ -1,5 +1,5 @@
-"use client"
 
+"use client"
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../amplifyconfiguration.json';
@@ -13,7 +13,7 @@ import {
     View,
 } from '@aws-amplify/ui-react';
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 
 // Initialize Amplify
@@ -37,10 +37,15 @@ export const IMAGEDELIVERYHOST = projectConfig.getValue('imageDeliveryHost');
 
 export default function RootLayout({ children }) {
 
-    const [selectedAlbum, setSelectedAlbum] = useState([]);
 
     return (
         <html lang="en">
+
+            <head>
+                <title>R Norwood</title>
+
+            </head>
+
             <body>
                 <Authenticator.Provider>
                     <noscript>You need to enable JavaScript to run this app.</noscript>

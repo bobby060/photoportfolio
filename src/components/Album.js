@@ -51,7 +51,10 @@ export default function Album({ album_url }) {
 
     // Initializes images after component render
     useEffect(() => {
-        adminObject.isAdmin((isAdmin) => setState({ ...state, isAdmin: isAdmin }));
+        adminObject.isAdmin((isAdmin) => {
+            setState({ ...state, isAdmin: isAdmin, canEdit: isAdmin });
+        });
+
     }, [authStatus.authStatus, album_url]);
 
 

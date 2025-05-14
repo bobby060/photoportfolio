@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useState } from "react";
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -11,7 +13,7 @@ import {
     MDBSpinner
 } from 'mdb-react-ui-kit';
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/navigation';
 
 // Database
 import { createAlbums, updateAlbums, createUrl, deleteAlbums } from '../graphql/mutations';
@@ -34,7 +36,7 @@ const client = generateClient({
  * @returns 
  */
 export default function CreateAlbum() {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     // Files in file picker selected for update
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -70,7 +72,7 @@ export default function CreateAlbum() {
     function redirectIfNotAdmin() {
         console.log(isAdmin);
         if (!isAdmin) {
-            navigate('/');
+            router.push('/');
         }
     }
 

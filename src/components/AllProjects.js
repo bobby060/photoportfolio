@@ -1,3 +1,4 @@
+"use client"
 /* 
 Placeholder: not implemented yet 
 AllProjects.js
