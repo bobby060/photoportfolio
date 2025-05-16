@@ -1,3 +1,9 @@
+/**
+ * Basic loading page component
+ * 
+ * @author: rnorwood
+ */
+
 "use client"
 import { MDBSpinner } from 'mdb-react-ui-kit';
 

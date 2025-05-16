@@ -48,19 +48,24 @@ export default function EditAlbum({ album_url, setEditMode }) {
     const [totalUploaded, setTotalUploaded] = useState(0);
     const router = useRouter();
     const [currentAlbum, setCurrentAlbum] = useState(null);
-    const adminObject = new currentUser();
 
     useEffect(() => {
+        const adminObject = new currentUser();
+
         adminObject.isAdmin(setIsAdmin);
-    }, [adminObject]);
+    }, []);
 
     useEffect(() => {
-        getAlbum();
-        fetchTags();
+        if (!currentAlbum) {
+            getAlbum();
+            fetchTags();
+        }
+
+
         if (!isAdmin) {
             return;
         }
-    }, [album_url]);
+    });
 
     // tracks files uploaded by clicker, sets state object
     async function setFiles(event) {

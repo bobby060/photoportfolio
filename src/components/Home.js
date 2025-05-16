@@ -22,7 +22,7 @@ import { list } from 'aws-amplify/storage';
 import Carousel from 'react-bootstrap/Carousel';
 import AllAlbums from './AllAlbums';
 import FeaturedCarouselWrapper from './Carousel';
-
+import Image from 'next/image';
 // Helpers
 import projectConfig from "../helpers/Config";
 
@@ -80,6 +80,7 @@ export default function Home() {
     function HeaderCarousel() {
         const s = { width: windowSize.width, height: windowSize.height, 'objectFit': 'cover' };
 
+
         // Carousel with placeholders
         if (headerImgs.length < 1) return (
             <Carousel indicators={false} interval={2500} style={s} controls={false} pause={false}>
@@ -98,8 +99,10 @@ export default function Home() {
                 {headerImgs.map((img, i) =>
                 (
                     <Carousel.Item itemID={i} key={i}  >
-                        <img src={img} alt='...'
+                        <Image src={img} alt='...'
                             style={s}
+                            width={s.width}
+                            height={s.height}
                         />
                     </Carousel.Item>
                 ))}

@@ -33,11 +33,13 @@ export async function generateStaticParams() {
             // Add variables if needed, e.g., for pagination to fetch all items
         });
 
+
         const albums = apiData.data.listAlbums.items;
 
         const albumUrls = albums.map((album) => ({
             album_url: urlhelperEncodeUrlSafe(album), // Ensure this matches your Link href structure
         }));
+
 
         return albumUrls;
     } catch (error) {

@@ -24,6 +24,8 @@ import '../css/index.css'
 import currentUser from '../helpers/CurrentUser';
 import { useRouter } from 'next/navigation';
 
+import Image from 'next/image';
+
 export default function NavigationBar() {
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [showNav, setShowNav] = useState(false);
@@ -55,8 +57,8 @@ export default function NavigationBar() {
         if (authStatus.authStatus !== 'authenticated') {
             return (
                 <MDBNavbarNav className='ms-auto'>
-                    <MDBNavbarItem href="/signin" className="ms-lg-auto" onClick={() => setShowNav(false)}>
-                        <MDBNavbarLink tabIndex={-1} aria-disabled='true'>
+                    <MDBNavbarItem className="ms-lg-auto" onClick={() => setShowNav(false)}>
+                        <MDBNavbarLink href="/signin" tabIndex={-1} aria-disabled='true'>
                             Sign In
                         </MDBNavbarLink>
                     </MDBNavbarItem>
@@ -94,7 +96,7 @@ export default function NavigationBar() {
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
             <MDBContainer fluid >
-                <img src="/logo192.png" className='pe-2' style={{ height: '40px' }} alt='RNorwood logo' />
+                <Image src="/logo192.png" className='pe-2' width="46" height="40" alt='RNorwood logo' />
                 <MDBNavbarBrand href="/" >
                     Robert Norwood
                 </MDBNavbarBrand>

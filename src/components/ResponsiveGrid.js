@@ -14,11 +14,12 @@ export default function ResponsiveGrid({ items, breakpoints, loadNextItems = () 
     const observerTarget = useRef(null);
     const sizeRef = useRef();
 
+    // useEffect(() => {
+    //     loadNextItems();
+    // }, [loadNextItems]);
 
-    useEffect(() => {
-        const y = sizeRef.current.offsetTop;
-        setYOffset(y);
-    }, []);
+
+
 
     // Initalizes intersection observer to call each time observer enters view
     useEffect(() => {

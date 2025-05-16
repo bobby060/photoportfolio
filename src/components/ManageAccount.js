@@ -35,13 +35,13 @@ export default function ManageAccount() {
     // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [isAdmin, setIsAdmin] = useState(false);
-    const adminObject = new currentUser();
     const [tags, setTags] = useState([]);
 
     useEffect(() => {
+        const adminObject = new currentUser();
         fetchTags();
         adminObject.isAdmin(setIsAdmin);
-    }, []);
+    }, [authStatus.authStatus]);
 
 
     async function fetchTags() {
@@ -129,6 +129,11 @@ export default function ManageAccount() {
 
     const { signOut } = useAuthenticator((context) => [context.user]);
 
+    function signOutWrapper() {
+        signOut();
+        redirect('/signin');
+    }
+
     // Redirect to sign in if user isn't authenticated
     if (authStatus.authStatus === "unauthenticated") {
         redirect('/signin');
@@ -143,7 +148,7 @@ export default function ManageAccount() {
             {/* Non-admin users don't have any options right now! This would be where 
             those options would be added in the future */}
 
-            <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>
+            <MDBBtn className="bg-dark" onClick={signOutWrapper}>Sign Out</MDBBtn>
         </MDBContainer>
 
     );

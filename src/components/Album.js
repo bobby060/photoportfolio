@@ -39,40 +39,48 @@ const userGroupClient = generateClient({
 });
 
 export default function Album({ album_url }) {
-    const [state, setState] = useState({
-        album: null,
-        canEdit: false, // Whether the user can edit the album
-        isAdmin: false, // Whether the user is an admin
-    });
+
+
+    const [album, setAlbum] = useState(null);
+    const [canEdit, setCanEdit] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const [editMode, setEditMode] = useState(false);
 
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
 
+    // useEffect(() => {
+
+    //     const adminObject = new currentUser();
+    //     adminObject.isAdmin((isAdmin) => {
+    //         setState(state => ({ ...state, isAdmin: isAdmin, canEdit: isAdmin }));
+    //     });
+
+    // }, [authStatus.authStatus, album_url]);
+
     // Initializes images after component render
     useEffect(() => {
+
+        const adminObject = new currentUser();
         adminObject.isAdmin((isAdmin) => {
-            setState({ ...state, isAdmin: isAdmin, canEdit: isAdmin });
+            setIsAdmin(isAdmin);
+            setCanEdit(isAdmin);
         });
 
     }, [authStatus.authStatus, album_url]);
-
-
-
-    const adminObject = new currentUser();
-
-    // Loads images associated with album being rendered
-    async function pullAlbum() {
-        const curAlbum = await getAlbumFromAlbumUrl(album_url);
-        setState({ ...state, album: curAlbum });
-    }
-
+    useEffect(() => {
+        console.log("pulling album");
+        getAlbumFromAlbumUrl(album_url)
+            .then(albumData => {
+                setAlbum(albumData);
+            });
+    }, [album_url]);
 
 
     // Sets a selected image as the album featured image
     async function updateFeaturedImg(image) {
         const data = {
-            id: state.album.id,
+            id: album.id,
             albumsFeaturedImageId: image.image.id
         }
         const response = await userGroupClient.graphql({
@@ -82,12 +90,12 @@ export default function Album({ album_url }) {
             },
         })
         const new_album = response.data.updateAlbums;
-        pullAlbum();
+        setAlbum(new_album);
     }
 
     // Placeholder while loading
-    if (!state.album) {
-        pullAlbum();
+    if (!album) {
+        // setState(state => ({ ...state, album: getAlbumFromAlbumUrl(album_url) }));
         return (
             <div className='d-flex align-items-end' style={{ height: '400px' }}>
                 <div
@@ -108,18 +116,21 @@ export default function Album({ album_url }) {
             </div>);
     }
 
-    const date = new Date(state.album.date);
+    const date = new Date(album.date);
 
     function setEditModeAndPullAlbum(editMode) {
         setEditMode(editMode);
-        pullAlbum();
+        getAlbumFromAlbumUrl(album_url)
+            .then(albumData => {
+                setAlbum(albumData);
+            });
     }
 
 
 
     // React Component for edit button. Only shows if user is admin.
     function ShowEditButton() {
-        if (state.isAdmin) {
+        if (isAdmin) {
             return (<MDBBtn floating onClick={() => setEditMode(true)}
                 color='light' className='m-2'><MDBIcon far icon="edit" />
             </MDBBtn>);
@@ -159,8 +170,8 @@ export default function Album({ album_url }) {
 
         // Math to make sure image height is appropriate based on width. Min height is 400px
         const imgWidth = getBreakpoint();
-        const imgRatio = (state.album.featuredImage) ? state.album.featuredImage.height / state.album.featuredImage.width : 1;
-        const featuredImageUrl = (state.album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${state.album.featuredImage.id}-${state.album.featuredImage.filename}?width=${imgWidth}` : "";
+        const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
+        const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${imgWidth}` : "";
         const imgHeight = Math.min(windowSize.width * imgRatio, 400);
 
         // Style for header image
@@ -183,7 +194,7 @@ export default function Album({ album_url }) {
                         <MDBContainer >
                             <div className='text-justify-start text-light'>
                                 <div className='ms-3 d-flex justify-items-start align-items-end'>
-                                    <h2 className="p-0 d-inline-block text-start ">{state.album.title}</h2>
+                                    <h2 className="p-0 d-inline-block text-start ">{album.title}</h2>
                                     <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
                                     <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
                                 </div>
@@ -192,7 +203,7 @@ export default function Album({ album_url }) {
                     </div>
                 </div>
                 <MDBContainer breakpoint='xl'>
-                    <p className='text-start ms-1 me-1 mt-2 p-1'>{state.album.desc}</p >
+                    <p className='text-start ms-1 me-1 mt-2 p-1'>{album.desc}</p >
                 </MDBContainer>
             </>
         );
@@ -207,8 +218,8 @@ export default function Album({ album_url }) {
             <MDBContainer breakpoint='xl'>
                 <PhotoGrid
                     setFeaturedImg={updateFeaturedImg}
-                    selectedAlbum={state.album}
-                    editMode={state.editMode}
+                    selectedAlbum={album}
+                    editMode={editMode}
                     signedIn={authStatus.authStatus === "authenticated"}
                 />
             </MDBContainer>

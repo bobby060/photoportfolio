@@ -169,9 +169,10 @@ export default function AllAlbums() {
                     nextToken: nextToken
                 }
             })
-            const newAlbums = [...currentVisibleAlbums, ...res.data.albumByDate.items];
 
-            setCurrentVisibleAlbums(newAlbums);
+            setNextToken(nextToken => res.data.albumByDate.nextToken);
+
+            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...res.data.albumByDate.items]);
         }
         // Case: tags selected. Only pull albums by the currently selected tag (right now tags act more like folders)
         else {
@@ -185,13 +186,13 @@ export default function AllAlbums() {
             });
 
             const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-            setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
-            const a = [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)];
-            setCurrentVisibleAlbums(a);
+            setNextToken(nextToken => result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
+
+            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)]);
         }
 
         setIsLoading(false);
-    }, [nextToken]);
+    }, [nextToken, isLoading, selectedTagsIndexes]);
 
 
     // ///////////////////
