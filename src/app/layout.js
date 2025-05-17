@@ -17,7 +17,7 @@ import React from "react";
 
 
 // Initialize Amplify
-Amplify.configure(amplifyconfig);
+Amplify.configure(amplifyconfig, { ssr: true });
 
 // Components
 // Headroom lets navbar disappear on down scroll, but reappear whenever scroll up
