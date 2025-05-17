@@ -96,7 +96,7 @@ export default function NavigationBar() {
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
             <MDBContainer fluid >
-                <Image src="/logo192.png" className='pe-2' width="46" height="40" alt='RNorwood logo' />
+                <Image src="/logo512.png" className='pe-2' width="46" height="40" alt='RNorwood logo' />
                 <MDBNavbarBrand href="/" >
                     Robert Norwood
                 </MDBNavbarBrand>
