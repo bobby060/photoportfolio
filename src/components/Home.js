@@ -1,6 +1,6 @@
 
 "use client"
-/**Home2.js
+/**Home.js
  * @brief Home page component
  * 
  * @author Robert Norwood
@@ -35,10 +35,7 @@ export default function Home() {
 
     // State for header images
     const [headerImgs, setHeaderImgs] = useState([]);
-    const [windowSize, setWindowSize] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight,
-    });
+    const [windowSize, setWindowSize] = useState({ width: undefined, height: undefined });
 
     // Handles resizing
     useEffect(() => {
@@ -49,6 +46,10 @@ export default function Home() {
                 height: window.innerHeight,
             });
         };
+
+        if (typeof window !== 'undefined') {
+            handleResize();
+        }
 
         window.addEventListener('resize', handleResize);
 
@@ -78,7 +79,7 @@ export default function Home() {
 
     // React component holding the home page header images
     function HeaderCarousel() {
-        const s = { width: windowSize.width, height: windowSize.height, 'objectFit': 'cover' };
+        const s = { width: windowSize.width || '100vw', height: windowSize.height || '100vh', 'objectFit': 'cover' };
 
 
         // Carousel with placeholders

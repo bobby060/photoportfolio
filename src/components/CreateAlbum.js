@@ -1,8 +1,8 @@
 "use client"
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { generateClient } from 'aws-amplify/api';
 import {
+    MDBClientOnly,
     MDBRow,
     MDBCol,
     MDBBtn,
@@ -11,6 +11,7 @@ import {
     MDBContainer,
     MDBFile,
     MDBSpinner
+
 } from 'mdb-react-ui-kit';
 
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,7 @@ import { useRouter } from 'next/navigation';
 // Database
 import { createAlbums, updateAlbums, createUrl, deleteAlbums } from '../graphql/mutations';
 import { imagesByAlbumsID, listImages } from '../graphql/queries';
+
 
 
 // Helpers
@@ -52,33 +54,32 @@ export default function CreateAlbum() {
     // Error message text
     const [warningText, setWarningText] = useState('');
 
-    const userObject = new currentUser();
+
+    const clientRef = useRef(false);
+
+
+
+
 
 
     // Updates isAdmin state
     useEffect(() => {
-        userObject.isAdmin(setIsAdmin);
-    }, []);
+        const userObject = new currentUser();
 
+        userObject.isAdmin((isAdmin) => {
+            setIsAdmin(isAdmin);
+            if (!isAdmin) {
+                router.push('/');
+            }
+        });
 
-    // Redirects away from this page if user isn't admin
+    }, [router]);
+
     useEffect(() => {
-        redirectIfNotAdmin();
-    }, [isAdmin]);
-
-    /** 
-     * @brief redirects to root route if not admin
-     */
-    function redirectIfNotAdmin() {
-        console.log(isAdmin);
-        if (!isAdmin) {
-            router.push('/');
+        if (typeof IntersectionObserver !== 'undefined') {
+            clientRef.current = true;
         }
-    }
-
-    // function handleNew(){
-    // 	document.getElementById("createAlbumForm").submit();
-    // }
+    }, []);
 
 
     // tracks files uploaded by clicker, sets state object
@@ -190,7 +191,9 @@ export default function CreateAlbum() {
             // setWarningText(`Created new album named: ${form.get("title")}`)
             console.log(`Created new album named: ${form.get("title")}`);
             // Navigate after creating image
-            navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
+            // TODO(bobby): Go to newly created album. Requires updating the targets in route
+            // router.push(`../albums/${urlhelperEncode(new_album)}/edit`);
+            router.push(`../`);
             event.target.reset();
         } catch (error) {
             console.warn('failed to update featured img for new album. Album still created');
@@ -198,38 +201,44 @@ export default function CreateAlbum() {
             event.target.reset();
         }
     }
-
-
+    if (!clientRef.current) {
+        return <></>
+    }
 
     return (
-        <MDBContainer className=''>
-            <h2 className="mt-2"> Create new album </h2>
-            <form id="createAlbumForm" onSubmit={newAlbum}>
-                {/* Form containing title, date, and description */}
-                <MDBRow className=' justify-content-center'>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBInput className='mb-3' label='Title' name='title' type='text' />
-                        <MDBInput className='mb-3' label='Date' name='date' type='date' />
-                    </MDBCol>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} />
-                    </MDBCol>
-                </MDBRow>
-                {/* File selector */}
-                <MDBRow className=' justify-content-center'>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBFile
-                            multiple
-                            onChange={setFiles}
-                            className='m-1 mb-3'
-                        />
-                    </MDBCol>
-                </MDBRow>
-                <SubmitButtonWrapper />
-            </form>
-            {isLoading ? <Loading /> : <></>}
-            <p>{warningText}</p>
-        </MDBContainer>
+
+
+        <div>
+            <MDBContainer className=''>
+                <h2 className="mt-2"> Create new album </h2>
+                <form id="createAlbumForm" onSubmit={newAlbum}>
+                    {/* Form containing title, date, and description */}
+                    <MDBRow className=' justify-content-center'>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBInput className='mb-3' label='Title' name='title' type='text' />
+                            <MDBInput className='mb-3' label='Date' name='date' type='date' />
+                        </MDBCol>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} />
+                        </MDBCol>
+                    </MDBRow>
+                    {/* File selector */}
+                    <MDBRow className=' justify-content-center'>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBFile
+                                multiple
+                                onChange={setFiles}
+                                className='m-1 mb-3'
+                            />
+                        </MDBCol>
+                    </MDBRow>
+                    <SubmitButtonWrapper />
+                </form>
+                {isLoading ? <Loading /> : <></>}
+                <p>{warningText}</p>
+            </MDBContainer>
+        </div>
+
     )
 
 

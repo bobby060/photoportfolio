@@ -2,6 +2,8 @@
 
 import AllAlbums from '../../components/AllAlbums';
 
+import { useEffect } from 'react';
+
 import { useRouter } from 'next/navigation';
 
 export default function Page() {
@@ -9,7 +11,7 @@ export default function Page() {
 
     useEffect(() => {
         router.push('/#albums');
-    }, []);
+    }, [router]);
 
-    return <AllAlbums />;
+    // return <AllAlbums />;
 } 

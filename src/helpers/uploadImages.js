@@ -74,57 +74,64 @@ export default async function uploadImages(targetAlbum, files, returnTotalUpload
         let uploadedImg = {};
         let url = '';
 
-        // Gets height, width for image
-        const img = new Image();
-        img.src = window.URL.createObjectURL(image);
-        await img.decode();
-        const dims = [img.naturalHeight, img.naturalWidth];
-
-        // Package data for image database entry
-        const data = {
-            title: image.name,
-            desc: "",
-            filename: image.name,
-            date: getExifDate(image),
-            albumsID: targetAlbum.id,
-            height: dims[0],
-            width: dims[1],
-        }
         try {
-            const response = await client.graphql({
-                query: createImages,
-                variables: { input: data },
-            });
 
-            uploadedImg = response?.data?.createImages;
-            newImageId = uploadedImg.id;
+            // Gets height, width for image
+            const img = new Image();
+            img.src = window.URL.createObjectURL(image);
+            await img.decode();
+            const dims = [img.naturalHeight, img.naturalWidth];
 
-            // Image url (S3 object key) is combination of id and image name ensures uniqueness while preserving image title
-            url = `${uploadedImg.id}-${image.name}`;
-        } catch (error) {
-            console.warn('Error creating image: ', image.name, error);
-            return;
-        }
-
-        try {
-            // Upload to S3
-            await uploadData({
-                key: url,
-                data: image
+            // Package data for image database entry
+            const data = {
+                title: image.name,
+                desc: "",
+                filename: image.name,
+                date: getExifDate(image),
+                albumsID: targetAlbum.id,
+                height: dims[0],
+                width: dims[1],
             }
-            );
+            try {
+                const response = await client.graphql({
+                    query: createImages,
+                    variables: { input: data },
+                });
+
+                uploadedImg = response?.data?.createImages;
+                newImageId = uploadedImg.id;
+
+                // Image url (S3 object key) is combination of id and image name ensures uniqueness while preserving image title
+                url = `${uploadedImg.id}-${image.name}`;
+            } catch (error) {
+                console.warn('Error creating image: ', image.name, error);
+                return;
+            }
+
+            try {
+                // Upload to S3
+                await uploadData({
+                    key: url,
+                    data: image
+                }
+                );
+            } catch (error) {
+                // Delete image object if S3 file doesn't upload
+                console.warn('Image not uploaded. Error: ', error);
+                await client.graphql({
+                    query: deleteImages,
+                    variables: { input: { id: newImageId } }
+                });
+                return;
+            }
+
+            totalUploaded = totalUploaded + 1;
+            returnTotalUploaded(totalUploaded);
+
         } catch (error) {
-            // Delete image object if S3 file doesn't upload
-            console.warn('Image not uploaded. Error: ', error);
-            await client.graphql({
-                query: deleteImages,
-                variables: { input: { id: newImageId } }
-            });
+            console.warn('Error uploading image: ', image.name, error);
             return;
         }
-
-        totalUploaded = totalUploaded + 1;
-        returnTotalUploaded(totalUploaded);
 
         console.log(`${image.name} sucessfully uploaded`)
     }

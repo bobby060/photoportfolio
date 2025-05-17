@@ -12,9 +12,7 @@ import {
     MDBBtn,
     MDBIcon,
 } from 'mdb-react-ui-kit';
-import {
-    MDBCol, MDBRow,
-} from 'mdb-react-ui-kit';
+
 import { } from '@aws-amplify/ui-react';
 import { remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
@@ -22,16 +20,14 @@ import projectConfig from '../helpers/Config';
 // Database
 import { imagesByAlbumsID } from '../graphql/queries';
 import { deleteImages as deleteImageMutation } from '../graphql/mutations';
+import ResponsiveGrid from "./ResponsiveGrid";
 
 // Components
 import { Lightbox } from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
-import ResponsiveGrid from "./ResponsiveGrid";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import Image from "./Image";
-// import "animate.css/animate.min.css";
-// import { AnimationOnScroll } from 'react-animation-on-scroll';
 
 // Inputs:
 // setFeaturedImg - callback to set an image as the albums featured image
@@ -45,193 +41,107 @@ const userGroupClient = generateClient({
     authMode: 'userPool'
 });
 
+
+// Number of images to load per fetch
 const numImagesToLoad = 4;
 
+// Breakpoints for responsive grid
 const breakpoints = [0, 350, 750, 1200];
 
 /** 
  * @param {
  *  setFeaturedImg - callback for setting the feature image
  *  selectedAlbum - album object to display
- *  editMode - should user be able to set featured img or delete etc
+ *  editMode - should user be able to set featured img or delete etc. 
  *  signedIn - is there a user signed in
  * } 
  * @returns React Component
  */
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
-    const [windowSize, setWindowSize] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight,
-    });
-    const [yOffset, setYOffset] = useState(0);
-
-    const observerTarget = useRef(null);
+    // Ref for loading state, avoids race condition
+    const isLoadingFetching = useRef(false);
 
 
-    // Observer for infinite scroll
-    const sizeRef = useRef();
-    // Observer for infinite scroll
-
-
-
+    // State for lightbox
     const [open, setOpen] = React.useState(false);
 
-    // Tracks index for Lightbox
+    // Tracks index for Lightbox    
     const [index, setIndex] = React.useState(0);
 
     // Stores items to display in grid/lightbox
     const [items, setItems] = useState([]);
 
-
-
-
     // Holds next token for data
-    const [nextToken, setNextToken] = useState(null);
+    const [nextToken, setNextToken] = useState(-1);
     const [isLoading, setIsLoading] = useState(false);
 
+
+    // Effect to trigger initial data fetch for an album
     useEffect(() => {
-        if (sizeRef.current) {
-            const y = sizeRef.current.offsetTop;
-            setYOffset(y);
+        if (nextToken === -1 && selectedAlbum.id && items.length === 0 && !isLoadingFetching.current) {
+            fetchData();
         }
-    }, []);
+    }, [nextToken, selectedAlbum.id, items.length, fetchData]);
 
 
     // Fetches next set of items when bottom of scroll is reached
     const fetchData = useCallback(async () => {
 
+        // Don't fetch more data if already loading or no more data to fetch
+        if (isLoadingFetching.current || nextToken === null) return;
 
-        if (isLoading || !nextToken) return;
 
-
-        // Don't fetch more data if already loading
         setIsLoading(true);
+        isLoadingFetching.current = true;
 
-        let res = null;
+        try {
+            const queryData = {
+                albumsID: selectedAlbum.id,
+                limit: numImagesToLoad
+            }
+            if (nextToken !== -1) {
+                queryData.nextToken = nextToken;
+            }
 
-        if (nextToken === -1) {
-            res = await client.graphql({
+            let res = await client.graphql({
                 query: imagesByAlbumsID,
-                variables: {
-                    albumsID: selectedAlbum.id,
-                    limit: numImagesToLoad
-                },
+                variables: queryData
             });
-        } else {
 
-            res = await client.graphql({
-                query: imagesByAlbumsID,
-                variables: {
-                    albumsID: selectedAlbum.id,
-                    limit: numImagesToLoad,
-                    nextToken: nextToken
-                },
+            if (!res || !res.data) {
+                console.error("Error fetching data", res);
+                setIsLoading(false);
+                return;
+            }
+
+            const newItems = res.data.imagesByAlbumsID.items.map((img, i) => {
+                img.index = i;
+                return img
             });
-        }
+            setItems(items => [...items, ...newItems]);
 
-        if (!res) {
+            setNextToken(res.data.imagesByAlbumsID.nextToken);
+        } catch (error) {
+            console.error("Error fetching data", error);
+        } finally {
             setIsLoading(false);
+            isLoadingFetching.current = false;
             return;
+
         }
 
-
-        setItems(items => [...items, ...res.data.imagesByAlbumsID.items].map((img, i) => {
-            img.index = i;
-            return img
-        }));
-        setIsLoading(false);
-
-        console.log(nextToken);
-
-        setNextToken(res.data.imagesByAlbumsID.nextToken);
-
-
-        // }
     }, [nextToken, selectedAlbum.id]);
 
 
-    // Fetches initial data
-    useEffect(() => {
-        getImages();
-        // fetchData();
-    }, []);
 
 
 
-    // Requests the first n images
-    async function getImages() {
-
-        // Only lets this be called when no images are loaded. Kinda a hacky solution.
-        if (items.length > 0) return;
-        setIsLoading(true);
-        // Pulls the image objects associated with the selected album
-        const res = await client.graphql({
-            query: imagesByAlbumsID,
-            variables: {
-                albumsID: selectedAlbum.id,
-                limit: numImagesToLoad
-            },
-        });
-        const imgs = res.data.imagesByAlbumsID.items.map((img, i) => {
-            img.index = i;
-            return img
-        });
-        const nextT = res.data.imagesByAlbumsID.nextToken;
-        setNextToken(nextT);
-
-        setItems(imgs);
-        setIsLoading(false);
-    }
-
-    // Initalizes intersection observer to call each time observer enters view
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting) {
-                    fetchData();
-                }
-            },
-            // { threshold: 1 }
-        );
-
-        const obsCurrent = observerTarget.current;
-
-        if (obsCurrent && !isLoading) {
-            observer.observe(obsCurrent);
-        }
-
-        return () => {
-            if (obsCurrent) {
-                observer.unobserve(obsCurrent);
-            }
-        };
-    }, [isLoading, fetchData]);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setWindowSize({
-                width: window.innerWidth,
-                height: window.innerHeight,
-            });
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    // Gets breakpoint for current width
-    function getBreakpoint() {
-        const cur_width = windowSize.width;
-        for (let i = breakpoints.length - 1; i >= 0; i--) {
-            if (breakpoints[i] < cur_width) return i;
-        }
-    }
 
 
 
     // Deletes image object and source image on AWS
+    // TODO(bobby): extract to a Model function
     async function deleteImage(image) {
         const newImages = items.filter((img) => img.id !== image.id);
         await remove({
@@ -246,7 +156,11 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     }
 
     // Ensures grid does not render if no items are in props
-    if (items.length === 0) return;
+    if (items.length === 0 && nextToken !== null) {
+        return;
+    } else if (items.length === 0 && nextToken === null) {
+        return (<div className='text-center'>No images found for this album</div>)
+    }
 
     // Slides object for lightbox doesn't hold full image object, just the url
     const slides = items.map((image) => {
@@ -262,12 +176,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     }
     );
 
-    // srcSet:[ 
-    //   { src: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}?width=1920`, width: 1920},
-    //   ],
-
-
-
 
     function confirmDeleteImage(image) {
         if (window.confirm("Are you sure you want to delete this image?")) {
@@ -275,6 +183,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         }
     }
 
+    // Delete image button that renders when edit mode is on
     function DeleteImageWrapper(image) {
         if (!deleteImage || !editMode) {
             return;
@@ -323,42 +232,17 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
         </div>
     ))
 
-    console.log(items);
-
-    const num_columns = getBreakpoint();
-
-    // Holds the columns for the photo grid 
-    const columns = new Array(num_columns);
-    // Splits the images into the right number of columns
-    for (let i = 0; i < responsiveProps.length; i++) {
-        const item = responsiveProps[i];
-        const columnIndex = i % num_columns;
-
-        if (!columns[columnIndex]) {
-            columns[columnIndex] = [];
-        }
-        columns[columnIndex].push(item);
-    }
-
-
 
 
     return (
         <div className="d-flex photo-album">
-            <div ref={sizeRef}>
-                <MDBRow className='m-1' style={{ minHeight: `calc(100vh-${yOffset}` }}>
-                    {columns.map((column, i) => (
-                        <MDBCol className="column p-0" key={i}>
-                            {column.map((item) => (
-                                item
-                            ))}
-                        </MDBCol>
-                    ))}
-
-                </MDBRow>
-                <p className='display-block' ref={observerTarget}></p>
-            </div>
-            {/* <div ref={observerTarget}></div> */}
+            <ResponsiveGrid
+                items={responsiveProps}
+                breakpoints={breakpoints}
+                loadNextItems={fetchData}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+            />
             <Lightbox
                 index={index}
                 slides={slides}

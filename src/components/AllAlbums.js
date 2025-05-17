@@ -14,7 +14,6 @@ Relies on two pieces of external data that must be fetched after load:
 Author: Robert Norwood, OCT 2023
 */
 
-"use client"
 
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
@@ -62,8 +61,8 @@ export default function AllAlbums() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [windowSize, setWindowSize] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: undefined,
+        height: undefined,
     });
 
     /**
@@ -91,6 +90,10 @@ export default function AllAlbums() {
                 height: window.innerHeight,
             });
         };
+
+        if (typeof window !== 'undefined') {
+            handleResize();
+        }
 
         window.addEventListener('resize', handleResize);
 

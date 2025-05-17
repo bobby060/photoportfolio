@@ -47,6 +47,3 @@ export async function generateStaticParams() {
         return []; // Return empty array on error to prevent build failure, or handle differently
     }
 }
-
-
-// ... (rest of your page file)
