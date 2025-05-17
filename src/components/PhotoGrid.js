@@ -5,6 +5,7 @@
  * 
  * @author Robert Norwood
  * @date October, 2023 
+ * @last_modified May 16, 2025
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -48,6 +49,8 @@ const numImagesToLoad = 4;
 // Breakpoints for responsive grid
 const breakpoints = [0, 350, 750, 1200];
 
+
+
 /** 
  * @param {
  *  setFeaturedImg - callback for setting the feature image
@@ -59,15 +62,18 @@ const breakpoints = [0, 350, 750, 1200];
  */
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
+    const imageDeliveryHost = projectConfig.getValue('imageDeliveryHost');
+
+
     // Ref for loading state, avoids race condition
     const isLoadingFetching = useRef(false);
 
 
     // State for lightbox
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     // Tracks index for Lightbox    
-    const [index, setIndex] = React.useState(0);
+    const [index, setIndex] = useState(0);
 
     // Stores items to display in grid/lightbox
     const [items, setItems] = useState([]);
@@ -75,15 +81,6 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     // Holds next token for data
     const [nextToken, setNextToken] = useState(-1);
     const [isLoading, setIsLoading] = useState(false);
-
-
-    // Effect to trigger initial data fetch for an album
-    useEffect(() => {
-        if (nextToken === -1 && selectedAlbum.id && items.length === 0 && !isLoadingFetching.current) {
-            fetchData();
-        }
-    }, [nextToken, selectedAlbum.id, items.length, fetchData]);
-
 
     // Fetches next set of items when bottom of scroll is reached
     const fetchData = useCallback(async () => {
@@ -134,6 +131,12 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     }, [nextToken, selectedAlbum.id]);
 
 
+    // Effect to trigger initial data fetch for an album
+    useEffect(() => {
+        if (nextToken === -1 && selectedAlbum.id && items.length === 0 && !isLoadingFetching.current) {
+            fetchData();
+        }
+    }, [nextToken, selectedAlbum.id, items.length, fetchData]);
 
 
 
@@ -166,10 +169,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const slides = items.map((image) => {
         const urlNoSpaces = `${image.id}-${image.filename}`.replaceAll(' ', '%20');
         return ({
-            src: `https://${projectConfig.getValue('imageDeliveryHost')}/public/${image.id}-${image.filename}`,
+            src: `https://${imageDeliveryHost}/public/${image.id}-${image.filename}`,
             alt: image.filename,
 
-            downloadUrl: `https://${projectConfig.getValue('imageDeliveryHost')}/public/${urlNoSpaces}`,
+            downloadUrl: `https://${imageDeliveryHost}/public/${urlNoSpaces}`,
             width: image.width,
             height: image.height,
         });
@@ -178,7 +181,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
 
     function confirmDeleteImage(image) {
-        if (window.confirm("Are you sure you want to delete this image?")) {
+        if (typeof window !== 'undefined' && window.confirm("Are you sure you want to delete this image?")) {
             deleteImage(image);
         }
     }

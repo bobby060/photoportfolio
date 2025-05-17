@@ -140,4 +140,6 @@ class Config {
 
 let projectConfig = Object.freeze(new Config());
 
+// projectConfig.updateConfig();
+
 export default projectConfig;

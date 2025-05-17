@@ -69,7 +69,6 @@ export default function Album({ album_url }) {
 
     }, [authStatus.authStatus, album_url]);
     useEffect(() => {
-        console.log("pulling album");
         getAlbumFromAlbumUrl(album_url)
             .then(albumData => {
                 setAlbum(albumData);
@@ -92,6 +91,7 @@ export default function Album({ album_url }) {
         const new_album = response.data.updateAlbums;
         setAlbum(new_album);
     }
+
 
     // Placeholder while loading
     if (!album) {
@@ -142,8 +142,8 @@ export default function Album({ album_url }) {
     function AlbumHeader() {
         // Makes AlbumHeader responsive
         const [windowSize, setWindowSize] = useState({
-            width: window.innerWidth,
-            height: window.innerHeight,
+            width: undefined,
+            height: undefined,
         });
 
         useEffect(() => {
@@ -154,6 +154,10 @@ export default function Album({ album_url }) {
                 });
             };
 
+            if (typeof window !== 'undefined') {
+                handleResize();
+            }
+
             window.addEventListener('resize', handleResize);
 
             return () => window.removeEventListener('resize', handleResize);
@@ -162,6 +166,9 @@ export default function Album({ album_url }) {
         const breakpoints = [0, 750, 1200, 1920];
 
         function getBreakpoint() {
+            if (typeof window === 'undefined') {
+                return breakpoints[breakpoints.length - 1];
+            }
             const cur_width = windowSize.width;
             for (let i = breakpoints.length - 2; i >= 0; i--) {
                 if (breakpoints[i] < cur_width) return breakpoints[i + 1];
@@ -171,16 +178,22 @@ export default function Album({ album_url }) {
         // Math to make sure image height is appropriate based on width. Min height is 400px
         const imgWidth = getBreakpoint();
         const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
-        const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${imgWidth}` : "";
-        const imgHeight = Math.min(windowSize.width * imgRatio, 400);
-
+        // Ensure imgWidth is a valid number for the URL
+        const numericImgWidth = (typeof imgWidth === 'number' && !isNaN(imgWidth)) ? imgWidth : breakpoints[breakpoints.length - 1]; // Default to a sensible width
+        const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${numericImgWidth}` : "";
+        let imgHeight;
+        if (typeof windowSize.width === 'number' && !isNaN(windowSize.width)) {
+            imgHeight = Math.min(windowSize.width * imgRatio, 400);
+        } else {
+            imgHeight = 300; // Default height when windowSize.width is not yet available
+        }
         // Style for header image
         const parallaxStyle = {
             backgroundImage: `url(${featuredImageUrl})`,
             backgroundAttachment: 'fixed',
             backgroundPosition: 'top',
             backgroundRepeat: 'no-repeat',
-            minHeight: imgHeight,
+            minHeight: Math.max(200, isNaN(imgHeight) ? 200 : imgHeight),
             backgroundSize: '',
         }
 
