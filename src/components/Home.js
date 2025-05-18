@@ -28,6 +28,8 @@ import { IMAGEDELIVERYHOST } from "../helpers/Config";
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 
+export const breakpoints = [0, 350, 750, 1200];
+
 
 // import {upgradeDB} from '../helpers/upgrade_database';
 

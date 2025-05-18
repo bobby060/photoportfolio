@@ -1,13 +1,15 @@
-/* 
-Album.js
-Contains component for Album wrapper
-
-Contains extra options that can only be executed by an admin user group user
-
-Basically is just a PhotoGrid wrapped in an album header
-
-
-Author: Robert Norwood, OCT 2023
+/** 
+ * @brief Album.js
+ * 
+ * Contains component for Album wrapper
+ * 
+ * Contains extra options that can only be executed by an admin user group user
+ * 
+ * Basically is just a PhotoGrid wrapped in an album header
+ * 
+ * @author Robert Norwood, OCT 2023
+ * @date October 2023
+ * @modified May 2025
 */
 
 "use client"
@@ -49,18 +51,9 @@ export default function Album({ album_url }) {
 
     const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
 
-    // useEffect(() => {
-
-    //     const adminObject = new currentUser();
-    //     adminObject.isAdmin((isAdmin) => {
-    //         setState(state => ({ ...state, isAdmin: isAdmin, canEdit: isAdmin }));
-    //     });
-
-    // }, [authStatus.authStatus, album_url]);
 
     // Initializes images after component render
     useEffect(() => {
-
         const adminObject = new currentUser();
         adminObject.isAdmin((isAdmin) => {
             setIsAdmin(isAdmin);

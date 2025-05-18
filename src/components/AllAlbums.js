@@ -37,7 +37,9 @@ import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQuer
 import { urlhelperEncode } from '../helpers/urlhelper';
 import { fetchPublicAlbumTags } from '../helpers/loaders';
 import { IMAGEDELIVERYHOST } from '../helpers/Config';
+import { breakpoints } from './Home';
 
+// Used when initializing database
 // import {createDefaultTags} from '../helpers/upgrade_database';
 const client = generateClient({
     authMode: 'apiKey'
@@ -45,7 +47,6 @@ const client = generateClient({
 
 export default function AllAlbums() {
 
-    // const { albums } = useContext(AlbumsContext);
     const [allTags, setAllTags] = useState([]);
 
     // All albums fetched from server
@@ -114,14 +115,6 @@ export default function AllAlbums() {
     }, []);
 
 
-    /*  Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
-        Example  breakpoints = [0 ,  350, 750, 900, 1300]
-        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
-        Window with of 850 will have 2 columns. 2000 will have 4
-     */
-    const breakPoints = [0, 350, 750, 1200];
-    // const breakPoints = [0,0];
-
     /** 
      * @brief How many columns to have, based on width
      * 
@@ -129,8 +122,8 @@ export default function AllAlbums() {
      */
     function getBreakpoint() {
         const cur_width = windowSize.width;
-        for (let i = breakPoints.length - 1; i >= 0; i--) {
-            if (breakPoints[i] < cur_width) return i;
+        for (let i = breakpoints.length - 1; i >= 0; i--) {
+            if (breakpoints[i] < cur_width) return i;
         }
     }
 
@@ -386,7 +379,7 @@ export default function AllAlbums() {
                 </MDBRow>
                 <ResponsiveGrid
                     items={placeHolderItems}
-                    breakpoints={breakPoints}
+                    breakpoints={breakpoints}
                 />
             </>
         );
@@ -427,7 +420,7 @@ export default function AllAlbums() {
             <div className="d-flex">
                 <ResponsiveGrid
                     items={responsiveItems}
-                    breakpoints={breakPoints}
+                    breakpoints={breakpoints}
                     loadNextItems={fetchNextAlbums}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
