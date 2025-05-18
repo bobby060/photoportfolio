@@ -24,7 +24,7 @@ import AllAlbums from './AllAlbums';
 import FeaturedCarouselWrapper from './Carousel';
 import Image from 'next/image';
 // Helpers
-import projectConfig from "../helpers/Config";
+import { IMAGEDELIVERYHOST } from "../helpers/Config";
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 
@@ -73,7 +73,7 @@ export default function Home() {
             }
         });
 
-        const urls = response.items.map((item) => `https://${projectConfig.getValue('imageDeliveryHost')}/public/${item.key}?width=1280`);
+        const urls = response.items.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
         setHeaderImgs(urls);
     }
 
@@ -98,12 +98,15 @@ export default function Home() {
         return (
             <Carousel fade indicators={false} interval={3000} controls={false} pause={false} >
                 {headerImgs.map((img, i) =>
+
+
                 (
                     <Carousel.Item itemID={i} key={i}  >
                         <Image src={img} alt='...'
                             style={s}
                             width={s.width}
                             height={s.height}
+                            priority={true}
                         />
                     </Carousel.Item>
                 ))}

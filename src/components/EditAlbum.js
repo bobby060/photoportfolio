@@ -152,6 +152,7 @@ export default function EditAlbum({ album_url, setEditMode }) {
         } finally {
             setIsLoading(false); // Always reset loading state
         }
+        router.push(`/albums/${urlhelperEncode(currentAlbum)}`);
     }
 
     async function cancelEdit(e) {

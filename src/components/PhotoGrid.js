@@ -17,7 +17,7 @@ import {
 import { } from '@aws-amplify/ui-react';
 import { remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
-import projectConfig from '../helpers/Config';
+import { IMAGEDELIVERYHOST } from '../helpers/Config';
 // Database
 import { imagesByAlbumsID } from '../graphql/queries';
 import { deleteImages as deleteImageMutation } from '../graphql/mutations';
@@ -28,7 +28,7 @@ import { Lightbox } from "yet-another-react-lightbox";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-import Image from "./Image";
+import ImageWrapper from "./Image";
 
 // Inputs:
 // setFeaturedImg - callback to set an image as the albums featured image
@@ -62,7 +62,6 @@ const breakpoints = [0, 350, 750, 1200];
  */
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
 
-    const imageDeliveryHost = projectConfig.getValue('imageDeliveryHost');
 
 
     // Ref for loading state, avoids race condition
@@ -169,10 +168,10 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const slides = items.map((image) => {
         const urlNoSpaces = `${image.id}-${image.filename}`.replaceAll(' ', '%20');
         return ({
-            src: `https://${imageDeliveryHost}/public/${image.id}-${image.filename}`,
+            src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
             alt: image.filename,
 
-            downloadUrl: `https://${imageDeliveryHost}/public/${urlNoSpaces}`,
+            downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`,
             width: image.width,
             height: image.height,
         });
@@ -218,7 +217,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const responsiveProps = items.map((image, i) => (
         <div className='m-0 p-1' key={i}>
             <div className='bg-image hover-overlay position-relative'>
-                <Image
+                <ImageWrapper
                     img_obj={image}
                     className='img-fluid shadow-4'
                     alt={image.filename}

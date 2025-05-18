@@ -5,19 +5,17 @@ import { useEffect } from "react";
 import '@aws-amplify/ui-react/styles.css';
 import '../css/auth_css.css';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
     const { route } = useAuthenticator((context) => [context.route]);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const from = searchParams.get('from') || '/';
 
     useEffect(() => {
         if (route === 'authenticated') {
-            router.push(from);
+            router.push('/');
         }
-    }, [route, router, from]);
+    }, [route, router]);
 
     return (
         <View className="auth-wrapper">

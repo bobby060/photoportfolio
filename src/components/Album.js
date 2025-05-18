@@ -27,7 +27,7 @@ import { updateAlbums } from '../graphql/mutations';
 
 // Helper functions
 import { getAlbumFromAlbumUrl } from '../helpers/urlhelper';
-import projectConfig from '../helpers/Config';
+import { IMAGEDELIVERYHOST } from '../helpers/Config';
 import currentUser from '../helpers/CurrentUser';
 
 // Components
@@ -180,7 +180,7 @@ export default function Album({ album_url }) {
         const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
         // Ensure imgWidth is a valid number for the URL
         const numericImgWidth = (typeof imgWidth === 'number' && !isNaN(imgWidth)) ? imgWidth : breakpoints[breakpoints.length - 1]; // Default to a sensible width
-        const featuredImageUrl = (album.featuredImage) ? `https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${numericImgWidth}` : "";
+        const featuredImageUrl = (album.featuredImage) ? `https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${numericImgWidth}` : "";
         let imgHeight;
         if (typeof windowSize.width === 'number' && !isNaN(windowSize.width)) {
             imgHeight = Math.min(windowSize.width * imgRatio, 400);

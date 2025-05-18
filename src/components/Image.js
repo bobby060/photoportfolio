@@ -10,68 +10,66 @@
  * @date 8/11/2024
  */
 import React, { useState, useEffect } from 'react';
-import projectConfig from '../helpers/Config';
-
-
+import { IMAGEDELIVERYHOST } from '../helpers/Config';
 import { MDBSpinner } from 'mdb-react-ui-kit';
 
-export default function Image({ img_obj, className }) {
-    // const small = 300;
-    // const md = 768;
-    // const lg = 1280;
-    const delivery_domain = `https://${projectConfig.getValue('imageDeliveryHost')}/public`;
+import Image from 'next/image';
+
+// Create a shimmer effect data URL
+const shimmer = (w, h) => `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#f6f7f8" offset="20%" />
+      <stop stop-color="#edeef1" offset="50%" />
+      <stop stop-color="#f6f7f8" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#f6f7f8" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
+</svg>`;
+
+const toBase64 = (str) =>
+    typeof window === 'undefined'
+        ? Buffer.from(str).toString('base64')
+        : window.btoa(str);
+
+export default function ImageWrapper({ img_obj, className }) {
+    // const [img, setImg] = useState(null);
+    // const [error, setError] = useState(null);
+    // const [retries, setRetries] = useState(0);
+    // const maxRetries = 4;
+
+    const delivery_domain = `https://${IMAGEDELIVERYHOST}/public`;
     const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
 
-    const [img, setImg] = useState();
 
-    // function image_loader(url){
-    let retries = 0;
-    const maxRetries = 4;
-
-    // Attempt to fetch image up to 4 times.
-    const fetchImage = () => {
-        fetch(`${img_url}?width=1920`)
-            .then(response => {
-                if (response.status === 429 && retries < maxRetries) {
-                    console.warn(`Image request failed with 429 status code. Retrying...`);
-                    retries++;
-                    setTimeout(fetchImage, 1000);
-                    return;
-                } else if (response.ok) {
-                    return response.blob();
-                } else {
-                    throw new Error(`Image request failed with status code ${response.status}`);
-                }
-            })
-            .then(blob => {
-                const imgObj = URL.createObjectURL(blob);
-                setImg(imgObj);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
-
-    useEffect(() => {
-        fetchImage();
-    });
-
-    if (!img) {
-        return (
-            <MDBSpinner role='loading'>
-                <span className='visually-hidden'>Loading...</span>
-            </MDBSpinner>
-        )
-    }
-
+    // Create blur data URL
+    const blurDataURL = `data:image/svg+xml;base64,${toBase64(shimmer(img_obj.width, img_obj.height))}`;
 
     return (
-        <picture>
-            <img src={img} className={className} loading='lazy' alt={img_url} />
-        </picture>);
+        // <picture>
+        //     <img
+        //         src={img}
+        //         className={className}
+        //         loading='lazy'
+        //         alt={img_obj.filename || 'Album image'}
+        //     />
+        // </picture>
+        <Image
+            src={img_url}
+            className={className}
+            loading='lazy'
+            alt={img_obj.filename || 'Album image'}
+            width={img_obj.width}
+            height={img_obj.height}
+            placeholder='blur'
+            blurDataURL={blurDataURL}
+            quality={75}
+        />
 
-
+    );
 }
 
 // Delete file

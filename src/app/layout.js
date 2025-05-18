@@ -3,7 +3,6 @@
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from '../amplifyconfiguration.json';
-import projectConfig from "../helpers/Config";
 import '../css/index.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css"
@@ -28,9 +27,6 @@ import NavigationBar from '../components/NavigationBar';
 import Footer from '../components/Footer';
 
 
-// Initialize config
-projectConfig.updateConfig();
-export const IMAGEDELIVERYHOST = projectConfig.getValue('imageDeliveryHost');
 // Selected album gets passed a context to the outlet.
 
 

@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { urlhelperEncode } from '../helpers/urlhelper';
 
 import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
-import projectConfig from '../helpers/Config';
+import { IMAGEDELIVERYHOST, FEATURED_TAG_ID } from '../helpers/Config';
 
 const client = generateClient({
     authMode: 'apiKey'
@@ -53,7 +53,7 @@ function dateFormat(date) {
  * @returns {JSX}
  */
 export default function FeaturedCarouselWrapper() {
-    const featuredAlbumTag = projectConfig.getValue('featuredTagId');
+    const featuredAlbumTag = FEATURED_TAG_ID;
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [windowSize, setWindowSize] = useState({
         width: undefined,
@@ -120,7 +120,7 @@ export default function FeaturedCarouselWrapper() {
                         <Carousel.Item itemID={i} style={{}} key={i}>
                             <MDBCard background='dark' className='text-white bg-image' alignment='end'>
                                 <MDBCardImage overlay
-                                    src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
+                                    src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=1920`}
                                     alt='...'
                                     style={{ 'objectFit': 'cover', height: height }}
                                     className='' />

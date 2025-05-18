@@ -11,13 +11,12 @@ import {
     MDBRadio,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
 import { albumTagsAlbumsByAlbumTagsId } from "../graphql/queries";
 import currentUser from "../helpers/CurrentUser";
-import projectConfig from "../helpers/Config";
 import { upgradeAlbums } from "../helpers/upgrade_database";
 
 const client = generateClient();
@@ -32,11 +31,10 @@ const client = generateClient();
  */
 export default function ManageAccount() {
 
-    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [tags, setTags] = useState([]);
-
+    const router = useRouter();
     useEffect(() => {
         const adminObject = new currentUser();
         fetchTags();
@@ -82,19 +80,6 @@ export default function ManageAccount() {
 
     }
 
-    /**
-     * @brief set current environment
-     * 
-     * @param {*} event 
-     */
-    async function updateBranch(event) {
-        event.preventDefault();
-        const form = new FormData(event.target);
-        const radioValue = form.get("inlineRadio");
-        console.log(radioValue);
-        projectConfig.setCurrentEnvironment(radioValue);
-        projectConfig.save();
-    }
 
     function AdminSettings() {
 
@@ -110,17 +95,6 @@ export default function ManageAccount() {
                 </MDBListGroup>
 
 
-                <p className="mt-1">Change current environment</p>
-                <form className="m-1" onSubmit={updateBranch}>
-                    {(projectConfig.getCurrentEnvironment() === 'dev') ? (
-                        <>
-                            <MDBRadio name='inlineRadio' value='dev' label='dev' inline defaultChecked />
-                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline />
-                        </>) : (<><MDBRadio name='inlineRadio' value='dev' label='dev' inline />
-                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline defaultChecked />
-                        </>)}
-                    <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
-                </form>
                 <hr className="hr" />
                 <MDBBtn className="bg-dark m-1" onClick={() => upgradeAlbums()}>Update DB</MDBBtn>
             </MDBCol>
@@ -131,12 +105,12 @@ export default function ManageAccount() {
 
     function signOutWrapper() {
         signOut();
-        redirect('/signin');
+        router.push('/signin');
     }
 
     // Redirect to sign in if user isn't authenticated
     if (authStatus.authStatus === "unauthenticated") {
-        redirect('/signin');
+        router.push('/signin');
     }
 
     //  

@@ -36,7 +36,7 @@ import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQuer
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
 import { fetchPublicAlbumTags } from '../helpers/loaders';
-import projectConfig from '../helpers/Config';
+import { IMAGEDELIVERYHOST } from '../helpers/Config';
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 const client = generateClient({
@@ -79,7 +79,20 @@ export default function AllAlbums() {
     // Fetches list of tags and first 10 albums on load
     useEffect(() => {
         fetchTags();
-        fetchInitialAlbums();
+
+        let numRetries = 0;
+        const maxRetries = 3;
+        const retryDelay = 100;
+
+        try {
+            fetchInitialAlbums();
+        } catch (error) {
+            console.error('Error fetching initial albums, retrying...', error);
+            if (numRetries < maxRetries) {
+                setTimeout(fetchInitialAlbums, retryDelay);
+            }
+        }
+
     }, []);
 
     // Updates the windowsize state object on resize
@@ -165,12 +178,18 @@ export default function AllAlbums() {
 
         // Case: no tags are selected. Load all albums in date order
         if (Object.keys(selectedTagsIndexes).length < 1) {
+
+            let variables = {
+                limit: 4
+            }
+
+            if (nextToken !== null) {
+                variables.nextToken = nextToken;
+            }
+
             const res = await client.graphql({
                 query: albumByDate,
-                variables: {
-                    limit: 4,
-                    nextToken: nextToken
-                }
+                variables: variables
             })
 
             setNextToken(nextToken => res.data.albumByDate.nextToken);
@@ -379,7 +398,7 @@ export default function AllAlbums() {
             <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light text-decoration-none" key={i}>
                 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                     <MDBCardImage overlay
-                        src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
+                        src={`https://${IMAGEDELIVERYHOST}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
                         alt='...'
                         style={height_style}
                         className='' />
