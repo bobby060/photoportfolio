@@ -1,3 +1,9 @@
+/**Home2.js
+ * @brief Home page component
+ * 
+ * @author Robert Norwood
+ * @date October, 2023 
+ */
 import React, { useState, useEffect } from 'react';
 import {
     MDBCol,
@@ -24,12 +30,15 @@ import projectConfig from "../helpers/Config";
 // import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home() {
+
+    // State for header images
     const [headerImgs, setHeaderImgs] = useState([]);
     const [windowSize, setWindowSize] = useState({
         width: window.innerWidth,
         height: window.innerHeight,
     });
 
+    // Handles resizing
     useEffect(() => {
         getHeaderImgs();
         const handleResize = () => {
@@ -46,6 +55,12 @@ export default function Home() {
 
 
 
+    /**
+     * @brief fetch header images
+     * 
+     * Header images are stored in the folder 'highlights' on the image delivery host.
+     * 
+     */
     async function getHeaderImgs() {
         const response = await list({
             prefix: 'highlights/h',
@@ -59,11 +74,11 @@ export default function Home() {
         setHeaderImgs(urls);
     }
 
-    // style={{height: '600px'}}
-    // style={{ width:'100%', height:'100%', 'object-fit': 'cover'}}
-
+    // React component holding the home page header images
     function HeaderCarousel() {
         const s = { width: windowSize.width, height: windowSize.height, 'objectFit': 'cover' };
+
+        // Carousel with placeholders
         if (headerImgs.length < 1) return (
             <Carousel indicators={false} interval={2500} style={s} controls={false} pause={false}>
                 <Carousel.Item itemID={1} className='overflow-hidden placeholder' >
@@ -75,6 +90,7 @@ export default function Home() {
                 </Carousel.Item>
             </Carousel>
         );
+        // Carousel weth images mapped
         return (
             <Carousel fade indicators={false} interval={3000} controls={false} pause={false} >
                 {headerImgs.map((img, i) =>
@@ -88,29 +104,6 @@ export default function Home() {
             </Carousel>);
 
     }
-
-    // function AlbumCards() {
-    // 	if (featuredAlbums.length < 1) return;
-
-    // 	return (
-    // 		featuredAlbums.map( (album, i) => (
-    // 			 <MDBCard background='dark' className='text-white m-4' alignment='end'>
-    // 			 <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light">
-    // 		      <MDBCardImage overlay
-    // 		       src={`https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.url}?width=1920`}
-    // 		       alt='...'/>
-    // 		      <MDBCardOverlay style={{background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))'}}>
-    // 		        <MDBCardTitle>{album.title}</MDBCardTitle>
-    // 		        <MDBCardText className='text-truncate'>
-    // 		          {album.desc}
-    // 		        </MDBCardText>
-    // 		        <MDBCardText>{dateFormat(album.date)}</MDBCardText>
-    // 		      </MDBCardOverlay>
-    // 		      </Link>
-    // 		    </MDBCard>
-
-    // 			)));
-    // }
 
     return (
         <div>

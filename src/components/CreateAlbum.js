@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+"use client"
+import React, { useEffect, useState, useRef } from "react";
 import { generateClient } from 'aws-amplify/api';
 import {
+    MDBClientOnly,
     MDBRow,
     MDBCol,
     MDBBtn,
@@ -9,13 +11,15 @@ import {
     MDBContainer,
     MDBFile,
     MDBSpinner
+
 } from 'mdb-react-ui-kit';
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/navigation';
 
 // Database
 import { createAlbums, updateAlbums, createUrl, deleteAlbums } from '../graphql/mutations';
 import { imagesByAlbumsID, listImages } from '../graphql/queries';
+
 
 
 // Helpers
@@ -27,37 +31,55 @@ const client = generateClient({
     authMode: 'userPool'
 });
 
-
+/**
+ * @brief React Component for creating an album
+ * 
+ * 
+ * @returns 
+ */
 export default function CreateAlbum() {
-    const navigate = useNavigate();
+    const router = useRouter();
+
+    // Files in file picker selected for update
     const [selectedFiles, setSelectedFiles] = useState([]);
+
+    // Whether or not current user is admin
     const [isAdmin, setIsAdmin] = useState('loading');
+
     const [isLoading, setIsLoading] = useState(false);
+
+    // Total pics uploaded sucessfully
     const [totalUploaded, setTotalUploaded] = useState(0);
+
+    // Error message text
     const [warningText, setWarningText] = useState('');
-    const userObject = new currentUser();
 
 
+    const clientRef = useRef(false);
+
+
+
+
+
+
+    // Updates isAdmin state
+    useEffect(() => {
+        const userObject = new currentUser();
+
+        userObject.isAdmin((isAdmin) => {
+            setIsAdmin(isAdmin);
+            if (!isAdmin) {
+                router.push('/');
+            }
+        });
+
+    }, [router]);
 
     useEffect(() => {
-        userObject.isAdmin(setIsAdmin);
-    }, []);
-
-
-    useEffect(() => {
-        redirectIfNotAdmin();
-    }, [isAdmin]);
-
-    function redirectIfNotAdmin() {
-        console.log(isAdmin);
-        if (!isAdmin) {
-            navigate('/');
+        if (typeof IntersectionObserver !== 'undefined') {
+            clientRef.current = true;
         }
-    }
-
-    // function handleNew(){
-    // 	document.getElementById("createAlbumForm").submit();
-    // }
+    }, []);
 
 
     // tracks files uploaded by clicker, sets state object
@@ -68,20 +90,31 @@ export default function CreateAlbum() {
 
     // Creates a new Album object along with the associated URL object. Also uploads all images currently in file picker
     // 
+    /**
+     * @brief creates a new album
+     * 
+     * Uses the current component state to create a new album
+     * 
+     * @param {*} event form event
+     */
     async function newAlbum(event) {
         event.preventDefault();
         setIsLoading(true);
         const form = new FormData(event.target);
+
         // Date in format 2023-11-11T00:00:00.000Z
         const date = form.get("date") + 'T00:00:00.000Z';
         const cur_date = new Date();
+
         // Sets default date to current time if not set by user
         const cleaned_date = (date === 'T00:00:00.000Z') ? cur_date.toISOString() : date;
         const title = form.get("title");
+
         // Ensures album has a name...
         const cleaned_title = (title.length === 0) ?
             `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
-        // Get a random image to ENSURE there is a featured Image, even tho this should be handled later
+
+        // Get a random image to ENSURE there is a featured Image, even tho this SHOULD be handled later
         const placeHolderImageRes = await client.graphql({
             query: listImages,
             limit: 1
@@ -89,7 +122,7 @@ export default function CreateAlbum() {
 
         const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
 
-        // Data for image object
+        // Data for image document
         const imageObjectData = {
             title: cleaned_title,
             desc: form.get("desc"),
@@ -98,11 +131,14 @@ export default function CreateAlbum() {
             type: 'Album'
         };
 
+        // Try to create album
         const response = await client.graphql({
             query: createAlbums,
             variables: { input: imageObjectData },
         });
         const newAlbum = response.data.createAlbums;
+
+        // TODO: Need error handling
 
         // Data for url
         const urlData = {
@@ -129,6 +165,7 @@ export default function CreateAlbum() {
         // Uploads images while updating totaluploaded
         await uploadImages(newAlbum, selectedFiles, setTotalUploaded);
 
+        // Update featured image to the first image uploaded to the album
         try {
             const res = await client.graphql({
                 query: imagesByAlbumsID,
@@ -151,9 +188,12 @@ export default function CreateAlbum() {
                 },
             })
             const new_album = updateAlbumResponse.data.updateAlbums;
-            setWarningText(`Created new album named: ${form.get("title")}`)
+            // setWarningText(`Created new album named: ${form.get("title")}`)
             console.log(`Created new album named: ${form.get("title")}`);
-            navigate(`../albums/${urlhelperEncode(new_album)}/edit`);
+            // Navigate after creating image
+            // TODO(bobby): Go to newly created album. Requires updating the targets in route
+            // router.push(`../albums/${urlhelperEncode(new_album)}/edit`);
+            router.push(`../`);
             event.target.reset();
         } catch (error) {
             console.warn('failed to update featured img for new album. Album still created');
@@ -161,38 +201,44 @@ export default function CreateAlbum() {
             event.target.reset();
         }
     }
-
-
+    if (!clientRef.current) {
+        return <></>
+    }
 
     return (
-        <MDBContainer className=''>
-            <h2 className="mt-2"> Create new album </h2>
-            <form id="createAlbumForm" onSubmit={newAlbum}>
-                {/* Form containing title, date, and description */}
-                <MDBRow className=' justify-content-center'>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBInput className='mb-3' label='Title' name='title' type='text' />
-                        <MDBInput className='mb-3' label='Date' name='date' type='date' />
-                    </MDBCol>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} />
-                    </MDBCol>
-                </MDBRow>
-                {/* File selector */}
-                <MDBRow className=' justify-content-center'>
-                    <MDBCol xl='3' lg='5' md='6'>
-                        <MDBFile
-                            multiple
-                            onChange={setFiles}
-                            className='m-1 mb-3'
-                        />
-                    </MDBCol>
-                </MDBRow>
-                <SubmitButtonWrapper />
-            </form>
-            {isLoading ? <Loading /> : <></>}
-            <p>{warningText}</p>
-        </MDBContainer>
+
+
+        <div>
+            <MDBContainer className=''>
+                <h2 className="mt-2"> Create new album </h2>
+                <form id="createAlbumForm" onSubmit={newAlbum}>
+                    {/* Form containing title, date, and description */}
+                    <MDBRow className=' justify-content-center'>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBInput className='mb-3' label='Title' name='title' type='text' />
+                            <MDBInput className='mb-3' label='Date' name='date' type='date' />
+                        </MDBCol>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBTextArea className='mb-3' label='Description' name='desc' type='text' rows={3} />
+                        </MDBCol>
+                    </MDBRow>
+                    {/* File selector */}
+                    <MDBRow className=' justify-content-center'>
+                        <MDBCol xl='3' lg='5' md='6'>
+                            <MDBFile
+                                multiple
+                                onChange={setFiles}
+                                className='m-1 mb-3'
+                            />
+                        </MDBCol>
+                    </MDBRow>
+                    <SubmitButtonWrapper />
+                </form>
+                {isLoading ? <Loading /> : <></>}
+                <p>{warningText}</p>
+            </MDBContainer>
+        </div>
+
     )
 
 
@@ -207,7 +253,7 @@ export default function CreateAlbum() {
         return (<MDBBtn className='bg-dark m-1' >Create</MDBBtn>);
     }
 
-    // Loading indicator that displays upload progress x of y style
+    // Loading indicator that displays upload progress in format x of y
     function Loading() {
         return (<>
             <MDBSpinner className="mt-3"></MDBSpinner>

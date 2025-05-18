@@ -56,7 +56,10 @@ Ensure you have properly configured Amplify CLI, see [here](https://docs.amplify
 4. Upload any images you want to show in the header carousel to your AWS S3 photo bucket with the prefix 'highlights/h'. This will allow them to be automatically pulled into the header carousel
 
 5. Start the app. Featured portion of the screen won't appear until you create a featured tag (need to add instructions on how to do that)
-```npm start```
+```npm run dev```
+
+To run in production mode:
+```npm run build```
 
 6. Configure an admin user in AWS Cognito and add them to the user group 'portfolio-admin.' Once you log in with that user, you should be able to create albums, upload pictures, and create public tags.
 

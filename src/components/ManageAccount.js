@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from "react";
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -6,37 +7,39 @@ import {
     MDBListGroupItem,
     MDBBtn,
     MDBContainer,
-    MDBSpinner,
     MDBIcon,
     MDBRadio,
-    MDBBtnGroup
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/navigation';
 
-import { fetchAllAlbumTags, fetchPublicAlbumTags } from "../helpers/loaders";
+import { fetchPublicAlbumTags } from "../helpers/loaders";
 import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
-import { albumTagsAlbumsByAlbumTagsId, listAlbumTagsAlbums } from "../graphql/queries";
+import { albumTagsAlbumsByAlbumTagsId } from "../graphql/queries";
 import currentUser from "../helpers/CurrentUser";
-import projectConfig from "../helpers/Config";
 import { upgradeAlbums } from "../helpers/upgrade_database";
 
 const client = generateClient();
 
-
+/**
+ * @brief React Component for the manage account page
+ * 
+ * Provides acess for admin to
+ * - manage tags
+ * - manually change the environment
+ * 
+ */
 export default function ManageAccount() {
 
-    // const user_item = useAuthenticator((context) => [context.user]);
     const authStatus = useAuthenticator(context => [context.authStatus]);
     const [isAdmin, setIsAdmin] = useState(false);
-    const adminObject = new currentUser();
     const [tags, setTags] = useState([]);
-    const navigate = useNavigate();
-
+    const router = useRouter();
     useEffect(() => {
+        const adminObject = new currentUser();
         fetchTags();
         adminObject.isAdmin(setIsAdmin);
-    }, []);
+    }, [authStatus.authStatus]);
 
 
     async function fetchTags() {
@@ -44,6 +47,15 @@ export default function ManageAccount() {
         setTags(loadedTags);
     }
 
+    /**
+     * @brief delete an Album Tag
+     * 
+     * with confirmation
+     * First deletes all Tag Connections to that tag, then deletes the tag itself
+     * 
+     * @param {*} tag 
+     * @returns 
+     */
     async function deleteTag(tag) {
         if (!window.confirm(`Are you sure you want to delete the tag ${tag.title}?`)) return;
 
@@ -68,14 +80,6 @@ export default function ManageAccount() {
 
     }
 
-    async function updateBranch(event) {
-        event.preventDefault();
-        const form = new FormData(event.target);
-        const radioValue = form.get("inlineRadio");
-        console.log(radioValue);
-        projectConfig.setCurrentEnvironment(radioValue);
-        projectConfig.save();
-    }
 
     function AdminSettings() {
 
@@ -89,17 +93,8 @@ export default function ManageAccount() {
                         <MDBBtn tag='a' color='none' style={{ color: '#000000' }} onClick={() => { deleteTag(tag) }} ><MDBIcon className="" fas icon="trash" /></MDBBtn>
                     </MDBListGroupItem>))}
                 </MDBListGroup>
-                <p className="mt-1">Change branch</p>
-                <form className="m-1" onSubmit={updateBranch}>
-                    {(projectConfig.getCurrentEnvironment() === 'dev') ? (
-                        <>
-                            <MDBRadio name='inlineRadio' value='dev' label='dev' inline defaultChecked />
-                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline />
-                        </>) : (<><MDBRadio name='inlineRadio' value='dev' label='dev' inline />
-                            <MDBRadio name='inlineRadio' value='staging' label='staging' inline defaultChecked />
-                        </>)}
-                    <MDBBtn className="bg-dark m-1" >Save</MDBBtn>
-                </form>
+
+
                 <hr className="hr" />
                 <MDBBtn className="bg-dark m-1" onClick={() => upgradeAlbums()}>Update DB</MDBBtn>
             </MDBCol>
@@ -108,18 +103,26 @@ export default function ManageAccount() {
 
     const { signOut } = useAuthenticator((context) => [context.user]);
 
-    if (authStatus.authStatus === "unauthenticated") {
-        navigate('/signin');
+    function signOutWrapper() {
+        signOut();
+        router.push('/signin');
     }
 
+    // Redirect to sign in if user isn't authenticated
+    if (authStatus.authStatus === "unauthenticated") {
+        router.push('/signin');
+    }
+
+    //  
     return (
         <MDBContainer>
             <h4 className="mt-2"> Manage Account Here</h4>
 
             {isAdmin ? <AdminSettings /> : <></>}
+            {/* Non-admin users don't have any options right now! This would be where 
+            those options would be added in the future */}
 
-
-            <MDBBtn className="bg-dark" onClick={signOut}>Sign Out</MDBBtn>
+            <MDBBtn className="bg-dark" onClick={signOutWrapper}>Sign Out</MDBBtn>
         </MDBContainer>
 
     );

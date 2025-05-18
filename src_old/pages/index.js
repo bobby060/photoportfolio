@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './css/index.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import App from './components/App';
-import reportWebVitals from './reportWebVitals';
+import App from '../components/App';
+import reportWebVitals from '../reportWebVitals';
 import { Amplify } from 'aws-amplify';
-import config from './aws-exports';
+import config from '../aws-exports';
 Amplify.configure(config);
 
 // const root = ReactDOM.createRoot(document.getElementById('root'));

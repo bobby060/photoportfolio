@@ -1,3 +1,5 @@
+"use client"
+
 /**NavigationBar.js
  * @brief React Component for the photo portfolio navigation bar
  * 
@@ -6,8 +8,7 @@
  */
 
 import { React, useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import Link from 'next/link';
 import {
     MDBContainer,
     MDBNavbar,
@@ -17,46 +18,39 @@ import {
     MDBNavbarItem,
     MDBNavbarLink,
     MDBCollapse,
-    // MDBDropdown,
-    // MDBDropdownMenu,
-    // MDBDropdownToggle,
-    // MDBDropdownItem,
-    // MDBTooltip,
 } from 'mdb-react-ui-kit';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
-import logo from '../logo192.png';
 import currentUser from '../helpers/CurrentUser';
+import { useRouter } from 'next/navigation';
 
-// import { useLocation } from "react-router-dom";
-// import { AlbumsContext } from '../helpers/AlbumsContext';
-// import {urlhelperDecode} from '../helpers/urlhelper';
-
+import Image from 'next/image';
 
 export default function NavigationBar() {
-
-    const [showNav, setShowNav] = useState(false);
-    const [idTokenState, setIdToken] = useState(null);
     const authStatus = useAuthenticator(context => [context.authStatus]);
-    const userItem = useAuthenticator(context => [context.user]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [username, setUserName] = useState(null);
-    const adminObject = new currentUser();
-    // const groups = useAuthenticator(context => [context.user.user.signInUserSession.accessToken.payload]);
-    // const {albums} = useContext(AlbumsContext);
+    const [showNav, setShowNav] = useState(false);
+    const [userInfo, setUserInfo] = useState({
+        username: null,
+        isAdmin: false
+    });
+
+    const router = useRouter();
 
     useEffect(() => {
-        adminObject.userName(setUserName);
+        const adminObject = new currentUser();
 
-        adminObject.isAdmin(setIsAdmin);
-    }, [])
+        const fetchUserInfo = async () => {
+            let userName = null;
+            let isAdmin = false;
 
-    useEffect(() => {
-        adminObject.userName(setUserName);
+            await adminObject.userName((username) => userName = username);
+            await adminObject.isAdmin((adminStatus) => isAdmin = adminStatus);
 
-        adminObject.isAdmin(setIsAdmin);
-    }, [authStatus]);
+            setUserInfo({ username: userName, isAdmin });
+        };
 
+        fetchUserInfo();
+    }, []);
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
@@ -64,57 +58,54 @@ export default function NavigationBar() {
             return (
                 <MDBNavbarNav className='ms-auto'>
                     <MDBNavbarItem className="ms-lg-auto" onClick={() => setShowNav(false)}>
-                        <Link to={`/signin`}>
-                            <MDBNavbarLink tabIndex={-1} aria-disabled='true'>
-                                Sign In
-                            </MDBNavbarLink>
-                        </Link>
+                        <MDBNavbarLink href="/signin" tabIndex={-1} aria-disabled='true'>
+                            Sign In
+                        </MDBNavbarLink>
                     </MDBNavbarItem>
                 </MDBNavbarNav>
-
             );
         }
         return (
             <MDBNavbarNav className='ms-auto w-auto'>
                 <MDBNavbarItem>
-                    <Link to={`/account`}>
-                        <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                            {(username) ? username : ''}
-                        </MDBNavbarLink>
-                    </Link>
-                </MDBNavbarItem>
-                {/* <MDBNavbarItem>
-                    <MDBNavbarLink onClick={signOut} tabIndex={-1} aria-disabled='true'>
-                        Sign Out
+                    <MDBNavbarLink href="/account" aria-disabled='true' onClick={() => setShowNav(false)}>
+                        {userInfo.username || ''}
                     </MDBNavbarLink>
-                </MDBNavbarItem> */}
+                </MDBNavbarItem>
             </MDBNavbarNav>
         );
     }
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (isAdmin) {
-            return (<MDBNavbarItem>
-                <MDBNavbarLink aria-disabled='true' onClick={() => setShowNav(false)}>
-                    <NavLink to={`/new`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                        New Album
-                    </NavLink>
-                </MDBNavbarLink>
-            </MDBNavbarItem>);
+        if (authStatus.authStatus === 'authenticated') {
+            return (
+                <MDBNavbarItem>
+                    <MDBNavbarLink href="/new" aria-disabled='true' onClick={() => setShowNav(false)}>
+                        <span className="text-muted">New Album</span>
+                    </MDBNavbarLink>
+                </MDBNavbarItem>
+            );
         }
-        return;
+        return null;
     }
+
+    // TODO(bobby): Add active class to navbar links
+    // className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}
 
     return (
         <MDBNavbar expand='lg' light bgColor='light' >
             <MDBContainer fluid >
-                <img src={logo} className='pe-2' style={{ height: '40px' }} alt='RNorwood logo' />
-                <Link to="/home">
-                    <MDBNavbarBrand href='#'>
-                        Robert Norwood
-                    </MDBNavbarBrand>
-                </Link>
+                <Image
+                    src={require('../../public/logo192.png')}
+                    className='pe-2'
+                    width={46}
+                    height={40}
+                    alt='RNorwood logo'
+                />
+                <MDBNavbarBrand href="/" >
+                    Robert Norwood
+                </MDBNavbarBrand>
                 <MDBNavbarToggler
                     type='button'
                     aria-expanded='false'
@@ -126,32 +117,17 @@ export default function NavigationBar() {
                 <MDBCollapse navbar show={showNav}>
                     <MDBNavbarNav className='w-auto'>
                         <MDBNavbarItem>
-                            <MDBNavbarLink onClick={() => setShowNav(false)}>
-                                <NavLink to={`/home`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                                    Home
-                                </NavLink>
+                            <MDBNavbarLink href="/" onClick={() => setShowNav(false)} >
+                                <span className="text-muted">Home</span>
+
                             </MDBNavbarLink>
                         </MDBNavbarItem>
                         <MDBNavbarItem>
-                            <MDBNavbarLink onClick={() => setShowNav(false)}>
-                                <NavLink to={`/home#albums`} className={({ isActive }) => [isActive ? "text-dark" : "text-muted"]}>
-                                    Albums
-                                </NavLink>
+                            <MDBNavbarLink href="/#albums" onClick={() => setShowNav(false)}>
+                                <span className="text-muted">Albums</span>
                             </MDBNavbarLink>
                         </MDBNavbarItem>
                         <NewAlbumWrapper />
-                        {/*                <MDBNavbarItem>
-                  <MDBNavbarLink aria-disabled='true' onClick={()=>setShowNav(false)}>
-                    <NavLink to={`/about`} className={({isActive}) => [ isActive ? "text-dark": "text-muted"]}>About Me
-                    </NavLink>
-                  </MDBNavbarLink>            
-                </MDBNavbarItem>*/}
-
-                        {/*                <MDBNavbarItem >
-                  <MDBNavbarLink>
-                  <DropdownWrapper/>
-                  </MDBNavbarLink>
-                </MDBNavbarItem>*/}
                     </MDBNavbarNav>
                     <SignInWrapper />
                 </MDBCollapse>

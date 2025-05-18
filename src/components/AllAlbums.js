@@ -14,6 +14,7 @@ Relies on two pieces of external data that must be fetched after load:
 Author: Robert Norwood, OCT 2023
 */
 
+
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import {
@@ -26,7 +27,7 @@ import {
     MDBCardImage,
 } from 'mdb-react-ui-kit';
 
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
@@ -35,8 +36,10 @@ import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQuer
 // Helpers
 import { urlhelperEncode } from '../helpers/urlhelper';
 import { fetchPublicAlbumTags } from '../helpers/loaders';
-import projectConfig from '../helpers/Config';
+import { IMAGEDELIVERYHOST } from '../helpers/Config';
+import { breakpoints } from './Home';
 
+// Used when initializing database
 // import {createDefaultTags} from '../helpers/upgrade_database';
 const client = generateClient({
     authMode: 'apiKey'
@@ -44,7 +47,6 @@ const client = generateClient({
 
 export default function AllAlbums() {
 
-    // const { albums } = useContext(AlbumsContext);
     const [allTags, setAllTags] = useState([]);
 
     // All albums fetched from server
@@ -60,8 +62,8 @@ export default function AllAlbums() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [windowSize, setWindowSize] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: undefined,
+        height: undefined,
     });
 
     /**
@@ -78,7 +80,20 @@ export default function AllAlbums() {
     // Fetches list of tags and first 10 albums on load
     useEffect(() => {
         fetchTags();
-        fetchInitialAlbums();
+
+        let numRetries = 0;
+        const maxRetries = 3;
+        const retryDelay = 100;
+
+        try {
+            fetchInitialAlbums();
+        } catch (error) {
+            console.error('Error fetching initial albums, retrying...', error);
+            if (numRetries < maxRetries) {
+                setTimeout(fetchInitialAlbums, retryDelay);
+            }
+        }
+
     }, []);
 
     // Updates the windowsize state object on resize
@@ -90,19 +105,15 @@ export default function AllAlbums() {
             });
         };
 
+        if (typeof window !== 'undefined') {
+            handleResize();
+        }
+
         window.addEventListener('resize', handleResize);
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-
-    /*  Breakpoints. Breakpoint will be set to the last value before window width. Index will be the number of columns
-        Example  breakpoints = [0 ,  350, 750, 900, 1300]
-        number columns = [0 ,   1 ,  2 , 3  ,   4 ]
-        Window with of 850 will have 2 columns. 2000 will have 4
-     */
-    const breakPoints = [0, 350, 750, 1200];
-    // const breakPoints = [0,0];
 
     /** 
      * @brief How many columns to have, based on width
@@ -111,8 +122,8 @@ export default function AllAlbums() {
      */
     function getBreakpoint() {
         const cur_width = windowSize.width;
-        for (let i = breakPoints.length - 1; i >= 0; i--) {
-            if (breakPoints[i] < cur_width) return i;
+        for (let i = breakpoints.length - 1; i >= 0; i--) {
+            if (breakpoints[i] < cur_width) return i;
         }
     }
 
@@ -132,7 +143,7 @@ export default function AllAlbums() {
     const imgHeight = getImgHeight();
 
     // Ensures cover image always fills its container width-wise
-    const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'object-fit': 'cover' }
+    const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'objectFit': 'cover' }
 
     /**
      * @brief fetches the first 8 albums from API
@@ -160,16 +171,23 @@ export default function AllAlbums() {
 
         // Case: no tags are selected. Load all albums in date order
         if (Object.keys(selectedTagsIndexes).length < 1) {
+
+            let variables = {
+                limit: 4
+            }
+
+            if (nextToken !== null) {
+                variables.nextToken = nextToken;
+            }
+
             const res = await client.graphql({
                 query: albumByDate,
-                variables: {
-                    limit: 4,
-                    nextToken: nextToken
-                }
+                variables: variables
             })
-            const newAlbums = [...currentVisibleAlbums, ...res.data.albumByDate.items];
 
-            setCurrentVisibleAlbums(newAlbums);
+            setNextToken(nextToken => res.data.albumByDate.nextToken);
+
+            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...res.data.albumByDate.items]);
         }
         // Case: tags selected. Only pull albums by the currently selected tag (right now tags act more like folders)
         else {
@@ -183,13 +201,13 @@ export default function AllAlbums() {
             });
 
             const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-            setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
-            const a = [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)];
-            setCurrentVisibleAlbums(a);
+            setNextToken(nextToken => result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
+
+            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)]);
         }
 
         setIsLoading(false);
-    }, [nextToken]);
+    }, [nextToken, isLoading, selectedTagsIndexes]);
 
 
     // ///////////////////
@@ -333,7 +351,7 @@ export default function AllAlbums() {
 
     // Placeholder albums
     const placeHolderItems = [1, 2, 3, 4, 5, 6].map((a, i) => (
-        <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
+        <MDBCard key={i} background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
             <MDBCardImage overlay
                 src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
                 alt='...'
@@ -350,7 +368,6 @@ export default function AllAlbums() {
 
     // If albums have not yet been fetched from server, display responsive grid of placeholder albums
     if (!currentVisibleAlbums) {
-
         return (
             <>
                 <MDBRow className='me-0 mt-0'>
@@ -362,8 +379,7 @@ export default function AllAlbums() {
                 </MDBRow>
                 <ResponsiveGrid
                     items={placeHolderItems}
-                    breakpoints={breakPoints}
-
+                    breakpoints={breakpoints}
                 />
             </>
         );
@@ -372,10 +388,10 @@ export default function AllAlbums() {
     // Map each album object into a wrapped react element
     const responsiveItems =
         currentVisibleAlbums.map((album, i) => (
-            <Link to={`/albums/${urlhelperEncode(album)}`} className="text-light" key={i}>
+            <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light text-decoration-none" key={i}>
                 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                     <MDBCardImage overlay
-                        src={`https://${projectConfig.getValue('imageDeliveryHost')}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
+                        src={`https://${IMAGEDELIVERYHOST}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=1920`}
                         alt='...'
                         style={height_style}
                         className='' />
@@ -404,7 +420,7 @@ export default function AllAlbums() {
             <div className="d-flex">
                 <ResponsiveGrid
                     items={responsiveItems}
-                    breakpoints={breakPoints}
+                    breakpoints={breakpoints}
                     loadNextItems={fetchNextAlbums}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
