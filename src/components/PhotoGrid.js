@@ -111,11 +111,11 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
                 return;
             }
 
-            const newItems = res.data.imagesByAlbumsID.items.map((img, i) => {
+            const newItems = res.data.imagesByAlbumsID.items;
+            setItems(items => [...items, ...newItems].map((img, i) => {
                 img.index = i;
                 return img
-            });
-            setItems(items => [...items, ...newItems]);
+            }));
 
             setNextToken(res.data.imagesByAlbumsID.nextToken);
         } catch (error) {
