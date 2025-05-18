@@ -30,6 +30,8 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import ImageWrapper from "./Image";
 
+import { breakpoints } from "./Home";
+
 // Inputs:
 // setFeaturedImg - callback to set an image as the albums featured image
 // editMode - lets photogrid know if it is in edit mode
@@ -44,10 +46,8 @@ const userGroupClient = generateClient({
 
 
 // Number of images to load per fetch
-const numImagesToLoad = 4;
+const numImagesToLoad = 10;
 
-// Breakpoints for responsive grid
-const breakpoints = [0, 350, 750, 1200];
 
 
 
