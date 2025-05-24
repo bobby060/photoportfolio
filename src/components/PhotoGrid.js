@@ -168,7 +168,7 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
     const slides = items.map((image) => {
         const urlNoSpaces = `${image.id}-${image.filename}`.replaceAll(' ', '%20');
         return ({
-            src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}`,
+            src: `https://${IMAGEDELIVERYHOST}/public/${image.id}-${image.filename}?width=${image.width / 2}`,
             alt: image.filename,
 
             downloadUrl: `https://${IMAGEDELIVERYHOST}/public/${urlNoSpaces}`,
