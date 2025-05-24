@@ -42,7 +42,7 @@ export default function ImageWrapper({ img_obj, className }) {
     // const maxRetries = 4;
 
     const delivery_domain = `https://${IMAGEDELIVERYHOST}/public`;
-    const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}`.replaceAll(' ', '%20');
+    const img_url = `${delivery_domain}/${img_obj.id}-${img_obj.filename}?width=${img_obj.width / 4}}`.replaceAll(' ', '%20');
 
 
     // Create blur data URL
