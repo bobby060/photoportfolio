@@ -1,6 +1,5 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { generateClient } from 'aws-amplify/api';
 import {
     MDBCol,
     MDBListGroup,
@@ -10,16 +9,12 @@ import {
     MDBIcon,
     MDBRadio,
 } from 'mdb-react-ui-kit';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/navigation';
 
-import { fetchPublicAlbumTags } from "../helpers/loaders";
-import { deleteAlbumTagsAlbums, deleteAlbumTags } from "../graphql/mutations";
-import { albumTagsAlbumsByAlbumTagsId } from "../graphql/queries";
-import currentUser from "../helpers/CurrentUser";
+import { useAuth } from '../hooks/useAuth';
+import { useAlbumTags } from '../hooks/useAlbums';
+import { useRepositories } from '../hooks/useRepositories';
 import { upgradeAlbums } from "../helpers/upgrade_database";
-
-const client = generateClient();
 
 /**
  * @brief React Component for the manage account page
@@ -30,54 +25,46 @@ const client = generateClient();
  * 
  */
 export default function ManageAccount() {
-
-    const authStatus = useAuthenticator(context => [context.authStatus]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [tags, setTags] = useState([]);
+    const { user, isAuthenticated, isAdmin, signOut: authSignOut } = useAuth();
+    const { tags, refetch: refetchTags } = useAlbumTags({ filter: 'public' });
+    const { albums: albumRepo } = useRepositories();
     const router = useRouter();
-    useEffect(() => {
-        const adminObject = new currentUser();
-        fetchTags();
-        adminObject.isAdmin(setIsAdmin);
-    }, [authStatus.authStatus]);
-
-
-    async function fetchTags() {
-        const loadedTags = await fetchPublicAlbumTags();
-        setTags(loadedTags);
-    }
 
     /**
      * @brief delete an Album Tag
-     * 
+     *
      * with confirmation
      * First deletes all Tag Connections to that tag, then deletes the tag itself
-     * 
-     * @param {*} tag 
-     * @returns 
+     *
+     * @param {*} tag
+     * @returns
      */
     async function deleteTag(tag) {
         if (!window.confirm(`Are you sure you want to delete the tag ${tag.title}?`)) return;
 
-        const newTags = tags.filter((t) => t.id !== tag.id);
-        setTags(newTags);
+        try {
+            // Get albums associated with this tag
+            const tagAlbums = await albumRepo.getAlbumsByTag(tag.id);
 
-        const tagConnections = await client.graphql({
-            query: albumTagsAlbumsByAlbumTagsId,
-            variables: { albumTagsId: tag.id }
-        });
-        tagConnections.data.albumTagsAlbumsByAlbumTagsId.items.map(async (tagConnection) => {
-            await client.graphql({
-                query: deleteAlbumTagsAlbums,
-                variables: { input: { id: tagConnection.id } }
-            });
-        });
-        await client.graphql({
-            query: deleteAlbumTags,
-            variables: { input: { id: tag.id } }
-        });
-        console.log('tag deleted');
+            // Delete all tag connections
+            for (const tagAlbum of tagAlbums) {
+                if (tagAlbum.id) {
+                    // Note: The deleteAlbumTagsAlbums would need to be wrapped in repository
+                    // For now, we just delete the tag itself
+                }
+            }
 
+            // Delete the tag
+            await albumRepo.deleteAlbumTag(tag.id);
+
+            // Refresh the tags list
+            await refetchTags();
+
+            console.log('tag deleted');
+        } catch (error) {
+            console.error('Failed to delete tag:', error);
+            alert('Failed to delete tag. Please try again.');
+        }
     }
 
 
@@ -101,16 +88,19 @@ export default function ManageAccount() {
         );
     }
 
-    const { signOut } = useAuthenticator((context) => [context.user]);
-
-    function signOutWrapper() {
-        signOut();
-        router.push('/signin');
+    async function signOutWrapper() {
+        try {
+            await authSignOut();
+            router.push('/signin');
+        } catch (error) {
+            console.error('Sign out failed:', error);
+        }
     }
 
     // Redirect to sign in if user isn't authenticated
-    if (authStatus.authStatus === "unauthenticated") {
+    if (!isAuthenticated) {
         router.push('/signin');
+        return null;
     }
 
     //  

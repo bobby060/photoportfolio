@@ -7,7 +7,7 @@
  * @date October, 2023 
  */
 
-import { React, useState, useEffect } from 'react';
+import { React, useState } from 'react';
 import Link from 'next/link';
 import {
     MDBContainer,
@@ -19,42 +19,20 @@ import {
     MDBNavbarLink,
     MDBCollapse,
 } from 'mdb-react-ui-kit';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import '../css/index.css'
-import currentUser from '../helpers/CurrentUser';
+import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
 import Image from 'next/image';
 
 export default function NavigationBar() {
-    const authStatus = useAuthenticator(context => [context.authStatus]);
+    const { user, isAuthenticated } = useAuth();
     const [showNav, setShowNav] = useState(false);
-    const [userInfo, setUserInfo] = useState({
-        username: null,
-        isAdmin: false
-    });
-
     const router = useRouter();
-
-    useEffect(() => {
-        const adminObject = new currentUser();
-
-        const fetchUserInfo = async () => {
-            let userName = null;
-            let isAdmin = false;
-
-            await adminObject.userName((username) => userName = username);
-            await adminObject.isAdmin((adminStatus) => isAdmin = adminStatus);
-
-            setUserInfo({ username: userName, isAdmin });
-        };
-
-        fetchUserInfo();
-    }, []);
 
     // Component that displays either a sign in or sign out button based on current user
     function SignInWrapper() {
-        if (authStatus.authStatus !== 'authenticated') {
+        if (!isAuthenticated) {
             return (
                 <MDBNavbarNav className='ms-auto'>
                     <MDBNavbarItem className="ms-lg-auto" onClick={() => setShowNav(false)}>
@@ -69,7 +47,7 @@ export default function NavigationBar() {
             <MDBNavbarNav className='ms-auto w-auto'>
                 <MDBNavbarItem>
                     <MDBNavbarLink href="/account" aria-disabled='true' onClick={() => setShowNav(false)}>
-                        {userInfo.username || ''}
+                        {user?.username || ''}
                     </MDBNavbarLink>
                 </MDBNavbarItem>
             </MDBNavbarNav>
@@ -78,7 +56,7 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (authStatus.authStatus === 'authenticated') {
+        if (isAuthenticated) {
             return (
                 <MDBNavbarItem>
                     <MDBNavbarLink href="/new" aria-disabled='true' onClick={() => setShowNav(false)}>
