@@ -54,4 +54,13 @@ export class IApiAdapter {
   async getFileUrl(key) {
     throw new Error('getFileUrl() must be implemented');
   }
+
+  /**
+   * Delete a file from storage
+   * @param {string} key - Storage key/path
+   * @returns {Promise<void>}
+   */
+  async deleteFile(key) {
+    throw new Error('deleteFile() must be implemented');
+  }
 }

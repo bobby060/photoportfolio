@@ -1,5 +1,5 @@
 import { generateClient } from 'aws-amplify/api';
-import { uploadData, getUrl } from 'aws-amplify/storage';
+import { uploadData, getUrl, remove } from 'aws-amplify/storage';
 import { IApiAdapter } from './IApiAdapter';
 
 /**
@@ -113,6 +113,20 @@ export class AmplifyApiAdapter extends IApiAdapter {
       return result.url.toString();
     } catch (error) {
       console.error('Get file URL error:', error);
+      throw this._transformError(error);
+    }
+  }
+
+  /**
+   * Delete a file from S3 storage
+   * @param {string} key - Storage key/path
+   * @returns {Promise<void>}
+   */
+  async deleteFile(key) {
+    try {
+      await remove({ key });
+    } catch (error) {
+      console.error('File deletion error:', error);
       throw this._transformError(error);
     }
   }

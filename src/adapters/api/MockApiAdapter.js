@@ -12,6 +12,7 @@ export class MockApiAdapter extends IApiAdapter {
     this.queryCallHistory = [];
     this.mutateCallHistory = [];
     this.uploadCallHistory = [];
+    this.deleteCallHistory = [];
   }
 
   /**
@@ -126,6 +127,16 @@ export class MockApiAdapter extends IApiAdapter {
   }
 
   /**
+   * Delete mock file
+   * @param {string} key - Storage key/path
+   * @returns {Promise<void>}
+   */
+  async deleteFile(key) {
+    this.deleteCallHistory.push({ key });
+    this.mockFiles.delete(key);
+  }
+
+  /**
    * Extract operation name from GraphQL string
    * @private
    * @param {string} graphqlString
@@ -156,6 +167,7 @@ export class MockApiAdapter extends IApiAdapter {
     this.queryCallHistory = [];
     this.mutateCallHistory = [];
     this.uploadCallHistory = [];
+    this.deleteCallHistory = [];
   }
 
   /**
@@ -166,7 +178,8 @@ export class MockApiAdapter extends IApiAdapter {
     return {
       queries: this.queryCallHistory,
       mutations: this.mutateCallHistory,
-      uploads: this.uploadCallHistory
+      uploads: this.uploadCallHistory,
+      deletes: this.deleteCallHistory
     };
   }
 

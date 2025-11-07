@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import { generateClient } from 'aws-amplify/api';
 import {
     MDBCard,
     MDBCardText,
@@ -10,32 +9,10 @@ import {
 } from 'mdb-react-ui-kit';
 import Link from 'next/link';
 
-// Helpers
-import { urlhelperEncode } from '../helpers/urlhelper';
+// Hooks
+import { useRepositories } from '../hooks/useRepositories';
 
-import { albumTagsAlbumsByAlbumTagsId } from '../graphql/customQueries';
 import { IMAGEDELIVERYHOST, FEATURED_TAG_ID } from '../helpers/Config';
-
-const client = generateClient({
-    authMode: 'apiKey'
-});
-
-/**
- * @brief updates featured albums
- * @param featuredAlbumTag
- * @returns {array}
- */
-async function updateFeatured(featuredAlbumTag) {
-    const result = await client.graphql({
-        query: albumTagsAlbumsByAlbumTagsId,
-        variables: {
-            albumTagsId: featuredAlbumTag,
-        },
-    });
-    const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-    const newAlbums = taggedConnections.map((connection) => connection.albums);
-    return newAlbums;
-}
 
 
 /**
@@ -53,6 +30,7 @@ function dateFormat(date) {
  * @returns {JSX}
  */
 export default function FeaturedCarouselWrapper() {
+    const { albums: albumRepo } = useRepositories();
     const featuredAlbumTag = FEATURED_TAG_ID;
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [windowSize, setWindowSize] = useState({
@@ -60,13 +38,18 @@ export default function FeaturedCarouselWrapper() {
         height: undefined,
     });
 
-
-
     useEffect(() => {
-        updateFeatured(featuredAlbumTag).then((newAlbums) => {
-            setFeaturedAlbums(newAlbums);
-        });
-    }, [featuredAlbumTag]);
+        async function fetchFeaturedAlbums() {
+            try {
+                const albums = await albumRepo.getAlbumsByTag(featuredAlbumTag);
+                setFeaturedAlbums(albums);
+            } catch (error) {
+                console.error('Failed to fetch featured albums:', error);
+            }
+        }
+
+        fetchFeaturedAlbums();
+    }, [featuredAlbumTag, albumRepo]);
 
     // Adds ability to adjust column layout after resize
     useEffect(() => {
@@ -116,6 +99,7 @@ export default function FeaturedCarouselWrapper() {
         <div>
             <Carousel indicators={false} fade interval={3000} className='w-100 pe-auto p-2' touch={true} >
                 {featuredAlbums.map((album, i) => {
+                    const albumUrl = albumRepo.generateAlbumUrl(album);
                     return (
                         <Carousel.Item itemID={i} style={{}} key={i}>
                             <MDBCard background='dark' className='text-white bg-image' alignment='end'>
@@ -124,7 +108,7 @@ export default function FeaturedCarouselWrapper() {
                                     alt='...'
                                     style={{ 'objectFit': 'cover', height: height }}
                                     className='' />
-                                <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light">
+                                <Link href={`/albums/${albumUrl}`} className="text-light">
                                     <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.2))' }}>
                                         <MDBTypography className='display-6'>{album.title}</MDBTypography>
                                         <MDBCardText>{dateFormat(album.date)}</MDBCardText>

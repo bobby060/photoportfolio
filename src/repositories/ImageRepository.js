@@ -1,4 +1,5 @@
 import * as mutations from '../graphql/mutations';
+import * as queries from '../graphql/queries';
 
 /**
  * Image Repository
@@ -7,6 +8,50 @@ import * as mutations from '../graphql/mutations';
 export class ImageRepository {
   constructor(apiAdapter) {
     this.api = apiAdapter;
+  }
+
+  /**
+   * Get a single image by ID
+   * @param {string} imageId - Image ID
+   * @returns {Promise<Object>} Image object
+   */
+  async getImage(imageId) {
+    const data = await this.api.query(queries.getImages, {
+      variables: { id: imageId },
+      authMode: 'apiKey'
+    });
+    return data.getImages;
+  }
+
+  /**
+   * Get images for an album with pagination
+   * @param {string} albumId - Album ID
+   * @param {Object} [options={}] - Query options
+   * @param {number} [options.limit=10] - Number of images to fetch
+   * @param {string} [options.nextToken] - Pagination token
+   * @returns {Promise<{items: Array, nextToken: string|null}>}
+   */
+  async getImagesByAlbum(albumId, options = {}) {
+    const { limit = 10, nextToken } = options;
+
+    const variables = {
+      albumsID: albumId,
+      limit
+    };
+
+    if (nextToken) {
+      variables.nextToken = nextToken;
+    }
+
+    const data = await this.api.query(queries.imagesByAlbumsID, {
+      variables,
+      authMode: 'apiKey'
+    });
+
+    return {
+      items: data.imagesByAlbumsID.items,
+      nextToken: data.imagesByAlbumsID.nextToken
+    };
   }
 
   /**
@@ -140,16 +185,30 @@ export class ImageRepository {
   }
 
   /**
-   * Delete an image
+   * Delete an image (deletes both S3 file and database record)
    * @param {string} imageId - Image ID
    * @returns {Promise<Object>}
    */
   async deleteImage(imageId) {
-    const data = await this.api.mutate(mutations.deleteImages, {
-      variables: { input: { id: imageId } },
-      authMode: 'userPool'
-    });
-    return data.deleteImages;
+    try {
+      // 1. Get the image to retrieve its filename for S3 deletion
+      const image = await this.getImage(imageId);
+
+      // 2. Delete from S3 storage
+      const storageKey = `${image.id}-${image.filename}`;
+      await this.api.deleteFile(storageKey);
+
+      // 3. Delete from database
+      const data = await this.api.mutate(mutations.deleteImages, {
+        variables: { input: { id: imageId } },
+        authMode: 'userPool'
+      });
+
+      return data.deleteImages;
+    } catch (error) {
+      console.error('Image deletion failed:', error);
+      throw error;
+    }
   }
 
   /**
