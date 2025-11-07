@@ -16,7 +16,6 @@ Author: Robert Norwood, OCT 2023
 
 
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/api';
 import {
     MDBRow,
     MDBCol,
@@ -31,35 +30,44 @@ import Link from 'next/link';
 import Tag from './Tag';
 import ResponsiveGrid from './ResponsiveGrid';
 
-import { albumTagsAlbumsByAlbumTagsId, albumByDate } from '../graphql/customQueries';
+// Hooks
+import { useAlbums, useAlbumTags } from '../hooks/useAlbums';
+import { useRepositories } from '../hooks/useRepositories';
 
 // Helpers
-import { urlhelperEncode } from '../helpers/urlhelper';
-import { fetchPublicAlbumTags } from '../helpers/loaders';
 import { IMAGEDELIVERYHOST } from '../helpers/Config';
 import { breakpoints } from './Home';
 
-// Used when initializing database
-// import {createDefaultTags} from '../helpers/upgrade_database';
-const client = generateClient({
-    authMode: 'apiKey'
-});
-
 export default function AllAlbums() {
+    const { albums: albumRepo } = useRepositories();
+
+    // Fetch all public albums (no caching needed for filtered views)
+    const { albums: allPublicAlbums, loading: albumsLoading } = useAlbums({
+        filter: 'public',
+        useCache: false
+    });
+
+    // Fetch tags
+    const { tags: fetchedTags, loading: tagsLoading } = useAlbumTags({
+        filter: 'public'
+    });
 
     const [allTags, setAllTags] = useState([]);
 
     // All albums fetched from server
     const [currentVisibleAlbums, setCurrentVisibleAlbums] = useState([]);
 
-    // API token for next set of albums to fetch from server
-    const [nextToken, setNextToken] = useState([]);
+    // Number of albums to display initially and increment
+    const [displayCount, setDisplayCount] = useState(8);
 
     // Stores indexes for which tags are selected in the current album
     const [selectedTagsIndexes, setSelectedTagsIndexes] = useState({});
 
     // Displays visual indicators when waiting on fetches
     const [isLoading, setIsLoading] = useState(false);
+
+    // Filtered albums when tag is selected
+    const [filteredAlbums, setFilteredAlbums] = useState([]);
 
     const [windowSize, setWindowSize] = useState({
         width: undefined,
@@ -77,24 +85,29 @@ export default function AllAlbums() {
         return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
     }
 
-    // Fetches list of tags and first 10 albums on load
+    // Initialize tags when fetched
     useEffect(() => {
-        fetchTags();
-
-        let numRetries = 0;
-        const maxRetries = 3;
-        const retryDelay = 100;
-
-        try {
-            fetchInitialAlbums();
-        } catch (error) {
-            console.error('Error fetching initial albums, retrying...', error);
-            if (numRetries < maxRetries) {
-                setTimeout(fetchInitialAlbums, retryDelay);
-            }
+        if (fetchedTags && fetchedTags.length > 0) {
+            const tagsSelected = fetchedTags.map((tag, i) => ({
+                ...tag,
+                selected: false,
+                visible: true,
+                index: i
+            }));
+            setAllTags(tagsSelected);
         }
+    }, [fetchedTags]);
 
-    }, []);
+    // Update visible albums when allPublicAlbums or filters change
+    useEffect(() => {
+        if (Object.keys(selectedTagsIndexes).length < 1) {
+            // No tags selected - show all albums
+            setCurrentVisibleAlbums(allPublicAlbums.slice(0, displayCount));
+        } else {
+            // Tags selected - show filtered albums
+            setCurrentVisibleAlbums(filteredAlbums.slice(0, displayCount));
+        }
+    }, [allPublicAlbums, filteredAlbums, displayCount, selectedTagsIndexes]);
 
     // Updates the windowsize state object on resize
     useEffect(() => {
@@ -145,69 +158,25 @@ export default function AllAlbums() {
     // Ensures cover image always fills its container width-wise
     const height_style = imgHeight < 0 ? {} : { 'height': imgHeight, 'objectFit': 'cover' }
 
-    /**
-     * @brief fetches the first 8 albums from API
-     */
-    async function fetchInitialAlbums() {
-        setIsLoading(true);
-        const res = await client.graphql({
-            query: albumByDate,
-            variables: {
-                limit: 8,
-            }
-        });
-
-        setNextToken(res.data.albumByDate.nextToken);
-        setCurrentVisibleAlbums(res.data.albumByDate.items);
-        setIsLoading(false);
-
-    }
-
-    // Fetches next 4 albums
+    // Load more albums (infinite scroll)
     const fetchNextAlbums = useCallback(async () => {
-        if (isLoading || !nextToken) return;
+        if (isLoading) return;
+
+        const sourceAlbums = Object.keys(selectedTagsIndexes).length < 1
+            ? allPublicAlbums
+            : filteredAlbums;
+
+        // Check if there are more albums to load
+        if (displayCount >= sourceAlbums.length) return;
 
         setIsLoading(true);
 
-        // Case: no tags are selected. Load all albums in date order
-        if (Object.keys(selectedTagsIndexes).length < 1) {
-
-            let variables = {
-                limit: 4
-            }
-
-            if (nextToken !== null) {
-                variables.nextToken = nextToken;
-            }
-
-            const res = await client.graphql({
-                query: albumByDate,
-                variables: variables
-            })
-
-            setNextToken(nextToken => res.data.albumByDate.nextToken);
-
-            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...res.data.albumByDate.items]);
-        }
-        // Case: tags selected. Only pull albums by the currently selected tag (right now tags act more like folders)
-        else {
-            const result = await client.graphql({
-                query: albumTagsAlbumsByAlbumTagsId,
-                variables: {
-                    albumTagsId: selectedTagsIndexes[0],
-                    limit: 2,
-                    nextToken: nextToken
-                },
-            });
-
-            const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-            setNextToken(nextToken => result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
-
-            setCurrentVisibleAlbums(currentVisibleAlbums => [...currentVisibleAlbums, ...taggedConnections.map((connection) => connection.albums)]);
-        }
-
-        setIsLoading(false);
-    }, [nextToken, isLoading, selectedTagsIndexes]);
+        // Simply increase the display count to show more albums
+        setTimeout(() => {
+            setDisplayCount(prev => prev + 4);
+            setIsLoading(false);
+        }, 100);
+    }, [isLoading, displayCount, allPublicAlbums, filteredAlbums, selectedTagsIndexes]);
 
 
     // ///////////////////
@@ -215,72 +184,58 @@ export default function AllAlbums() {
     // //////////////////
 
     /**
-     * @brief fetches all tags except featured albums and latest
-     * 
-     * Sets the AllTags with which are selected
-     */
-    async function fetchTags() {
-        const tags = await fetchPublicAlbumTags();
-        const tagsSelected = tags.map((tag, i) => ({ ...tag, selected: false, visible: true, index: i }))
-
-        setAllTags(tagsSelected);
-    }
-
-    /**
      * @brief gets albums associated with selected tags
-     * 
+     *
      * @param {object} tagIndexes Tag indexes
      */
     async function getFilteredAlbums(tagIndexes) {
         setIsLoading(true);
         const currentTagKeys = Object.keys(tagIndexes);
+
         // Case no tags selected
         if (currentTagKeys.length < 1) {
-            // Resets initial album pull
-            fetchInitialAlbums();
+            // Reset to show all albums
+            setFilteredAlbums([]);
+            setDisplayCount(8);
+
             // Resets tags to unselected state
-            const allTagsVisible = allTags.map((tag) => ({ ...tag, visible: true, selected: false }));
+            const allTagsVisible = allTags.map((tag) => ({
+                ...tag,
+                visible: true,
+                selected: false
+            }));
             setAllTags(allTagsVisible);
         } else {
-            // Gets list of all the albums associated with tag
+            try {
+                // Gets list of all the albums associated with tag
+                const tagId = tagIndexes[currentTagKeys[0]];
+                const taggedAlbums = await albumRepo.getAlbumsByTag(tagId);
 
-            const result = await client.graphql({
-                query: albumTagsAlbumsByAlbumTagsId,
-                variables: {
-                    limit: 8,
-                    albumTagsId: tagIndexes[currentTagKeys[0]],
-                },
-            });
-            const taggedConnections = result.data.albumTagsAlbumsByAlbumTagsId.items;
-            setNextToken(result.data.albumTagsAlbumsByAlbumTagsId.nextToken);
+                // Hides all tags except the currently selected one
+                const updatedTags = allTags.map((tag) => {
+                    if (tag.index in tagIndexes) {
+                        return { ...tag, visible: true, selected: true };
+                    } else {
+                        return { ...tag, visible: false }
+                    }
+                });
+                setAllTags(updatedTags);
+                setSelectedTagsIndexes(tagIndexes);
 
-            // Hides all tags except the currently selected one. TODO, update this to intersection instead
-            // of exclusion
-            const updatedTags = allTags.map((tag) => {
-                if (tag.index in tagIndexes) {
-                    return { ...tag, visible: true, selected: true };
-                } else {
-                    return { ...tag, visible: false }
-                }
-            });
-            setAllTags(updatedTags);
-            // Loop through to ensure intersection of all tags
-            // Set visible tags to only display tags possible to select/deselect within current set
-            // Update albums to reflect
-            setSelectedTagsIndexes(tagIndexes);
-            const newVisAlbums = taggedConnections.map((connection) => connection.albums);
-            // filter here
+                // Sort albums by date
+                const sortedAlbums = taggedAlbums.sort((a, b) => {
+                    const aDate = new Date(a.date);
+                    const bDate = new Date(b.date);
+                    return bDate - aDate;
+                });
 
-            const sortedAlbums = newVisAlbums.sort((a, b) => {
-                const aDate = new Date(a.date);
-                const bDate = new Date(b.date);
-                return bDate - aDate;
-            });
-
-            setCurrentVisibleAlbums(sortedAlbums);
+                setFilteredAlbums(sortedAlbums);
+                setDisplayCount(8);
+            } catch (error) {
+                console.error('Failed to fetch filtered albums:', error);
+            }
         }
         setIsLoading(false);
-        // gets filtered albums based on the current tag
     }
 
     /**
@@ -385,10 +340,17 @@ export default function AllAlbums() {
         );
     }
 
+    // Generate album URL from album object
+    function generateAlbumUrl(album) {
+        const ending = album.id.slice(-2);
+        const name = album.title.toLowerCase().replace(/\s+/g, '-');
+        return `${name}-${ending}`;
+    }
+
     // Map each album object into a wrapped react element
     const responsiveItems =
         currentVisibleAlbums.map((album, i) => (
-            <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light text-decoration-none" key={i}>
+            <Link href={`/albums/${generateAlbumUrl(album)}`} className="text-light text-decoration-none" key={i}>
                 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                     <MDBCardImage overlay
                         src={`https://${IMAGEDELIVERYHOST}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=720`}
@@ -397,7 +359,7 @@ export default function AllAlbums() {
                         className='' />
                     <MDBCardOverlay style={{ background: 'linear-gradient(to top, hsla(0, 0%, 0%, 0) 50%, hsla(0, 0%, 0%, 0.5))' }}>
                         <MDBCardTitle>{album.title}</MDBCardTitle>
-                        {(album.desc.length > 0) ? <MDBCardText className='text-truncate'>{album.desc}</MDBCardText> : <></>}
+                        {(album.desc && album.desc.length > 0) ? <MDBCardText className='text-truncate'>{album.desc}</MDBCardText> : <></>}
                         <MDBCardText>{dateFormat(album.date)}</MDBCardText>
                     </MDBCardOverlay>
                     <div className='mask overlay'

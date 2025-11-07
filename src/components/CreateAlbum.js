@@ -1,6 +1,5 @@
 "use client"
 import React, { useEffect, useState, useRef } from "react";
-import { generateClient } from 'aws-amplify/api';
 import {
     MDBClientOnly,
     MDBRow,
@@ -16,20 +15,9 @@ import {
 
 import { useRouter } from 'next/navigation';
 
-// Database
-import { createAlbums, updateAlbums, createUrl, deleteAlbums } from '../graphql/mutations';
-import { imagesByAlbumsID, listImages } from '../graphql/queries';
-
-
-
-// Helpers
-import { urlhelperEncode } from '../helpers/urlhelper';
-import uploadImages from '../helpers/uploadImages';
-import currentUser from "../helpers/CurrentUser";
-
-const client = generateClient({
-    authMode: 'userPool'
-});
+// Hooks
+import { useAuth } from '../hooks/useAuth';
+import { useRepositories } from '../hooks/useRepositories';
 
 /**
  * @brief React Component for creating an album
@@ -39,12 +27,11 @@ const client = generateClient({
  */
 export default function CreateAlbum() {
     const router = useRouter();
+    const { isAdmin, requireAdmin } = useAuth();
+    const { albums: albumRepo, images: imageRepo } = useRepositories();
 
     // Files in file picker selected for update
     const [selectedFiles, setSelectedFiles] = useState([]);
-
-    // Whether or not current user is admin
-    const [isAdmin, setIsAdmin] = useState('loading');
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -54,26 +41,14 @@ export default function CreateAlbum() {
     // Error message text
     const [warningText, setWarningText] = useState('');
 
-
     const clientRef = useRef(false);
 
-
-
-
-
-
-    // Updates isAdmin state
+    // Redirect non-admin users
     useEffect(() => {
-        const userObject = new currentUser();
-
-        userObject.isAdmin((isAdmin) => {
-            setIsAdmin(isAdmin);
-            if (!isAdmin) {
-                router.push('/');
-            }
-        });
-
-    }, [router]);
+        if (!isAdmin) {
+            router.push('/');
+        }
+    }, [isAdmin, router]);
 
     useEffect(() => {
         if (typeof IntersectionObserver !== 'undefined') {
@@ -100,105 +75,71 @@ export default function CreateAlbum() {
     async function newAlbum(event) {
         event.preventDefault();
         setIsLoading(true);
-        const form = new FormData(event.target);
+        setWarningText('');
 
-        // Date in format 2023-11-11T00:00:00.000Z
-        const date = form.get("date") + 'T00:00:00.000Z';
-        const cur_date = new Date();
-
-        // Sets default date to current time if not set by user
-        const cleaned_date = (date === 'T00:00:00.000Z') ? cur_date.toISOString() : date;
-        const title = form.get("title");
-
-        // Ensures album has a name...
-        const cleaned_title = (title.length === 0) ?
-            `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
-
-        // Get a random image to ENSURE there is a featured Image, even tho this SHOULD be handled later
-        const placeHolderImageRes = await client.graphql({
-            query: listImages,
-            limit: 1
-        })
-
-        const placeHolderImageId = placeHolderImageRes.data.listImages.items[0].id;
-
-        // Data for image document
-        const imageObjectData = {
-            title: cleaned_title,
-            desc: form.get("desc"),
-            date: cleaned_date,
-            albumsFeaturedImageId: placeHolderImageId,
-            type: 'Album'
-        };
-
-        // Try to create album
-        const response = await client.graphql({
-            query: createAlbums,
-            variables: { input: imageObjectData },
-        });
-        const newAlbum = response.data.createAlbums;
-
-        // TODO: Need error handling
-
-        // Data for url
-        const urlData = {
-            id: urlhelperEncode(newAlbum),
-            urlAlbumId: newAlbum.id
-        }
-        // Tries to create url object
         try {
-            await client.graphql({
-                query: createUrl,
-                variables: { input: urlData }
-            });
+            // Require admin privileges
+            await requireAdmin();
 
-        } catch (error) {
-            // Deletes album if fails to create url
-            console.log('failed to create url for new album', error);
-            await client.graphql({
-                query: deleteAlbums,
-                variables: { albumId: newAlbum.id }
-            })
-            setWarningText('failed to create url for new album. Album deleted');
-        }
+            const form = new FormData(event.target);
 
-        // Uploads images while updating totaluploaded
-        await uploadImages(newAlbum, selectedFiles, setTotalUploaded);
+            // Date in format 2023-11-11T00:00:00.000Z
+            const date = form.get("date") + 'T00:00:00.000Z';
+            const cur_date = new Date();
 
-        // Update featured image to the first image uploaded to the album
-        try {
-            const res = await client.graphql({
-                query: imagesByAlbumsID,
-                variables: {
-                    albumsID: newAlbum.id,
-                    limit: 1
-                },
-            });
+            // Sets default date to current time if not set by user
+            const cleaned_date = (date === 'T00:00:00.000Z') ? cur_date.toISOString() : date;
+            const title = form.get("title");
 
-            const img = res.data.imagesByAlbumsID.items[0]
+            // Ensures album has a name...
+            const cleaned_title = (title.length === 0) ?
+                `Album created at ${cur_date.getMonth() + 1}-${cur_date.getDate()}-${cur_date.getFullYear()} at ${cur_date.getHours()}:${cur_date.getMinutes()}` : title;
 
-            const featured_img_query_data = {
-                id: newAlbum.id,
-                albumsFeaturedImageId: img.id
+            // Data for new album
+            const albumData = {
+                title: cleaned_title,
+                desc: form.get("desc"),
+                date: cleaned_date,
+                type: 'Album',
+                privacy: 'public' // Default to public
+            };
+
+            // Create album
+            const newAlbum = await albumRepo.createAlbum(albumData);
+            console.log('Created album:', newAlbum.id);
+
+            // Upload images with progress tracking
+            const uploadResults = await imageRepo.uploadMultipleImages(
+                newAlbum.id,
+                Array.from(selectedFiles),
+                (completed, total) => {
+                    setTotalUploaded(completed);
+                }
+            );
+
+            // Check if any uploads succeeded
+            const successfulUploads = uploadResults.filter(r => r.success);
+
+            if (successfulUploads.length > 0) {
+                // Set first uploaded image as featured image
+                const firstImage = successfulUploads[0].data;
+                await albumRepo.updateAlbum(newAlbum.id, {
+                    albumsFeaturedImageId: firstImage.id
+                });
             }
-            const updateAlbumResponse = await client.graphql({
-                query: updateAlbums,
-                variables: {
-                    input: featured_img_query_data
-                },
-            })
-            const new_album = updateAlbumResponse.data.updateAlbums;
-            // setWarningText(`Created new album named: ${form.get("title")}`)
-            console.log(`Created new album named: ${form.get("title")}`);
-            // Navigate after creating image
-            // TODO(bobby): Go to newly created album. Requires updating the targets in route
-            // router.push(`../albums/${urlhelperEncode(new_album)}/edit`);
-            router.push(`../`);
+
+            console.log(`Successfully created album: ${cleaned_title}`);
+            console.log(`Uploaded ${successfulUploads.length} of ${selectedFiles.length} images`);
+
+            // Navigate to home
+            router.push('../');
             event.target.reset();
+            setIsLoading(false);
+
         } catch (error) {
-            console.warn('failed to update featured img for new album. Album still created');
-            setWarningText('failed to update featured img for new album. Album still created')
-            event.target.reset();
+            console.error('Failed to create album:', error);
+            setWarningText(`Failed to create album: ${error.message}`);
+            setIsLoading(false);
         }
     }
     if (!clientRef.current) {

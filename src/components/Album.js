@@ -20,75 +20,51 @@ import {
     MDBContainer,
     MDBIcon,
 } from 'mdb-react-ui-kit';
-import { generateClient } from 'aws-amplify/api';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import Link from 'next/link';
 
-// Database
-import { updateAlbums } from '../graphql/mutations';
+// Hooks
+import { useAlbum } from '../hooks/useAlbums';
+import { useAuth } from '../hooks/useAuth';
+import { useRepositories } from '../hooks/useRepositories';
 
 // Helper functions
-import { getAlbumFromAlbumUrl } from '../helpers/urlhelper';
 import { IMAGEDELIVERYHOST } from '../helpers/Config';
-import currentUser from '../helpers/CurrentUser';
 
 // Components
 import PhotoGrid from './PhotoGrid';
 import EditAlbum from './EditAlbum';
 
-const userGroupClient = generateClient({
-    authMode: 'userPool'
-});
-
 export default function Album({ album_url }) {
-
-
-    const [album, setAlbum] = useState(null);
-    const [canEdit, setCanEdit] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { albums: albumRepo } = useRepositories();
+    const { isAuthenticated, isAdmin } = useAuth();
+    const { album, loading, refetch } = useAlbum(album_url);
 
     const [editMode, setEditMode] = useState(false);
+    const [localAlbum, setLocalAlbum] = useState(null);
 
-    const authStatus = useAuthenticator((context) => [context.authStatus.authStatus]);
-
-
-    // Initializes images after component render
+    // Update local album when hook data changes
     useEffect(() => {
-        const adminObject = new currentUser();
-        adminObject.isAdmin((isAdmin) => {
-            setIsAdmin(isAdmin);
-            setCanEdit(isAdmin);
-        });
-
-    }, [authStatus.authStatus, album_url]);
-    useEffect(() => {
-        getAlbumFromAlbumUrl(album_url)
-            .then(albumData => {
-                setAlbum(albumData);
-            });
-    }, [album_url]);
+        if (album) {
+            setLocalAlbum(album);
+        }
+    }, [album]);
 
 
     // Sets a selected image as the album featured image
     async function updateFeaturedImg(image) {
-        const data = {
-            id: album.id,
-            albumsFeaturedImageId: image.image.id
+        try {
+            const updatedAlbum = await albumRepo.updateAlbum(localAlbum.id, {
+                albumsFeaturedImageId: image.image.id
+            });
+            setLocalAlbum(updatedAlbum);
+        } catch (error) {
+            console.error('Failed to update featured image:', error);
         }
-        const response = await userGroupClient.graphql({
-            query: updateAlbums,
-            variables: {
-                input: data
-            },
-        })
-        const new_album = response.data.updateAlbums;
-        setAlbum(new_album);
     }
 
 
     // Placeholder while loading
-    if (!album) {
-        // setState(state => ({ ...state, album: getAlbumFromAlbumUrl(album_url) }));
+    if (loading || !localAlbum) {
         return (
             <div className='d-flex align-items-end' style={{ height: '400px' }}>
                 <div
@@ -109,14 +85,16 @@ export default function Album({ album_url }) {
             </div>);
     }
 
-    const date = new Date(album.date);
+    const date = new Date(localAlbum.date);
 
     function setEditModeAndPullAlbum(editMode) {
         setEditMode(editMode);
-        getAlbumFromAlbumUrl(album_url)
-            .then(albumData => {
-                setAlbum(albumData);
-            });
+        // Refetch album data after editing
+        refetch().then(albumData => {
+            if (albumData) {
+                setLocalAlbum(albumData);
+            }
+        });
     }
 
 
@@ -170,10 +148,10 @@ export default function Album({ album_url }) {
 
         // Math to make sure image height is appropriate based on width. Min height is 400px
         const imgWidth = getBreakpoint();
-        const imgRatio = (album.featuredImage) ? album.featuredImage.height / album.featuredImage.width : 1;
+        const imgRatio = (localAlbum.featuredImage) ? localAlbum.featuredImage.height / localAlbum.featuredImage.width : 1;
         // Ensure imgWidth is a valid number for the URL
         const numericImgWidth = (typeof imgWidth === 'number' && !isNaN(imgWidth)) ? imgWidth : breakpoints[breakpoints.length - 1]; // Default to a sensible width
-        const featuredImageUrl = (album.featuredImage) ? `https://${IMAGEDELIVERYHOST}/public/${album.featuredImage.id}-${album.featuredImage.filename}?width=${numericImgWidth}` : "";
+        const featuredImageUrl = (localAlbum.featuredImage) ? `https://${IMAGEDELIVERYHOST}/public/${localAlbum.featuredImage.id}-${localAlbum.featuredImage.filename}?width=${numericImgWidth}` : "";
         let imgHeight;
         if (typeof windowSize.width === 'number' && !isNaN(windowSize.width)) {
             imgHeight = Math.min(windowSize.width * imgRatio, 400);
@@ -200,7 +178,7 @@ export default function Album({ album_url }) {
                         <MDBContainer >
                             <div className='text-justify-start text-light'>
                                 <div className='ms-3 d-flex justify-items-start align-items-end'>
-                                    <h2 className="p-0 d-inline-block text-start ">{album.title}</h2>
+                                    <h2 className="p-0 d-inline-block text-start ">{localAlbum.title}</h2>
                                     <div className="vr ms-2 me-2 " style={{ height: '40px' }}></div>
                                     <h5 className="p-1 d-inline-block text-start">{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</h5>
                                 </div>
@@ -209,13 +187,13 @@ export default function Album({ album_url }) {
                     </div>
                 </div>
                 <MDBContainer breakpoint='xl'>
-                    <p className='text-start ms-1 me-1 mt-2 p-1'>{album.desc}</p >
+                    <p className='text-start ms-1 me-1 mt-2 p-1'>{localAlbum.desc}</p >
                 </MDBContainer>
             </>
         );
     }
 
-    // Returns header followed by photogrid of photos. Passes key traits as props. 
+    // Returns header followed by photogrid of photos. Passes key traits as props.
     return (
         <>
             <AlbumHeader />
@@ -224,9 +202,9 @@ export default function Album({ album_url }) {
             <MDBContainer breakpoint='xl'>
                 <PhotoGrid
                     setFeaturedImg={updateFeaturedImg}
-                    selectedAlbum={album}
+                    selectedAlbum={localAlbum}
                     editMode={editMode}
-                    signedIn={authStatus.authStatus === "authenticated"}
+                    signedIn={isAuthenticated}
                 />
             </MDBContainer>
         </>
