@@ -4,6 +4,7 @@ import { createContext, useMemo } from 'react';
 import { AmplifyAuthAdapter } from '../adapters/auth/AmplifyAuthAdapter';
 import { LocalStorageAdapter } from '../adapters/storage/LocalStorageAdapter';
 import { SessionStorageAdapter } from '../adapters/storage/SessionStorageAdapter';
+import { MemoryStorageAdapter } from '../adapters/storage/MemoryStorageAdapter';
 import { AmplifyApiAdapter } from '../adapters/api/AmplifyApiAdapter';
 import { AuthRepository } from '../repositories/AuthRepository';
 import { StorageRepository } from '../repositories/StorageRepository';
@@ -26,10 +27,19 @@ export const RepositoryContext = createContext(null);
  */
 export function RepositoryProvider({ children, adapters = {} }) {
   const repositories = useMemo(() => {
+    // Check if we're on the server or client
+    const isServer = typeof window === 'undefined';
+
     // Allow dependency injection for testing or custom implementations
     const authAdapter = adapters.auth || new AmplifyAuthAdapter();
-    const localStorageAdapter = adapters.localStorage || new LocalStorageAdapter();
-    const sessionStorageAdapter = adapters.sessionStorage || new SessionStorageAdapter();
+
+    // Use MemoryStorageAdapter during SSR to avoid browser API errors
+    const localStorageAdapter = adapters.localStorage ||
+      (isServer ? new MemoryStorageAdapter() : new LocalStorageAdapter());
+
+    const sessionStorageAdapter = adapters.sessionStorage ||
+      (isServer ? new MemoryStorageAdapter() : new SessionStorageAdapter());
+
     const apiAdapter = adapters.api || new AmplifyApiAdapter();
 
     return {
