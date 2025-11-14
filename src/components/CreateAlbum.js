@@ -27,7 +27,7 @@ import { useRepositories } from '../hooks/useRepositories';
  */
 export default function CreateAlbum() {
     const router = useRouter();
-    const { isAdmin, requireAdmin } = useAuth();
+    const { isAdmin, requireAdmin, loading } = useAuth();
     const { albums: albumRepo, images: imageRepo } = useRepositories();
 
     // Files in file picker selected for update
@@ -45,10 +45,10 @@ export default function CreateAlbum() {
 
     // Redirect non-admin users
     useEffect(() => {
-        if (!isAdmin) {
+        if (!loading && !isAdmin) {
             router.push('/');
         }
-    }, [isAdmin, router]);
+    }, [loading, isAdmin, router]);
 
     useEffect(() => {
         if (typeof IntersectionObserver !== 'undefined') {

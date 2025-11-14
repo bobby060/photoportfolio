@@ -26,7 +26,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function NavigationBar() {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isAdmin } = useAuth();
     const [showNav, setShowNav] = useState(false);
     const router = useRouter();
 
@@ -56,7 +56,7 @@ export default function NavigationBar() {
 
     // Component that displays new album link if user is authorized to create albums
     function NewAlbumWrapper() {
-        if (isAuthenticated) {
+        if (isAdmin) {
             return (
                 <MDBNavbarItem>
                     <MDBNavbarLink href="/new" aria-disabled='true' onClick={() => setShowNav(false)}>

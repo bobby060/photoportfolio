@@ -100,10 +100,7 @@ export default function AllAlbums() {
 
     // Update visible albums when allPublicAlbums or filters change
     useEffect(() => {
-        console.log('Updating visible albums');
-        console.log('All public albums:', allPublicAlbums);
-        console.log('Filtered albums:', filteredAlbums);
-        console.log('Selected tags:', selectedTagsIndexes);
+
         if (Object.keys(selectedTagsIndexes).length < 1) {
             // No tags selected - show all albums
             setCurrentVisibleAlbums(allPublicAlbums.slice(0, displayCount));
