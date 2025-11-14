@@ -77,11 +77,17 @@ export class StorageRepository {
   }
 
   /**
-   * Get all storage keys
+   * Get all storage keys (without prefix)
    * @returns {Promise<string[]>}
    */
   async keys() {
-    return this.adapter.keys();
+    const prefixedKeys = await this.adapter.keys();
+    const prefix = this.adapter.prefix || '';
+
+    // Strip the prefix from each key
+    return prefixedKeys.map(key =>
+      key.startsWith(prefix) ? key.slice(prefix.length) : key
+    );
   }
 
   /**
@@ -147,19 +153,24 @@ export class StorageRepository {
   /**
    * Namespaced storage for image upload queue
    */
-  uploadQueue = {
-    get: async () => this.getJSON('upload_queue') || [],
-    set: async (queue) => this.setJSON('upload_queue', queue),
-    clear: async () => this.remove('upload_queue'),
-    add: async (item) => {
-      const queue = await this.uploadQueue.get();
-      queue.push(item);
-      await this.uploadQueue.set(queue);
-    },
-    remove: async (itemId) => {
-      const queue = await this.uploadQueue.get();
-      const filtered = queue.filter(item => item.id !== itemId);
-      await this.uploadQueue.set(filtered);
-    }
-  };
+  get uploadQueue() {
+    return {
+      get: async () => {
+        const queue = await this.getJSON('upload_queue');
+        return queue || [];
+      },
+      set: async (queue) => await this.setJSON('upload_queue', queue),
+      clear: async () => await this.remove('upload_queue'),
+      add: async (item) => {
+        const queue = await this.getJSON('upload_queue') || [];
+        queue.push(item);
+        await this.setJSON('upload_queue', queue);
+      },
+      remove: async (itemId) => {
+        const queue = await this.getJSON('upload_queue') || [];
+        const filtered = queue.filter(item => item.id !== itemId);
+        await this.setJSON('upload_queue', filtered);
+      }
+    };
+  }
 }

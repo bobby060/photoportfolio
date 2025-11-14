@@ -88,7 +88,8 @@ export class AlbumRepository {
       variables: { filter: { privacy: { eq: 'public' } } },
       authMode: 'apiKey'
     });
-    return data.listAlbumTags.items;
+    // Apply client-side filtering as fallback (useful for mocks/testing)
+    return data.listAlbumTags.items.filter(tag => tag.privacy === 'public');
   }
 
   /**

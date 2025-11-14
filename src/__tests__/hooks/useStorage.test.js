@@ -1,5 +1,6 @@
+import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useStorage } from '../../hooks/useStorage';
+import { useStorageRepository } from '../../hooks/useStorage';
 import { RepositoryProvider } from '../../providers/RepositoryProvider';
 import { MockAuthAdapter } from '../../adapters/auth/MockAuthAdapter';
 import { MockApiAdapter } from '../../adapters/api/MockApiAdapter';
@@ -8,15 +9,16 @@ import { MemoryStorageAdapter } from '../../adapters/storage/MemoryStorageAdapte
 describe('useStorage', () => {
   let mockAuthAdapter;
   let mockApiAdapter;
-  let mockStorageAdapter;
+  let mockLocalStorageAdapter;
+  let mockSessionStorageAdapter;
 
   const wrapper = ({ children }) => (
     <RepositoryProvider
       adapters={{
         auth: mockAuthAdapter,
         api: mockApiAdapter,
-        localStorage: mockStorageAdapter,
-        sessionStorage: mockStorageAdapter
+        localStorage: mockLocalStorageAdapter,
+        sessionStorage: mockSessionStorageAdapter
       }}
     >
       {children}
@@ -26,46 +28,47 @@ describe('useStorage', () => {
   beforeEach(() => {
     mockAuthAdapter = new MockAuthAdapter();
     mockApiAdapter = new MockApiAdapter();
-    mockStorageAdapter = new MemoryStorageAdapter();
+    mockLocalStorageAdapter = new MemoryStorageAdapter();
+    mockSessionStorageAdapter = new MemoryStorageAdapter();
   });
 
   describe('localStorage', () => {
     it('should set and get item from localStorage', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('testKey', 'testValue');
+        await result.current.set('testKey', 'testValue');
       });
 
       await act(async () => {
-        const value = await result.current.getItem('testKey');
+        const value = await result.current.get('testKey');
         expect(value).toBe('testValue');
       });
     });
 
     it('should remove item from localStorage', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('testKey', 'testValue');
+        await result.current.set('testKey', 'testValue');
       });
 
       await act(async () => {
-        await result.current.removeItem('testKey');
+        await result.current.remove('testKey');
       });
 
       await act(async () => {
-        const value = await result.current.getItem('testKey');
+        const value = await result.current.get('testKey');
         expect(value).toBeNull();
       });
     });
 
     it('should clear all items from localStorage', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('key1', 'value1');
-        await result.current.setItem('key2', 'value2');
+        await result.current.set('key1', 'value1');
+        await result.current.set('key2', 'value2');
       });
 
       await act(async () => {
@@ -73,19 +76,19 @@ describe('useStorage', () => {
       });
 
       await act(async () => {
-        const value1 = await result.current.getItem('key1');
-        const value2 = await result.current.getItem('key2');
+        const value1 = await result.current.get('key1');
+        const value2 = await result.current.get('key2');
         expect(value1).toBeNull();
         expect(value2).toBeNull();
       });
     });
 
     it('should get all keys from localStorage', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('key1', 'value1');
-        await result.current.setItem('key2', 'value2');
+        await result.current.set('key1', 'value1');
+        await result.current.set('key2', 'value2');
       });
 
       await act(async () => {
@@ -98,20 +101,20 @@ describe('useStorage', () => {
 
   describe('sessionStorage', () => {
     it('should set and get item from sessionStorage', async () => {
-      const { result } = renderHook(() => useStorage('session'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('session'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('testKey', 'testValue');
+        await result.current.set('testKey', 'testValue');
       });
 
       await act(async () => {
-        const value = await result.current.getItem('testKey');
+        const value = await result.current.get('testKey');
         expect(value).toBe('testValue');
       });
     });
 
     it('should handle JSON data', async () => {
-      const { result } = renderHook(() => useStorage('session'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('session'), { wrapper });
 
       const testObject = { name: 'test', value: 123 };
 
@@ -128,7 +131,7 @@ describe('useStorage', () => {
 
   describe('JSON operations', () => {
     it('should store and retrieve JSON objects', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       const testData = {
         user: 'john',
@@ -146,7 +149,7 @@ describe('useStorage', () => {
     });
 
     it('should return null for non-existent JSON key', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
         const value = await result.current.getJSON('nonexistent');
@@ -155,11 +158,11 @@ describe('useStorage', () => {
     });
 
     it('should handle invalid JSON gracefully', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       // Set invalid JSON manually
       await act(async () => {
-        await result.current.setItem('invalidJSON', 'not-valid-json{');
+        await result.current.set('invalidJSON', 'not-valid-json{');
       });
 
       await act(async () => {
@@ -179,7 +182,7 @@ describe('useStorage', () => {
     });
 
     it('should store item with TTL', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
         await result.current.setWithTTL('tempKey', 'tempValue', 1000);
@@ -193,7 +196,7 @@ describe('useStorage', () => {
     });
 
     it('should expire item after TTL', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
         await result.current.setWithTTL('tempKey', 'tempValue', 1000);
@@ -212,16 +215,16 @@ describe('useStorage', () => {
     });
 
     it('should store JSON with TTL', async () => {
-      const { result } = renderHook(() => useStorage('local'), { wrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       const testData = { test: 'data' };
 
       await act(async () => {
-        await result.current.setJSONWithTTL('tempJSON', testData, 1000);
+        await result.current.setWithTTL('tempJSON', testData, 1000);
       });
 
       await act(async () => {
-        const value = await result.current.getJSONWithTTL('tempJSON');
+        const value = await result.current.getWithTTL('tempJSON');
         expect(value).toEqual(testData);
       });
 
@@ -231,44 +234,44 @@ describe('useStorage', () => {
       });
 
       await act(async () => {
-        const value = await result.current.getJSONWithTTL('tempJSON');
+        const value = await result.current.getWithTTL('tempJSON');
         expect(value).toBeNull();
       });
     });
   });
 
   describe('namespace operations', () => {
-    it('should use custom namespace', async () => {
-      const { result } = renderHook(() => useStorage('local', 'custom'), { wrapper });
+    it('should use default namespace', async () => {
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper });
 
       await act(async () => {
-        await result.current.setItem('key', 'value');
+        await result.current.set('key', 'value');
       });
 
       await act(async () => {
-        const value = await result.current.getItem('key');
+        const value = await result.current.get('key');
         expect(value).toBe('value');
       });
 
-      // Check that key is namespaced
+      // Check that key is namespaced with default prefix
       await act(async () => {
         const keys = await result.current.keys();
-        expect(keys[0]).toContain('custom_');
+        expect(keys[0]).toContain('photoportfolio_');
       });
     });
 
-    it('should isolate namespaces', async () => {
-      const { result: result1 } = renderHook(() => useStorage('local', 'ns1'), { wrapper });
-      const { result: result2 } = renderHook(() => useStorage('local', 'ns2'), { wrapper });
+    it('should isolate local and session storage', async () => {
+      const { result: result1 } = renderHook(() => useStorageRepository('local'), { wrapper });
+      const { result: result2 } = renderHook(() => useStorageRepository('session'), { wrapper });
 
       await act(async () => {
-        await result1.current.setItem('key', 'value1');
-        await result2.current.setItem('key', 'value2');
+        await result1.current.set('key', 'value1');
+        await result2.current.set('key', 'value2');
       });
 
       await act(async () => {
-        const value1 = await result1.current.getItem('key');
-        const value2 = await result2.current.getItem('key');
+        const value1 = await result1.current.get('key');
+        const value2 = await result2.current.get('key');
         expect(value1).toBe('value1');
         expect(value2).toBe('value2');
       });
@@ -294,11 +297,11 @@ describe('useStorage', () => {
         </RepositoryProvider>
       );
 
-      const { result } = renderHook(() => useStorage('local'), { wrapper: errorWrapper });
+      const { result } = renderHook(() => useStorageRepository('local'), { wrapper: errorWrapper });
 
       await act(async () => {
         // Should not throw, should handle gracefully
-        await expect(result.current.setItem('key', 'value')).rejects.toThrow();
+        await expect(result.current.set('key', 'value')).rejects.toThrow();
       });
     });
   });

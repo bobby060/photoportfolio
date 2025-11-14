@@ -5,9 +5,20 @@ import { IStorageAdapter } from './IStorageAdapter';
  * Implements in-memory storage without browser dependencies
  */
 export class MemoryStorageAdapter extends IStorageAdapter {
-  constructor() {
+  constructor(prefix = 'photoportfolio_') {
     super();
     this.storage = new Map();
+    this.prefix = prefix;
+  }
+
+  /**
+   * Get prefixed key
+   * @private
+   * @param {string} key
+   * @returns {string}
+   */
+  _getKey(key) {
+    return `${this.prefix}${key}`;
   }
 
   /**
@@ -16,7 +27,7 @@ export class MemoryStorageAdapter extends IStorageAdapter {
    * @returns {Promise<string|null>}
    */
   async getItem(key) {
-    return this.storage.get(key) || null;
+    return this.storage.get(this._getKey(key)) || null;
   }
 
   /**
@@ -26,7 +37,7 @@ export class MemoryStorageAdapter extends IStorageAdapter {
    * @returns {Promise<void>}
    */
   async setItem(key, value) {
-    this.storage.set(key, value);
+    this.storage.set(this._getKey(key), value);
   }
 
   /**
@@ -35,7 +46,7 @@ export class MemoryStorageAdapter extends IStorageAdapter {
    * @returns {Promise<void>}
    */
   async removeItem(key) {
-    this.storage.delete(key);
+    this.storage.delete(this._getKey(key));
   }
 
   /**
@@ -47,11 +58,12 @@ export class MemoryStorageAdapter extends IStorageAdapter {
   }
 
   /**
-   * Get all keys from memory storage
+   * Get all keys from memory storage (with prefix)
    * @returns {Promise<string[]>}
    */
   async keys() {
-    return Array.from(this.storage.keys());
+    const allKeys = Array.from(this.storage.keys());
+    return allKeys.filter(key => key.startsWith(this.prefix));
   }
 
   /**

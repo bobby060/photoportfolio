@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useMemo } from 'react';
+import React, { createContext, useMemo } from 'react';
 import { AmplifyAuthAdapter } from '../adapters/auth/AmplifyAuthAdapter';
 import { LocalStorageAdapter } from '../adapters/storage/LocalStorageAdapter';
 import { SessionStorageAdapter } from '../adapters/storage/SessionStorageAdapter';

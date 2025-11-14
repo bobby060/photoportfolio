@@ -1,3 +1,4 @@
+import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useAuth } from '../../hooks/useAuth';
 import { RepositoryProvider } from '../../providers/RepositoryProvider';

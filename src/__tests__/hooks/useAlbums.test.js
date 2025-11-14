@@ -1,3 +1,4 @@
+import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useAlbums, useAlbum, useAlbumTags } from '../../hooks/useAlbums';
 import { RepositoryProvider } from '../../providers/RepositoryProvider';
@@ -35,7 +36,7 @@ describe('useAlbums', () => {
     mockStorageAdapter = new MemoryStorageAdapter();
 
     // Setup mock data
-    mockApiAdapter.setMockData('listAlbums', {
+    mockApiAdapter.setMockData('ListAlbums', {
       listAlbums: { items: mockAlbums }
     });
   });
@@ -69,7 +70,7 @@ describe('useAlbums', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      mockApiAdapter.setMockError('listAlbums', new Error('Fetch failed'));
+      mockApiAdapter.setMockError('ListAlbums', new Error('Fetch failed'));
 
       const { result } = renderHook(() => useAlbums(), { wrapper });
 
@@ -150,7 +151,7 @@ describe('useAlbums', () => {
 
       // Update mock data
       const updatedAlbums = [...mockAlbums, { id: '4', title: 'Album 4', privacy: 'public' }];
-      mockApiAdapter.setMockData('listAlbums', {
+      mockApiAdapter.setMockData('ListAlbums', {
         listAlbums: { items: updatedAlbums }
       });
 
@@ -224,12 +225,9 @@ describe('useAlbum', () => {
     mockStorageAdapter = new MemoryStorageAdapter();
 
     // Setup mock data for album URL resolution
-    mockApiAdapter.setMockData('listAlbums', {
-      listAlbums: {
-        items: [{
-          ...mockAlbum,
-          Url: { items: [{ url: 'test-album-01' }] }
-        }]
+    mockApiAdapter.setMockData('GetUrl', {
+      getUrl: {
+        album: mockAlbum
       }
     });
   });
@@ -252,8 +250,8 @@ describe('useAlbum', () => {
     });
 
     it('should handle not found', async () => {
-      mockApiAdapter.setMockData('listAlbums', {
-        listAlbums: { items: [] }
+      mockApiAdapter.setMockData('GetUrl', {
+        getUrl: null
       });
 
       const { result } = renderHook(() => useAlbum('nonexistent'), { wrapper });
@@ -262,11 +260,12 @@ describe('useAlbum', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(result.current.album).toBeNull();
+      expect(result.current.album).toBeFalsy();
+      expect(result.current.error).toBeFalsy();
     });
 
     it('should handle errors', async () => {
-      mockApiAdapter.setMockError('listAlbums', new Error('Fetch failed'));
+      mockApiAdapter.setMockError('GetUrl', new Error('Fetch failed'));
 
       const { result } = renderHook(() => useAlbum('test-album-01'), { wrapper });
 
@@ -289,12 +288,9 @@ describe('useAlbum', () => {
 
       // Update mock data
       const updatedAlbum = { ...mockAlbum, title: 'Updated Album' };
-      mockApiAdapter.setMockData('listAlbums', {
-        listAlbums: {
-          items: [{
-            ...updatedAlbum,
-            Url: { items: [{ url: 'test-album-01' }] }
-          }]
+      mockApiAdapter.setMockData('GetUrl', {
+        getUrl: {
+          album: updatedAlbum
         }
       });
 
@@ -337,7 +333,7 @@ describe('useAlbumTags', () => {
     mockStorageAdapter = new MemoryStorageAdapter();
 
     // Setup mock data
-    mockApiAdapter.setMockData('listAlbumTags', {
+    mockApiAdapter.setMockData('ListAlbumTags', {
       listAlbumTags: { items: mockTags }
     });
   });
@@ -365,7 +361,7 @@ describe('useAlbumTags', () => {
     });
 
     it('should handle errors', async () => {
-      mockApiAdapter.setMockError('listAlbumTags', new Error('Fetch failed'));
+      mockApiAdapter.setMockError('ListAlbumTags', new Error('Fetch failed'));
 
       const { result } = renderHook(() => useAlbumTags(), { wrapper });
 
@@ -388,7 +384,7 @@ describe('useAlbumTags', () => {
 
       // Update mock data
       const updatedTags = [...mockTags, { id: '4', title: 'Tag 4', privacy: 'public' }];
-      mockApiAdapter.setMockData('listAlbumTags', {
+      mockApiAdapter.setMockData('ListAlbumTags', {
         listAlbumTags: { items: updatedTags }
       });
 
