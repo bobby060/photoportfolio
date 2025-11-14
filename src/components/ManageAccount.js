@@ -25,7 +25,7 @@ import { upgradeAlbums } from "../helpers/upgrade_database";
  * 
  */
 export default function ManageAccount() {
-    const { user, isAuthenticated, isAdmin, signOut: authSignOut } = useAuth();
+    const { user, isAuthenticated, isAdmin, loading, signOut: authSignOut } = useAuth();
     const { tags, refetch: refetchTags } = useAlbumTags({ filter: 'public' });
     const { albums: albumRepo } = useRepositories();
     const router = useRouter();
@@ -98,14 +98,15 @@ export default function ManageAccount() {
     }
 
     // Redirect to sign in if user isn't authenticated (client-side only)
+    // Wait for loading to complete before redirecting
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!loading && !isAuthenticated) {
             router.push('/signin');
         }
-    }, [isAuthenticated, router]);
+    }, [loading, isAuthenticated, router]);
 
-    // Show nothing while checking authentication or redirecting
-    if (!isAuthenticated) {
+    // Show loading or nothing while checking authentication
+    if (loading || !isAuthenticated) {
         return null;
     }
 
