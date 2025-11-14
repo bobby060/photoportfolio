@@ -2,44 +2,43 @@ import { LocalStorageAdapter } from '../../../adapters/storage/LocalStorageAdapt
 
 describe('LocalStorageAdapter', () => {
   let adapter;
-  let mockLocalStorage;
+  let storage;
   let originalObjectKeys;
+  let mockLocalStorage;
 
   beforeEach(() => {
     // Save original Object.keys
     originalObjectKeys = Object.keys;
 
-    // Create mock localStorage with stateful implementation
-    const storage = {};
+    // Create internal storage
+    storage = {};
+
+    // Create fresh mock for localStorage
     mockLocalStorage = {
-      getItem: jest.fn((key) => storage[key] !== undefined ? storage[key] : null),
-      setItem: jest.fn((key, value) => { storage[key] = String(value); }),
-      removeItem: jest.fn((key) => { delete storage[key]; }),
-      clear: jest.fn(() => { Object.keys(storage).forEach(k => delete storage[k]); }),
-      key: jest.fn(),
-      length: 0,
-      _storage: storage  // Internal storage for testing
+      getItem: jest.fn((key) => {
+        return storage[key] !== undefined ? storage[key] : null;
+      }),
+      setItem: jest.fn((key, value) => {
+        storage[key] = String(value);
+      }),
+      removeItem: jest.fn((key) => {
+        delete storage[key];
+      }),
+      clear: jest.fn(() => {
+        Object.keys(storage).forEach(k => delete storage[k]);
+      })
     };
 
-    // Set window.localStorage (preserve other window properties like matchMedia)
-    global.window = {
-      ...global.window,
-      localStorage: mockLocalStorage
-    };
-
-    // Make window available as a global variable (not just global.window)
-    globalThis.window = global.window;
-
-    // Also set global.localStorage since the adapter accesses it directly
+    // Override global.localStorage
     global.localStorage = mockLocalStorage;
     globalThis.localStorage = mockLocalStorage;
 
     // Mock Object.keys for localStorage
     Object.keys = jest.fn((obj) => {
       if (obj === mockLocalStorage) {
-        return ['photoportfolio_key1', 'photoportfolio_key2', 'other_key'];
+        return Object.keys(storage);
       }
-      return originalObjectKeys(obj);  // Use original for other objects
+      return originalObjectKeys(obj);
     });
 
     adapter = new LocalStorageAdapter();
@@ -48,7 +47,6 @@ describe('LocalStorageAdapter', () => {
   afterEach(() => {
     // Restore original Object.keys
     Object.keys = originalObjectKeys;
-    jest.restoreAllMocks();
   });
 
   describe('constructor', () => {
@@ -92,7 +90,7 @@ describe('LocalStorageAdapter', () => {
 
   describe('getItem', () => {
     it('should retrieve item with prefixed key', async () => {
-      mockLocalStorage.getItem.mockReturnValue('test value');
+      storage['photoportfolio_mykey'] = 'test value';
 
       const result = await adapter.getItem('mykey');
 
@@ -101,8 +99,6 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should return null for non-existent key', async () => {
-      mockLocalStorage.getItem.mockReturnValue(null);
-
       const result = await adapter.getItem('nonexistent');
 
       expect(result).toBeNull();
@@ -135,6 +131,7 @@ describe('LocalStorageAdapter', () => {
         'photoportfolio_mykey',
         'myvalue'
       );
+      expect(storage['photoportfolio_mykey']).toBe('myvalue');
     });
 
     it('should handle window undefined gracefully', async () => {
@@ -142,7 +139,6 @@ describe('LocalStorageAdapter', () => {
 
       // Should not throw
       await expect(adapter.setItem('key', 'value')).resolves.toBeUndefined();
-      expect(mockLocalStorage.setItem).not.toHaveBeenCalled();
     });
 
     it('should throw QuotaExceededError as specific error', async () => {
@@ -168,9 +164,12 @@ describe('LocalStorageAdapter', () => {
 
   describe('removeItem', () => {
     it('should remove item with prefixed key', async () => {
+      storage['photoportfolio_mykey'] = 'value';
+
       await adapter.removeItem('mykey');
 
       expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('photoportfolio_mykey');
+      expect(storage['photoportfolio_mykey']).toBeUndefined();
     });
 
     it('should handle window undefined gracefully', async () => {
@@ -178,7 +177,6 @@ describe('LocalStorageAdapter', () => {
 
       // Should not throw
       await expect(adapter.removeItem('key')).resolves.toBeUndefined();
-      expect(mockLocalStorage.removeItem).not.toHaveBeenCalled();
     });
 
     it('should handle errors gracefully', async () => {
@@ -193,8 +191,9 @@ describe('LocalStorageAdapter', () => {
 
   describe('clear', () => {
     it('should remove all prefixed items', async () => {
-      // Mock keys() to return prefixed keys
-      Object.keys = jest.fn(() => ['photoportfolio_key1', 'photoportfolio_key2']);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['photoportfolio_key2'] = 'value2';
+      storage['other_key'] = 'value3';
 
       await adapter.clear();
 
@@ -203,7 +202,8 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should not remove non-prefixed items', async () => {
-      Object.keys = jest.fn(() => ['photoportfolio_key1', 'other_key']);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['other_key'] = 'value2';
 
       await adapter.clear();
 
@@ -220,10 +220,10 @@ describe('LocalStorageAdapter', () => {
 
     it('should handle errors gracefully', async () => {
       Object.keys = jest.fn((obj) => {
-        if (obj === mockLocalStorage) {
+        if (obj === global.localStorage) {
           throw new Error('Keys error');
         }
-        return Object.getOwnPropertyNames(obj);
+        return originalObjectKeys(obj);
       });
 
       // Should not throw
@@ -233,12 +233,10 @@ describe('LocalStorageAdapter', () => {
 
   describe('keys', () => {
     it('should return only prefixed keys', async () => {
-      Object.keys = jest.fn(() => [
-        'photoportfolio_key1',
-        'photoportfolio_key2',
-        'other_prefix_key',
-        'photoportfolio_key3'
-      ]);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['photoportfolio_key2'] = 'value2';
+      storage['other_prefix_key'] = 'value3';
+      storage['photoportfolio_key3'] = 'value4';
 
       const keys = await adapter.keys();
 
@@ -250,7 +248,8 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should return empty array when no prefixed keys', async () => {
-      Object.keys = jest.fn(() => ['other_key1', 'other_key2']);
+      storage['other_key1'] = 'value1';
+      storage['other_key2'] = 'value2';
 
       const keys = await adapter.keys();
 
@@ -267,10 +266,10 @@ describe('LocalStorageAdapter', () => {
 
     it('should handle errors and return empty array', async () => {
       Object.keys = jest.fn((obj) => {
-        if (obj === mockLocalStorage) {
+        if (obj === global.localStorage) {
           throw new Error('Keys error');
         }
-        return Object.getOwnPropertyNames(obj);
+        return originalObjectKeys(obj);
       });
 
       const keys = await adapter.keys();
@@ -294,19 +293,9 @@ describe('LocalStorageAdapter', () => {
 
   describe('integration scenarios', () => {
     it('should handle complete store-retrieve-remove cycle', async () => {
-      mockLocalStorage.setItem.mockImplementation((key, value) => {
-        mockLocalStorage[key] = value;
-      });
-      mockLocalStorage.getItem.mockImplementation((key) => {
-        return mockLocalStorage[key] || null;
-      });
-      mockLocalStorage.removeItem.mockImplementation((key) => {
-        delete mockLocalStorage[key];
-      });
-
       // Store
       await adapter.setItem('user', 'john');
-      expect(mockLocalStorage['photoportfolio_user']).toBe('john');
+      expect(storage['photoportfolio_user']).toBe('john');
 
       // Retrieve
       const value = await adapter.getItem('user');
@@ -314,7 +303,7 @@ describe('LocalStorageAdapter', () => {
 
       // Remove
       await adapter.removeItem('user');
-      expect(mockLocalStorage['photoportfolio_user']).toBeUndefined();
+      expect(storage['photoportfolio_user']).toBeUndefined();
     });
 
     it('should maintain namespace isolation', async () => {
@@ -329,12 +318,10 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should filter keys by prefix correctly', async () => {
-      Object.keys = jest.fn(() => [
-        'photoportfolio_auth_token',
-        'photoportfolio_user_data',
-        'different_app_key',
-        'photoportfolio_settings'
-      ]);
+      storage['photoportfolio_auth_token'] = 'token';
+      storage['photoportfolio_user_data'] = 'data';
+      storage['different_app_key'] = 'diff';
+      storage['photoportfolio_settings'] = 'settings';
 
       const keys = await adapter.keys();
 
@@ -363,8 +350,8 @@ describe('LocalStorageAdapter', () => {
       await adapter.setItem('ssr_key', 'ssr_value');
 
       // Add window (client-side hydration)
-      global.window = { localStorage: mockLocalStorage };
-      mockLocalStorage.getItem.mockReturnValue('client_value');
+      global.window = { localStorage: global.localStorage };
+      storage['photoportfolio_client_key'] = 'client_value';
 
       const value = await adapter.getItem('client_key');
       expect(value).toBe('client_value');

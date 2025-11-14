@@ -25,6 +25,11 @@ beforeAll(() => {
       'GraphQL query error:',
       'GraphQL mutation error:',
       'S3 file deletion error:',
+      'File upload error:',
+      'Get file URL error:',
+      'File deletion error:',
+      'LocalStorage',
+      'SessionStorage',
     ];
 
     // Suppress React act() warnings (these are expected in async tests)

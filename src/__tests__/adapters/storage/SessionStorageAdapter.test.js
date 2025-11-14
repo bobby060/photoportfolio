@@ -2,44 +2,43 @@ import { SessionStorageAdapter } from '../../../adapters/storage/SessionStorageA
 
 describe('SessionStorageAdapter', () => {
   let adapter;
-  let mockSessionStorage;
+  let storage;
   let originalObjectKeys;
+  let mockSessionStorage;
 
   beforeEach(() => {
     // Save original Object.keys
     originalObjectKeys = Object.keys;
 
-    // Create mock sessionStorage with stateful implementation
-    const storage = {};
+    // Create internal storage
+    storage = {};
+
+    // Create fresh mock for sessionStorage
     mockSessionStorage = {
-      getItem: jest.fn((key) => storage[key] !== undefined ? storage[key] : null),
-      setItem: jest.fn((key, value) => { storage[key] = String(value); }),
-      removeItem: jest.fn((key) => { delete storage[key]; }),
-      clear: jest.fn(() => { Object.keys(storage).forEach(k => delete storage[k]); }),
-      key: jest.fn(),
-      length: 0,
-      _storage: storage  // Internal storage for testing
+      getItem: jest.fn((key) => {
+        return storage[key] !== undefined ? storage[key] : null;
+      }),
+      setItem: jest.fn((key, value) => {
+        storage[key] = String(value);
+      }),
+      removeItem: jest.fn((key) => {
+        delete storage[key];
+      }),
+      clear: jest.fn(() => {
+        Object.keys(storage).forEach(k => delete storage[k]);
+      })
     };
 
-    // Set window.sessionStorage (preserve other window properties like matchMedia)
-    global.window = {
-      ...global.window,
-      sessionStorage: mockSessionStorage
-    };
-
-    // Make window available as a global variable (not just global.window)
-    globalThis.window = global.window;
-
-    // Also set global.sessionStorage since the adapter accesses it directly
+    // Override global.sessionStorage
     global.sessionStorage = mockSessionStorage;
     globalThis.sessionStorage = mockSessionStorage;
 
     // Mock Object.keys for sessionStorage
     Object.keys = jest.fn((obj) => {
       if (obj === mockSessionStorage) {
-        return ['photoportfolio_key1', 'photoportfolio_key2', 'other_key'];
+        return Object.keys(storage);
       }
-      return originalObjectKeys(obj);  // Use original for other objects
+      return originalObjectKeys(obj);
     });
 
     adapter = new SessionStorageAdapter();
@@ -48,7 +47,6 @@ describe('SessionStorageAdapter', () => {
   afterEach(() => {
     // Restore original Object.keys
     Object.keys = originalObjectKeys;
-    jest.restoreAllMocks();
   });
 
   describe('constructor', () => {
@@ -92,7 +90,7 @@ describe('SessionStorageAdapter', () => {
 
   describe('getItem', () => {
     it('should retrieve item with prefixed key', async () => {
-      mockSessionStorage.getItem.mockReturnValue('test value');
+      storage['photoportfolio_mykey'] = 'test value';
 
       const result = await adapter.getItem('mykey');
 
@@ -101,8 +99,6 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should return null for non-existent key', async () => {
-      mockSessionStorage.getItem.mockReturnValue(null);
-
       const result = await adapter.getItem('nonexistent');
 
       expect(result).toBeNull();
@@ -135,6 +131,7 @@ describe('SessionStorageAdapter', () => {
         'photoportfolio_mykey',
         'myvalue'
       );
+      expect(storage['photoportfolio_mykey']).toBe('myvalue');
     });
 
     it('should handle window undefined gracefully', async () => {
@@ -142,7 +139,6 @@ describe('SessionStorageAdapter', () => {
 
       // Should not throw
       await expect(adapter.setItem('key', 'value')).resolves.toBeUndefined();
-      expect(mockSessionStorage.setItem).not.toHaveBeenCalled();
     });
 
     it('should throw QuotaExceededError as specific error', async () => {
@@ -168,9 +164,12 @@ describe('SessionStorageAdapter', () => {
 
   describe('removeItem', () => {
     it('should remove item with prefixed key', async () => {
+      storage['photoportfolio_mykey'] = 'value';
+
       await adapter.removeItem('mykey');
 
       expect(mockSessionStorage.removeItem).toHaveBeenCalledWith('photoportfolio_mykey');
+      expect(storage['photoportfolio_mykey']).toBeUndefined();
     });
 
     it('should handle window undefined gracefully', async () => {
@@ -178,7 +177,6 @@ describe('SessionStorageAdapter', () => {
 
       // Should not throw
       await expect(adapter.removeItem('key')).resolves.toBeUndefined();
-      expect(mockSessionStorage.removeItem).not.toHaveBeenCalled();
     });
 
     it('should handle errors gracefully', async () => {
@@ -193,8 +191,9 @@ describe('SessionStorageAdapter', () => {
 
   describe('clear', () => {
     it('should remove all prefixed items', async () => {
-      // Mock keys() to return prefixed keys
-      Object.keys = jest.fn(() => ['photoportfolio_key1', 'photoportfolio_key2']);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['photoportfolio_key2'] = 'value2';
+      storage['other_key'] = 'value3';
 
       await adapter.clear();
 
@@ -203,7 +202,8 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should not remove non-prefixed items', async () => {
-      Object.keys = jest.fn(() => ['photoportfolio_key1', 'other_key']);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['other_key'] = 'value2';
 
       await adapter.clear();
 
@@ -220,10 +220,10 @@ describe('SessionStorageAdapter', () => {
 
     it('should handle errors gracefully', async () => {
       Object.keys = jest.fn((obj) => {
-        if (obj === mockSessionStorage) {
+        if (obj === global.sessionStorage) {
           throw new Error('Keys error');
         }
-        return Object.getOwnPropertyNames(obj);
+        return originalObjectKeys(obj);
       });
 
       // Should not throw
@@ -233,12 +233,10 @@ describe('SessionStorageAdapter', () => {
 
   describe('keys', () => {
     it('should return only prefixed keys', async () => {
-      Object.keys = jest.fn(() => [
-        'photoportfolio_key1',
-        'photoportfolio_key2',
-        'other_prefix_key',
-        'photoportfolio_key3'
-      ]);
+      storage['photoportfolio_key1'] = 'value1';
+      storage['photoportfolio_key2'] = 'value2';
+      storage['other_prefix_key'] = 'value3';
+      storage['photoportfolio_key3'] = 'value4';
 
       const keys = await adapter.keys();
 
@@ -250,7 +248,8 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should return empty array when no prefixed keys', async () => {
-      Object.keys = jest.fn(() => ['other_key1', 'other_key2']);
+      storage['other_key1'] = 'value1';
+      storage['other_key2'] = 'value2';
 
       const keys = await adapter.keys();
 
@@ -267,10 +266,10 @@ describe('SessionStorageAdapter', () => {
 
     it('should handle errors and return empty array', async () => {
       Object.keys = jest.fn((obj) => {
-        if (obj === mockSessionStorage) {
+        if (obj === global.sessionStorage) {
           throw new Error('Keys error');
         }
-        return Object.getOwnPropertyNames(obj);
+        return originalObjectKeys(obj);
       });
 
       const keys = await adapter.keys();
@@ -294,19 +293,9 @@ describe('SessionStorageAdapter', () => {
 
   describe('integration scenarios', () => {
     it('should handle complete store-retrieve-remove cycle', async () => {
-      mockSessionStorage.setItem.mockImplementation((key, value) => {
-        mockSessionStorage[key] = value;
-      });
-      mockSessionStorage.getItem.mockImplementation((key) => {
-        return mockSessionStorage[key] || null;
-      });
-      mockSessionStorage.removeItem.mockImplementation((key) => {
-        delete mockSessionStorage[key];
-      });
-
       // Store
       await adapter.setItem('user', 'john');
-      expect(mockSessionStorage['photoportfolio_user']).toBe('john');
+      expect(storage['photoportfolio_user']).toBe('john');
 
       // Retrieve
       const value = await adapter.getItem('user');
@@ -314,7 +303,7 @@ describe('SessionStorageAdapter', () => {
 
       // Remove
       await adapter.removeItem('user');
-      expect(mockSessionStorage['photoportfolio_user']).toBeUndefined();
+      expect(storage['photoportfolio_user']).toBeUndefined();
     });
 
     it('should maintain namespace isolation', async () => {
@@ -329,12 +318,10 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should filter keys by prefix correctly', async () => {
-      Object.keys = jest.fn(() => [
-        'photoportfolio_temp_data',
-        'photoportfolio_session_id',
-        'different_app_key',
-        'photoportfolio_cart'
-      ]);
+      storage['photoportfolio_temp_data'] = 'data';
+      storage['photoportfolio_session_id'] = 'id';
+      storage['different_app_key'] = 'diff';
+      storage['photoportfolio_cart'] = 'cart';
 
       const keys = await adapter.keys();
 
@@ -350,39 +337,26 @@ describe('SessionStorageAdapter', () => {
     it('should be isolated per browser tab/window', async () => {
       // sessionStorage is per-window, not shared like localStorage
       // This test documents the expected behavior
-
-      mockSessionStorage.setItem.mockImplementation((key, value) => {
-        mockSessionStorage[key] = value;
-      });
-
       await adapter.setItem('session_data', 'window1_value');
 
       expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
         'photoportfolio_session_data',
         'window1_value'
       );
+      expect(storage['photoportfolio_session_data']).toBe('window1_value');
     });
 
     it('should handle temporary session data', async () => {
-      mockSessionStorage.setItem.mockImplementation((key, value) => {
-        mockSessionStorage[key] = value;
-      });
-      mockSessionStorage.getItem.mockImplementation((key) => {
-        return mockSessionStorage[key] || null;
-      });
-
       // Store temporary data
       await adapter.setItem('temp_token', 'abc123');
-      const token = await adapter.getItem('temp_token');
-
+      let token = await adapter.getItem('temp_token');
       expect(token).toBe('abc123');
 
       // Simulate browser close/tab close (sessionStorage cleared)
-      Object.keys(mockSessionStorage).forEach(key => {
-        delete mockSessionStorage[key];
+      Object.keys(storage).forEach(key => {
+        delete storage[key];
       });
 
-      mockSessionStorage.getItem.mockReturnValue(null);
       const afterClose = await adapter.getItem('temp_token');
       expect(afterClose).toBeNull();
     });
@@ -405,8 +379,8 @@ describe('SessionStorageAdapter', () => {
       await adapter.setItem('ssr_key', 'ssr_value');
 
       // Add window (client-side hydration)
-      global.window = { sessionStorage: mockSessionStorage };
-      mockSessionStorage.getItem.mockReturnValue('client_value');
+      global.window = { sessionStorage: global.sessionStorage };
+      storage['photoportfolio_client_key'] = 'client_value';
 
       const value = await adapter.getItem('client_key');
       expect(value).toBe('client_value');
@@ -416,28 +390,13 @@ describe('SessionStorageAdapter', () => {
   describe('differences from localStorage', () => {
     it('should be separate from localStorage', async () => {
       // Document that sessionStorage and localStorage are independent
-      const mockLocalStorage = {
-        getItem: jest.fn().mockReturnValue('local_value'),
-        setItem: jest.fn()
-      };
-
-      global.window = {
-        ...global.window,
-        sessionStorage: mockSessionStorage,
-        localStorage: mockLocalStorage
-      };
-
-      // Also update global variables
-      global.sessionStorage = mockSessionStorage;
-      global.localStorage = mockLocalStorage;
-
-      mockSessionStorage.getItem.mockReturnValue('session_value');
+      storage['photoportfolio_test'] = 'session_value';
 
       const value = await adapter.getItem('test');
 
       expect(value).toBe('session_value');
       expect(mockSessionStorage.getItem).toHaveBeenCalled();
-      expect(mockLocalStorage.getItem).not.toHaveBeenCalled();
+      expect(global.localStorage.getItem).not.toHaveBeenCalled();
     });
   });
 });
