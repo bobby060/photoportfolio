@@ -1,51 +1,67 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRepositories } from './useRepositories';
 
 /**
  * Authentication Hook
- * Provides authentication state and operations
+ * Provides authentication state and operations using AuthRepository
+ * Now properly leverages the repository's caching mechanism
  *
  * @returns {Object} Auth state and methods
  */
 export function useAuth() {
   const { auth } = useRepositories();
-  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const mountedRef = useRef(true);
 
-  // Load user data when authentication status changes
-  useEffect(() => {
-    async function loadUser() {
-      setLoading(true);
-      setError(null);
+  // Load user data directly from AuthRepository (uses adapter's cache)
+  const loadUser = useCallback(async () => {
+    if (!mountedRef.current) return;
 
-      try {
-        if (authStatus === 'authenticated') {
-          const userData = await auth.getUser();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        console.error('Failed to load user:', err);
+    try {
+      const userData = await auth.getUser();
+      if (mountedRef.current) {
+        setUser(userData);
+        setError(null);
+      }
+    } catch (err) {
+      console.error('Failed to load user:', err);
+      if (mountedRef.current) {
         setError(err);
         setUser(null);
-      } finally {
+      }
+    } finally {
+      if (mountedRef.current) {
         setLoading(false);
       }
     }
+  }, [auth]);
 
+  // Initial load and periodic refresh
+  useEffect(() => {
+    mountedRef.current = true;
     loadUser();
-  }, [authStatus, auth]);
+
+    // Optional: Refresh user data periodically (every 5 minutes)
+    // This ensures the auth state stays fresh, leveraging the adapter's 1-minute cache
+    const intervalId = setInterval(() => {
+      loadUser();
+    }, 5 * 60 * 1000);
+
+    return () => {
+      mountedRef.current = false;
+      clearInterval(intervalId);
+    };
+  }, [loadUser]);
 
   // Sign out function
   const signOut = useCallback(async () => {
     try {
       await auth.logout();
+      auth.clearCache();
       setUser(null);
       setError(null);
     } catch (err) {
@@ -55,10 +71,12 @@ export function useAuth() {
     }
   }, [auth]);
 
-  // Refresh user data
+  // Refresh user data manually
   const refreshUser = useCallback(async () => {
     try {
-      const userData = await auth.refreshSession();
+      // Clear cache first to force fresh fetch
+      auth.clearCache();
+      const userData = await auth.getUser();
       setUser(userData);
       setError(null);
       return userData;
@@ -92,7 +110,7 @@ export function useAuth() {
   return {
     // State
     user,
-    isAuthenticated: authStatus === 'authenticated',
+    isAuthenticated: user !== null,
     isAdmin: user?.isAdmin ?? false,
     loading,
     error,
