@@ -3,38 +3,51 @@ import { SessionStorageAdapter } from '../../../adapters/storage/SessionStorageA
 describe('SessionStorageAdapter', () => {
   let adapter;
   let mockSessionStorage;
+  let originalObjectKeys;
 
   beforeEach(() => {
-    // Create mock sessionStorage
+    // Save original Object.keys
+    originalObjectKeys = Object.keys;
+
+    // Create mock sessionStorage with stateful implementation
+    const storage = {};
     mockSessionStorage = {
-      getItem: jest.fn(),
-      setItem: jest.fn(),
-      removeItem: jest.fn(),
-      clear: jest.fn(),
+      getItem: jest.fn((key) => storage[key] !== undefined ? storage[key] : null),
+      setItem: jest.fn((key, value) => { storage[key] = String(value); }),
+      removeItem: jest.fn((key) => { delete storage[key]; }),
+      clear: jest.fn(() => { Object.keys(storage).forEach(k => delete storage[k]); }),
       key: jest.fn(),
-      length: 0
+      length: 0,
+      _storage: storage  // Internal storage for testing
     };
 
-    // Mock window.sessionStorage
-    Object.defineProperty(global, 'window', {
-      value: { sessionStorage: mockSessionStorage },
-      writable: true,
-      configurable: true
-    });
+    // Set window.sessionStorage (preserve other window properties like matchMedia)
+    global.window = {
+      ...global.window,
+      sessionStorage: mockSessionStorage
+    };
+
+    // Make window available as a global variable (not just global.window)
+    globalThis.window = global.window;
+
+    // Also set global.sessionStorage since the adapter accesses it directly
+    global.sessionStorage = mockSessionStorage;
+    globalThis.sessionStorage = mockSessionStorage;
 
     // Mock Object.keys for sessionStorage
     Object.keys = jest.fn((obj) => {
       if (obj === mockSessionStorage) {
         return ['photoportfolio_key1', 'photoportfolio_key2', 'other_key'];
       }
-      return [];
+      return originalObjectKeys(obj);  // Use original for other objects
     });
 
     adapter = new SessionStorageAdapter();
-    jest.clearAllMocks();
   });
 
   afterEach(() => {
+    // Restore original Object.keys
+    Object.keys = originalObjectKeys;
     jest.restoreAllMocks();
   });
 
@@ -206,8 +219,11 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      Object.keys = jest.fn(() => {
-        throw new Error('Keys error');
+      Object.keys = jest.fn((obj) => {
+        if (obj === mockSessionStorage) {
+          throw new Error('Keys error');
+        }
+        return Object.getOwnPropertyNames(obj);
       });
 
       // Should not throw
@@ -250,8 +266,11 @@ describe('SessionStorageAdapter', () => {
     });
 
     it('should handle errors and return empty array', async () => {
-      Object.keys = jest.fn(() => {
-        throw new Error('Keys error');
+      Object.keys = jest.fn((obj) => {
+        if (obj === mockSessionStorage) {
+          throw new Error('Keys error');
+        }
+        return Object.getOwnPropertyNames(obj);
       });
 
       const keys = await adapter.keys();
@@ -403,9 +422,14 @@ describe('SessionStorageAdapter', () => {
       };
 
       global.window = {
+        ...global.window,
         sessionStorage: mockSessionStorage,
         localStorage: mockLocalStorage
       };
+
+      // Also update global variables
+      global.sessionStorage = mockSessionStorage;
+      global.localStorage = mockLocalStorage;
 
       mockSessionStorage.getItem.mockReturnValue('session_value');
 

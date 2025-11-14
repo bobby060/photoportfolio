@@ -3,38 +3,51 @@ import { LocalStorageAdapter } from '../../../adapters/storage/LocalStorageAdapt
 describe('LocalStorageAdapter', () => {
   let adapter;
   let mockLocalStorage;
+  let originalObjectKeys;
 
   beforeEach(() => {
-    // Create mock localStorage
+    // Save original Object.keys
+    originalObjectKeys = Object.keys;
+
+    // Create mock localStorage with stateful implementation
+    const storage = {};
     mockLocalStorage = {
-      getItem: jest.fn(),
-      setItem: jest.fn(),
-      removeItem: jest.fn(),
-      clear: jest.fn(),
+      getItem: jest.fn((key) => storage[key] !== undefined ? storage[key] : null),
+      setItem: jest.fn((key, value) => { storage[key] = String(value); }),
+      removeItem: jest.fn((key) => { delete storage[key]; }),
+      clear: jest.fn(() => { Object.keys(storage).forEach(k => delete storage[k]); }),
       key: jest.fn(),
-      length: 0
+      length: 0,
+      _storage: storage  // Internal storage for testing
     };
 
-    // Mock window.localStorage
-    Object.defineProperty(global, 'window', {
-      value: { localStorage: mockLocalStorage },
-      writable: true,
-      configurable: true
-    });
+    // Set window.localStorage (preserve other window properties like matchMedia)
+    global.window = {
+      ...global.window,
+      localStorage: mockLocalStorage
+    };
+
+    // Make window available as a global variable (not just global.window)
+    globalThis.window = global.window;
+
+    // Also set global.localStorage since the adapter accesses it directly
+    global.localStorage = mockLocalStorage;
+    globalThis.localStorage = mockLocalStorage;
 
     // Mock Object.keys for localStorage
     Object.keys = jest.fn((obj) => {
       if (obj === mockLocalStorage) {
         return ['photoportfolio_key1', 'photoportfolio_key2', 'other_key'];
       }
-      return [];
+      return originalObjectKeys(obj);  // Use original for other objects
     });
 
     adapter = new LocalStorageAdapter();
-    jest.clearAllMocks();
   });
 
   afterEach(() => {
+    // Restore original Object.keys
+    Object.keys = originalObjectKeys;
     jest.restoreAllMocks();
   });
 
@@ -206,8 +219,11 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      Object.keys = jest.fn(() => {
-        throw new Error('Keys error');
+      Object.keys = jest.fn((obj) => {
+        if (obj === mockLocalStorage) {
+          throw new Error('Keys error');
+        }
+        return Object.getOwnPropertyNames(obj);
       });
 
       // Should not throw
@@ -250,8 +266,11 @@ describe('LocalStorageAdapter', () => {
     });
 
     it('should handle errors and return empty array', async () => {
-      Object.keys = jest.fn(() => {
-        throw new Error('Keys error');
+      Object.keys = jest.fn((obj) => {
+        if (obj === mockLocalStorage) {
+          throw new Error('Keys error');
+        }
+        return Object.getOwnPropertyNames(obj);
       });
 
       const keys = await adapter.keys();

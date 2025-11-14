@@ -20,6 +20,11 @@ beforeAll(() => {
       'Failed to fetch album:',
       'Failed to fetch tags:',
       'Sign out failed:',
+      'Error fetching current user:',
+      'Error signing out:',
+      'GraphQL query error:',
+      'GraphQL mutation error:',
+      'S3 file deletion error:',
     ];
 
     // Suppress React act() warnings (these are expected in async tests)

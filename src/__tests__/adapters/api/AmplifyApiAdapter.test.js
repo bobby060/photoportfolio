@@ -19,6 +19,9 @@ describe('AmplifyApiAdapter', () => {
   let mockAuthenticatedClient;
 
   beforeEach(() => {
+    // Clear mocks first
+    jest.clearAllMocks();
+
     // Create mock clients
     mockPublicClient = {
       graphql: jest.fn()
@@ -33,7 +36,6 @@ describe('AmplifyApiAdapter', () => {
     });
 
     adapter = new AmplifyApiAdapter();
-    jest.clearAllMocks();
   });
 
   describe('constructor', () => {
@@ -292,8 +294,8 @@ describe('AmplifyApiAdapter', () => {
     });
 
     it('should default to UNKNOWN_ERROR if no code or name', () => {
-      const error = new Error('Test error');
-      delete error.name;
+      // Use plain object to ensure no inherited name property
+      const error = { message: 'Test error' };
 
       const transformed = adapter._transformError(error);
 
