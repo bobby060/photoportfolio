@@ -10,6 +10,8 @@ export class MockAuthAdapter extends IAuthAdapter {
     this.mockUser = initialUser;
     this.signOutCalled = false;
     this.refreshCalled = false;
+    this.mockError = null;
+    this.signOutError = null;
   }
 
   /**
@@ -17,7 +19,18 @@ export class MockAuthAdapter extends IAuthAdapter {
    * @returns {Promise<User|null>}
    */
   async getCurrentUser() {
+    if (this.mockError) {
+      throw this.mockError;
+    }
     return this.mockUser;
+  }
+
+  /**
+   * Set mock error to throw (for testing)
+   * @param {Error} error
+   */
+  setMockError(error) {
+    this.mockError = error;
   }
 
   /**
@@ -34,6 +47,9 @@ export class MockAuthAdapter extends IAuthAdapter {
    */
   async signOut() {
     this.signOutCalled = true;
+    if (this.signOutError) {
+      throw this.signOutError;
+    }
     this.mockUser = null;
   }
 
@@ -69,6 +85,8 @@ export class MockAuthAdapter extends IAuthAdapter {
     this.mockUser = null;
     this.signOutCalled = false;
     this.refreshCalled = false;
+    this.mockError = null;
+    this.signOutError = null;
   }
 
   /**

@@ -2,6 +2,69 @@
 
 The goal of this photo portfolio is to provide a simple, easily modifiable photo portfolio solution. The main feature is the ability to dynamically update website content from anywhere with no programming background. You can see a live example [here](https://rnorwood.com)
 
+## Architecture
+
+This application uses the **Repository Pattern** to create a clean abstraction layer between the React UI and backend services, making the codebase backend-agnostic, highly testable, and maintainable.
+
+### Architecture Layers
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    REACT COMPONENTS                          │
+│              (NavigationBar, AllAlbums, etc.)               │
+│  • Pure presentation logic                                   │
+│  • No direct backend dependencies                            │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ Uses custom hooks
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    CUSTOM HOOKS                              │
+│         (useAuth, useAlbums, useAlbum, useStorage)          │
+│  • Provide React-friendly API                               │
+│  • Handle loading states                                    │
+│  • Manage component lifecycle                               │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ Calls repository methods
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    REPOSITORIES                              │
+│    (AuthRepository, AlbumRepository, ImageRepository)       │
+│  • Business logic layer                                     │
+│  • Validation and transformation                            │
+│  • Caching strategies (5-min albums, 1-min auth tokens)     │
+│  • Error handling                                           │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ Delegates to adapters
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    ADAPTERS                                  │
+│  (AmplifyAuthAdapter, AmplifyApiAdapter, etc.)             │
+│  • Translate generic operations to specific backend         │
+│  • Handle backend-specific logic                            │
+│  • SSR-safe (MemoryStorageAdapter during server-side)       │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ Makes actual API calls
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    BACKEND                                   │
+│         (AWS Amplify, Cognito, AppSync, S3)                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Benefits of Repository Pattern
+
+- **Backend Independence**: Swap AWS for Firebase/REST API by changing adapters only
+- **Easy Testing**: Use mock adapters for testing without AWS infrastructure
+- **Built-in Caching**: 1-minute auth token cache, 5-minute album cache
+- **SSR Safe**: Automatic fallback to MemoryStorage during server-side rendering
+- **Maintainable**: Clear separation of concerns across layers
+
+## Backend Services
+
 This backend uses the following AWS products
 - Amplify
 - AppSync
@@ -11,7 +74,7 @@ This backend uses the following AWS products
 - Cloudfront
 
 ![resource diagram](https://github.com/bobby060/photoportfolio/blob/dev/ResourceDiagrams.jpg)
-The front end is built with React and ReactRouter.
+The front end is built with React and Next.js.
 
 ## Features
 - Utilize the high availability and scalability of AWS services. Fixed cost to host is to basically the cost to store the website data. Other costs directly proportional to how many people view your website.
