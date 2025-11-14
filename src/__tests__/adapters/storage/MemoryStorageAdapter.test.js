@@ -99,9 +99,10 @@ describe('MemoryStorageAdapter', () => {
 
       const keys = await adapter.keys();
       expect(keys).toHaveLength(3);
-      expect(keys).toContain('key1');
-      expect(keys).toContain('key2');
-      expect(keys).toContain('key3');
+      // Keys are returned with prefix at adapter level
+      expect(keys).toContain('photoportfolio_key1');
+      expect(keys).toContain('photoportfolio_key2');
+      expect(keys).toContain('photoportfolio_key3');
     });
   });
 
@@ -133,9 +134,10 @@ describe('MemoryStorageAdapter', () => {
       await adapter.setItem('key2', 'value2');
 
       const entries = adapter.getAllEntries();
+      // Entries are returned with prefix at adapter level
       expect(entries).toEqual({
-        key1: 'value1',
-        key2: 'value2'
+        photoportfolio_key1: 'value1',
+        photoportfolio_key2: 'value2'
       });
     });
   });

@@ -7,6 +7,23 @@ describe('MockApiAdapter', () => {
     adapter = new MockApiAdapter();
   });
 
+  const createMockFile = (content = 'test content', name = 'test.jpg') => {
+    // Create a proper File-like object for testing
+    const blob = new Blob([content], { type: 'image/jpeg' });
+
+    // Create a File object (if available) or mock one
+    if (typeof File !== 'undefined') {
+      return new File([blob], name, { type: 'image/jpeg' });
+    } else {
+      // Fallback for environments without File constructor
+      Object.defineProperty(blob, 'name', {
+        value: name,
+        writable: false
+      });
+      return blob;
+    }
+  };
+
   describe('query', () => {
     it('should return empty object when no mock data is set', async () => {
       const result = await adapter.query('query GetAlbums { albums }');
@@ -87,8 +104,7 @@ describe('MockApiAdapter', () => {
 
   describe('uploadFile', () => {
     it('should store file reference', async () => {
-      const file = new Blob(['test content'], { type: 'image/jpeg' });
-      file.size = 12;
+      const file = createMockFile('test content', 'test.jpg');
 
       const result = await adapter.uploadFile('images/test.jpg', file);
 
@@ -97,8 +113,7 @@ describe('MockApiAdapter', () => {
     });
 
     it('should call onProgress callback', async () => {
-      const file = new Blob(['test content'], { type: 'image/jpeg' });
-      file.size = 12;
+      const file = createMockFile('test content', 'test.jpg');
       const onProgress = jest.fn();
 
       await adapter.uploadFile('images/test.jpg', file, { onProgress });
@@ -110,8 +125,7 @@ describe('MockApiAdapter', () => {
     });
 
     it('should record upload call in history', async () => {
-      const file = new Blob(['test content'], { type: 'image/jpeg' });
-      file.size = 12;
+      const file = createMockFile('test content', 'test.jpg');
 
       await adapter.uploadFile('images/test.jpg', file);
 
@@ -124,8 +138,7 @@ describe('MockApiAdapter', () => {
 
   describe('getFileUrl', () => {
     it('should return mock URL for uploaded file', async () => {
-      const file = new Blob(['test content'], { type: 'image/jpeg' });
-      file.size = 12;
+      const file = createMockFile('test content', 'test.jpg');
       await adapter.uploadFile('images/test.jpg', file);
 
       const url = await adapter.getFileUrl('images/test.jpg');
@@ -143,8 +156,7 @@ describe('MockApiAdapter', () => {
       await adapter.query('query GetAlbums { albums }');
       await adapter.mutate('mutation CreateAlbum { createAlbum }');
 
-      const file = new Blob(['test'], { type: 'image/jpeg' });
-      file.size = 4;
+      const file = createMockFile('test', 'test.jpg');
       await adapter.uploadFile('test.jpg', file);
 
       adapter.reset();
