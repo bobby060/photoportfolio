@@ -7,5 +7,6 @@
       "authphotoportfolio7e5401aa",
       "Outputs.UserPoolId"
     ]
-  }
+  },
+  "CreateAPIKey": 1
 }
