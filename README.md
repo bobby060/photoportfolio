@@ -70,6 +70,10 @@ To run in production mode:
 ### Authentication
 This app is designed to use an Amplify Graphql API with primary mode set to Cognito User pool and secondary mode set to AWS API. This means that by default, a query run in a component will be authenticated using Cognito unless you specifiy to use AWS API. The default is the secure option.
 
+### API Key timeouts
+See this for what to do if your API key expires and is deleted. If the key expires and is not deleted, simply redeploying in Amplify should renew.
+https://github.com/aws-amplify/amplify-cli/issues/808#issuecomment-596217380
+
 
 ### Useful References:
 - [mdb react components](https://mdbootstrap.com/docs/standard)
