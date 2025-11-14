@@ -91,19 +91,25 @@ export default function ManageAccount() {
     async function signOutWrapper() {
         try {
             await authSignOut();
-            router.push('/signin');
+            router.push('/');
         } catch (error) {
             console.error('Sign out failed:', error);
         }
     }
 
-    // Redirect to sign in if user isn't authenticated
+    // Redirect to sign in if user isn't authenticated (client-side only)
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/signin');
+        }
+    }, [isAuthenticated, router]);
+
+    // Show nothing while checking authentication or redirecting
     if (!isAuthenticated) {
-        router.push('/signin');
         return null;
     }
 
-    //  
+    //
     return (
         <MDBContainer>
             <h4 className="mt-2"> Manage Account Here</h4>

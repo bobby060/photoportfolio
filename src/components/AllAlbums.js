@@ -321,8 +321,10 @@ export default function AllAlbums() {
         </MDBCard>
     ));
 
-    // If albums have not yet been fetched from server, display responsive grid of placeholder albums
-    if (!currentVisibleAlbums) {
+    // If albums are still loading, display responsive grid of placeholder albums
+    const isInitialLoading = albumsLoading && allPublicAlbums.length === 0 && Object.keys(selectedTagsIndexes).length === 0;
+
+    if (isInitialLoading) {
         return (
             <>
                 <MDBRow className='me-0 mt-0'>
