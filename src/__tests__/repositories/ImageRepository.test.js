@@ -15,10 +15,21 @@ describe('ImageRepository', () => {
   });
 
   const createMockFile = (name = 'test.jpg', size = 1024) => {
-    const file = new Blob(['test content'], { type: 'image/jpeg' });
-    file.name = name;
-    file.size = size;
-    return file;
+    // Create a proper File-like object for testing
+    const content = 'x'.repeat(size); // Create content of specified size
+    const blob = new Blob([content], { type: 'image/jpeg' });
+
+    // Create a File object (if available) or mock one
+    if (typeof File !== 'undefined') {
+      return new File([blob], name, { type: 'image/jpeg' });
+    } else {
+      // Fallback for environments without File constructor
+      Object.defineProperty(blob, 'name', {
+        value: name,
+        writable: false
+      });
+      return blob;
+    }
   };
 
   describe('uploadImage', () => {
@@ -26,7 +37,7 @@ describe('ImageRepository', () => {
       const file = createMockFile('photo.jpg');
       const imageRecord = { id: '123', title: 'photo.jpg', albumsID: 'album1' };
 
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: imageRecord
       });
 
@@ -51,7 +62,7 @@ describe('ImageRepository', () => {
       };
 
       const imageRecord = { id: '123', ...metadata, albumsID: 'album1' };
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: imageRecord
       });
 
@@ -65,7 +76,7 @@ describe('ImageRepository', () => {
       const file = createMockFile();
       const error = new Error('Upload failed');
 
-      adapter.setMockError('createImages', error);
+      adapter.setMockError('CreateImages', error);
 
       await expect(repository.uploadImage('album1', file)).rejects.toThrow('Upload failed');
     });
@@ -79,7 +90,7 @@ describe('ImageRepository', () => {
         createMockFile('photo3.jpg')
       ];
 
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: { id: '123', albumsID: 'album1' }
       });
 
@@ -99,7 +110,7 @@ describe('ImageRepository', () => {
       ];
 
       let callCount = 0;
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: { id: '123', albumsID: 'album1' }
       });
 
@@ -124,7 +135,7 @@ describe('ImageRepository', () => {
     it('should call progress callback correctly', async () => {
       const files = [createMockFile('photo1.jpg'), createMockFile('photo2.jpg')];
 
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: { id: '123', albumsID: 'album1' }
       });
 
@@ -140,7 +151,7 @@ describe('ImageRepository', () => {
     it('should upload all images successfully', async () => {
       const files = [createMockFile('photo1.jpg'), createMockFile('photo2.jpg')];
 
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: { id: '123', albumsID: 'album1' }
       });
 
@@ -153,8 +164,18 @@ describe('ImageRepository', () => {
       const files = [createMockFile('photo1.jpg'), createMockFile('photo2.jpg')];
 
       let callCount = 0;
-      adapter.setMockData('createImages', {
+      adapter.setMockData('CreateImages', {
         createImages: { id: `img-${++callCount}`, albumsID: 'album1' }
+      });
+
+      // Mock GetImages for rollback deletion
+      adapter.setMockData('GetImages', {
+        getImages: { id: 'img-1', filename: 'photo1.jpg', albumsID: 'album1' }
+      });
+
+      // Mock DeleteImages for rollback
+      adapter.setMockData('DeleteImages', {
+        deleteImages: { id: 'img-1' }
       });
 
       // Override to fail on second upload
@@ -163,7 +184,7 @@ describe('ImageRepository', () => {
       adapter.mutate = jest.fn(async (mutation, options) => {
         mutateCallCount++;
         // Fail on second createImages call (not delete calls)
-        if (mutation.includes('createImages') && mutateCallCount === 2) {
+        if (mutation.includes('CreateImages') && mutateCallCount === 2) {
           throw new Error('Upload failed');
         }
         return originalMutate(mutation, options);
@@ -173,7 +194,7 @@ describe('ImageRepository', () => {
 
       const history = adapter.getCallHistory();
       // Should have delete mutations for rollback
-      const deleteCalls = history.mutations.filter(m => m.mutation.includes('deleteImages'));
+      const deleteCalls = history.mutations.filter(m => m.mutation.includes('DeleteImages'));
       expect(deleteCalls.length).toBeGreaterThan(0);
     });
   });
@@ -183,7 +204,7 @@ describe('ImageRepository', () => {
       const updates = { title: 'Updated Title', desc: 'Updated Description' };
       const updatedImage = { id: '123', ...updates };
 
-      adapter.setMockData('updateImages', {
+      adapter.setMockData('UpdateImages', {
         updateImages: updatedImage
       });
 
@@ -199,9 +220,15 @@ describe('ImageRepository', () => {
 
   describe('deleteImage', () => {
     it('should delete an image', async () => {
+      const imageRecord = { id: '123', filename: 'test.jpg', title: 'Deleted Image' };
       const deletedImage = { id: '123', title: 'Deleted Image' };
 
-      adapter.setMockData('deleteImages', {
+      // Mock GetImages for retrieval
+      adapter.setMockData('GetImages', {
+        getImages: imageRecord
+      });
+
+      adapter.setMockData('DeleteImages', {
         deleteImages: deletedImage
       });
 
@@ -215,7 +242,12 @@ describe('ImageRepository', () => {
     it('should delete multiple images', async () => {
       const imageIds = ['123', '456', '789'];
 
-      adapter.setMockData('deleteImages', {
+      // Mock GetImages for all images
+      adapter.setMockData('GetImages', {
+        getImages: { id: '123', filename: 'test.jpg' }
+      });
+
+      adapter.setMockData('DeleteImages', {
         deleteImages: { id: 'deleted' }
       });
 
@@ -227,6 +259,11 @@ describe('ImageRepository', () => {
 
     it('should handle partial deletion failures', async () => {
       const imageIds = ['123', '456'];
+
+      // Mock GetImages for retrieval
+      adapter.setMockData('GetImages', {
+        getImages: { id: '123', filename: 'test.jpg' }
+      });
 
       let callCount = 0;
       adapter.mutate = jest.fn(async () => {
@@ -253,7 +290,7 @@ describe('ImageRepository', () => {
         { id: '789', index: 2 }
       ];
 
-      adapter.setMockData('updateImages', {
+      adapter.setMockData('UpdateImages', {
         updateImages: { id: 'updated' }
       });
 
@@ -274,7 +311,7 @@ describe('ImageRepository', () => {
         albumsFeaturedImageId: 'img123'
       };
 
-      adapter.setMockData('updateAlbums', {
+      adapter.setMockData('UpdateAlbums', {
         updateAlbums: updatedAlbum
       });
 

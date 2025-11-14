@@ -22,7 +22,7 @@ describe('AlbumRepository', () => {
         { id: '3', title: 'Album 3', date: '2024-02-01' }
       ];
 
-      adapter.setMockData('listAlbums', {
+      adapter.setMockData('ListAlbums', {
         listAlbums: { items: mockAlbums }
       });
 
@@ -35,7 +35,7 @@ describe('AlbumRepository', () => {
     });
 
     it('should handle empty album list', async () => {
-      adapter.setMockData('listAlbums', {
+      adapter.setMockData('ListAlbums', {
         listAlbums: { items: [] }
       });
 
@@ -47,7 +47,7 @@ describe('AlbumRepository', () => {
   describe('getAlbumById', () => {
     it('should return album by ID', async () => {
       const mockAlbum = { id: '123', title: 'Test Album' };
-      adapter.setMockData('getAlbums', {
+      adapter.setMockData('GetAlbums', {
         getAlbums: mockAlbum
       });
 
@@ -59,7 +59,7 @@ describe('AlbumRepository', () => {
   describe('getAlbumByUrl', () => {
     it('should return album by URL', async () => {
       const mockAlbum = { id: '123', title: 'Test Album' };
-      adapter.setMockData('getUrl', {
+      adapter.setMockData('GetUrl', {
         getUrl: { album: mockAlbum }
       });
 
@@ -69,7 +69,7 @@ describe('AlbumRepository', () => {
 
     it('should decode URL before querying', async () => {
       const mockAlbum = { id: '123', title: 'Test Album' };
-      adapter.setMockData('getUrl', {
+      adapter.setMockData('GetUrl', {
         getUrl: { album: mockAlbum }
       });
 
@@ -78,7 +78,7 @@ describe('AlbumRepository', () => {
     });
 
     it('should return null when album not found', async () => {
-      adapter.setMockData('getUrl', {
+      adapter.setMockData('GetUrl', {
         getUrl: null
       });
 
@@ -95,7 +95,7 @@ describe('AlbumRepository', () => {
         { id: '3', title: 'Public 2', privacy: 'public', date: '2024-03-01' }
       ];
 
-      adapter.setMockData('listAlbums', {
+      adapter.setMockData('ListAlbums', {
         listAlbums: { items: mockAlbums }
       });
 
@@ -114,7 +114,7 @@ describe('AlbumRepository', () => {
         { id: '3', title: 'Album 3', featured: true, date: '2024-03-01' }
       ];
 
-      adapter.setMockData('listAlbums', {
+      adapter.setMockData('ListAlbums', {
         listAlbums: { items: mockAlbums }
       });
 
@@ -132,7 +132,7 @@ describe('AlbumRepository', () => {
         { id: '2', title: 'Wildlife' }
       ];
 
-      adapter.setMockData('listAlbumTags', {
+      adapter.setMockData('ListAlbumTags', {
         listAlbumTags: { items: mockTags }
       });
 
@@ -147,7 +147,7 @@ describe('AlbumRepository', () => {
         { id: '1', title: 'Nature', privacy: 'public' }
       ];
 
-      adapter.setMockData('listAlbumTags', {
+      adapter.setMockData('ListAlbumTags', {
         listAlbumTags: { items: mockTags }
       });
 
@@ -161,7 +161,7 @@ describe('AlbumRepository', () => {
       const albumData = { title: 'New Album', desc: 'Test description' };
       const createdAlbum = { id: '123', ...albumData };
 
-      adapter.setMockData('createAlbums', {
+      adapter.setMockData('CreateAlbums', {
         createAlbums: createdAlbum
       });
 
@@ -180,7 +180,7 @@ describe('AlbumRepository', () => {
       const updates = { title: 'Updated Title' };
       const updatedAlbum = { id: '123', ...updates };
 
-      adapter.setMockData('updateAlbums', {
+      adapter.setMockData('UpdateAlbums', {
         updateAlbums: updatedAlbum
       });
 
@@ -198,7 +198,7 @@ describe('AlbumRepository', () => {
     it('should delete an album', async () => {
       const deletedAlbum = { id: '123', title: 'Deleted Album' };
 
-      adapter.setMockData('deleteAlbums', {
+      adapter.setMockData('DeleteAlbums', {
         deleteAlbums: deletedAlbum
       });
 
@@ -245,7 +245,7 @@ describe('AlbumRepository', () => {
       const tagData = { title: 'Nature', privacy: 'public' };
       const createdTag = { id: '123', ...tagData };
 
-      adapter.setMockData('createAlbumTags', {
+      adapter.setMockData('CreateAlbumTags', {
         createAlbumTags: createdTag
       });
 
@@ -257,7 +257,7 @@ describe('AlbumRepository', () => {
       const updates = { title: 'Wildlife' };
       const updatedTag = { id: '123', ...updates };
 
-      adapter.setMockData('updateAlbumTags', {
+      adapter.setMockData('UpdateAlbumTags', {
         updateAlbumTags: updatedTag
       });
 
@@ -268,7 +268,7 @@ describe('AlbumRepository', () => {
     it('should delete album tag', async () => {
       const deletedTag = { id: '123', title: 'Nature' };
 
-      adapter.setMockData('deleteAlbumTags', {
+      adapter.setMockData('DeleteAlbumTags', {
         deleteAlbumTags: deletedTag
       });
 

@@ -126,7 +126,53 @@ To run in production mode:
 
 6. Configure an admin user in AWS Cognito and add them to the user group 'portfolio-admin.' Once you log in with that user, you should be able to create albums, upload pictures, and create public tags.
 
-7. You will need to run the `function createDefaultTags()` from `helpers/upgrade_database.js` in order for the website to run. At this point, you also have to manually pull the ID of the 'featured' Tag and paste it in line 60 of `components/Carousel.js`. Future iterations will solve this problem in the setup script, but for now you are stuck with it. 
+7. You will need to run the `function createDefaultTags()` from `helpers/upgrade_database.js` in order for the website to run. At this point, you also have to manually pull the ID of the 'featured' Tag and paste it in line 60 of `components/Carousel.js`. Future iterations will solve this problem in the setup script, but for now you are stuck with it.
+
+## Testing
+
+This project includes a comprehensive test suite covering all repositories and hooks using the Repository Pattern.
+
+### Setup Testing Environment
+
+1. Install the required testing dependencies:
+
+```bash
+npm install --save-dev jest-environment-jsdom
+```
+
+**Note**: As of Jest 28, `jest-environment-jsdom` is no longer shipped by default. If you see the error:
+
+```
+Test environment jest-environment-jsdom cannot be found
+```
+
+Simply run the install command above to fix it.
+
+2. Run the tests:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test suite
+npx jest src/__tests__/hooks/useAuth.test.js
+
+# Run tests in watch mode
+npm test -- --watch
+```
+
+### Test Structure
+
+The test suite includes:
+
+- **Hook Tests** (50 tests): Complete coverage of useAuth, useAlbums, useAlbum, useStorage
+- **Repository Tests** (77 tests): Full coverage of AuthRepository, AlbumRepository, ImageRepository, StorageRepository
+- **Total**: 127 comprehensive tests
+
+All tests use mock adapters (MockAuthAdapter, MockApiAdapter, MemoryStorageAdapter) to avoid external API calls, ensuring fast and reliable test execution.
 
 ### Database Design
 ![database design](https://github.com/bobby060/photoportfolio/blob/dev/photoportfoliouml.jpg)

@@ -93,8 +93,8 @@ describe('useStorage', () => {
 
       await act(async () => {
         const keys = await result.current.keys();
-        expect(keys).toContain('photoportfolio_key1');
-        expect(keys).toContain('photoportfolio_key2');
+        expect(keys).toContain('key1');
+        expect(keys).toContain('key2');
       });
     });
   });
@@ -253,10 +253,10 @@ describe('useStorage', () => {
         expect(value).toBe('value');
       });
 
-      // Check that key is namespaced with default prefix
+      // Keys are returned without prefix (repository API)
       await act(async () => {
         const keys = await result.current.keys();
-        expect(keys[0]).toContain('photoportfolio_');
+        expect(keys[0]).toBe('key');
       });
     });
 
