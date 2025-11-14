@@ -18,7 +18,7 @@ export function useAlbums(options = {}) {
   const { useCache = true, filter = 'all', autoFetch = true } = options;
 
   const [albums, setAlbums] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(autoFetch); // Start with loading=true only if autoFetch is enabled
   const [error, setError] = useState(null);
 
   // Fetch albums function
