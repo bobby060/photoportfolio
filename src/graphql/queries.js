@@ -121,6 +121,7 @@ export const listAlbums = /* GraphQL */ `
       items {
         id
         title
+        type
         desc
         date
         Images {
