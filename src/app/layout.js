@@ -26,6 +26,8 @@ import Headroom from 'react-headroom';
 import NavigationBar from '../components/NavigationBar';
 import Footer from '../components/Footer';
 
+// Repository Provider for dependency injection
+import { RepositoryProvider } from '../providers/RepositoryProvider';
 
 // Selected album gets passed a context to the outlet.
 
@@ -44,17 +46,19 @@ export default function RootLayout({ children }) {
 
             <body>
                 <Authenticator.Provider>
-                    <noscript>You need to enable JavaScript to run this app.</noscript>
-                    <div id="root">
-                        <View className="App" style={{ display: 'flex', 'flexDirection': 'column', 'minHeight': '100vh', margin: 'none' }}>
-                            <Headroom className="m-0" style={{ zIndex: 1000 }}>
-                                <NavigationBar />
-                            </Headroom >
+                    <RepositoryProvider>
+                        <noscript>You need to enable JavaScript to run this app.</noscript>
+                        <div id="root">
+                            <View className="App" style={{ display: 'flex', 'flexDirection': 'column', 'minHeight': '100vh', margin: 'none' }}>
+                                <Headroom className="m-0" style={{ zIndex: 1000 }}>
+                                    <NavigationBar />
+                                </Headroom >
 
-                            {children}
-                            <Footer />
-                            {/*Brings scroll back to top on new route*/}
-                        </View></div>
+                                {children}
+                                <Footer />
+                                {/*Brings scroll back to top on new route*/}
+                            </View></div>
+                    </RepositoryProvider>
                 </Authenticator.Provider>
             </body>
         </html>)
