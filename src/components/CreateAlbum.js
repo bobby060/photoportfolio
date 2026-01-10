@@ -117,6 +117,13 @@ export default function CreateAlbum() {
                 }
             );
 
+            // Create url entry for album
+            const urlData = {
+                id: albumRepo.generateAlbumUrl(newAlbum),
+                urlAlbumId: newAlbum.id
+            };
+            await albumRepo.createAlbumUrl(urlData);
+
             // Check if any uploads succeeded
             const successfulUploads = uploadResults.filter(r => r.success);
 
@@ -127,6 +134,10 @@ export default function CreateAlbum() {
                     albumsFeaturedImageId: firstImage.id
                 });
             }
+
+
+
+
 
             console.log(`Successfully created album: ${cleaned_title}`);
             console.log(`Uploaded ${successfulUploads.length} of ${selectedFiles.length} images`);

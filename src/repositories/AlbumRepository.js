@@ -119,6 +119,19 @@ export class AlbumRepository {
   }
 
   /**
+   * Create album URL mapping (requires authentication)
+   * @param {Object} urlData - URL mapping data
+   * @returns {Promise<Object>}
+   */
+  async createAlbumUrl(urlData) {
+    const data = await this.api.mutate(mutations.createUrl, {
+      variables: { input: urlData },
+      authMode: 'userPool'
+    });
+    return data.createUrl;
+  }
+
+  /**
    * Update an existing album (requires authentication)
    * @param {string} id - Album ID
    * @param {Object} updates - Fields to update
@@ -130,6 +143,20 @@ export class AlbumRepository {
       authMode: 'userPool'
     });
     return data.updateAlbums;
+  }
+
+  /**
+   * Update album URL mapping (requires authentication)
+   * @param {string} id - URL mapping ID
+   * @param {Object} updates - Fields to update
+   * @returns {Promise<Object>}
+   */
+  async updateAlbumUrl(id, updates) {
+    const data = await this.api.mutate(mutations.updateUrl, {
+      variables: { input: { id, ...updates } },
+      authMode: 'userPool'
+    });
+    return data.updateUrl;
   }
 
   /**

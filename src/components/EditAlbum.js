@@ -87,6 +87,11 @@ export default function EditAlbum({ album_url, setEditMode }) {
             // Generate new URL
             const newUrl = albumRepo.generateAlbumUrl(updatedAlbum);
 
+            await albumRepo.updateAlbumUrl(updatedAlbum.id, {
+                id: newUrl,
+                urlAlbumId: updatedAlbum.id
+            });
+
             setEditMode(false);
             router.push(`/albums/${newUrl}`);
         } catch (error) {

@@ -38,6 +38,8 @@ import { useRepositories } from '../hooks/useRepositories';
 import { IMAGEDELIVERYHOST } from '../helpers/Config';
 import { breakpoints } from './Home';
 
+import { urlhelperEncode } from '../models/urlhelper';
+
 export default function AllAlbums() {
     const { albums: albumRepo } = useRepositories();
 
@@ -343,17 +345,10 @@ export default function AllAlbums() {
         );
     }
 
-    // Generate album URL from album object
-    function generateAlbumUrl(album) {
-        const ending = album.id.slice(-2);
-        const name = album.title.toLowerCase().replace(/\s+/g, '-');
-        return `${name}-${ending}`;
-    }
-
     // Map each album object into a wrapped react element
     const responsiveItems =
         currentVisibleAlbums.map((album, i) => (
-            <Link href={`/albums/${generateAlbumUrl(album)}`} className="text-light text-decoration-none" key={i}>
+            <Link href={`/albums/${urlhelperEncode(album)}`} className="text-light text-decoration-none" key={i}>
                 <MDBCard background='dark' className='text-white m-1 mb-2 bg-image hover-overlay' alignment='end'>
                     <MDBCardImage overlay
                         src={`https://${IMAGEDELIVERYHOST}/public/${(album.featuredImage) ? album.featuredImage.id : ''}-${(album.featuredImage) ? album.featuredImage.filename : ''}?width=720`}

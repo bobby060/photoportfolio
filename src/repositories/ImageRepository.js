@@ -66,6 +66,22 @@ export class ImageRepository {
    */
   async uploadImage(albumId, file, metadata = {}) {
     try {
+      // Calculate image dimensions if not provided
+      if (!metadata.width || !metadata.height) {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        
+        // Set the source and wait for the image to load
+        img.src = objectUrl;
+        await img.decode();
+        
+        metadata.width = img.naturalWidth;
+        metadata.height = img.naturalHeight;
+        URL.revokeObjectURL(objectUrl);
+      }
+
+
+
       // 1. Create image record in database
       const imageInput = {
         albumsID: albumId,
@@ -86,7 +102,7 @@ export class ImageRepository {
       const imageRecord = createResult.createImages;
 
       // 2. Upload file to S3 storage
-      const uploadKey = `images/${imageRecord.id}`;
+      const uploadKey = `${imageRecord.id}-${file.name}`;
       await this.api.uploadFile(uploadKey, file, {
         onProgress: metadata.onProgress
       });
