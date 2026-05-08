@@ -63,4 +63,16 @@ export class IApiAdapter {
   async deleteFile(key) {
     throw new Error('deleteFile() must be implemented');
   }
+
+  /**
+   * List files in storage under a prefix
+   * @param {string} prefix - Storage path prefix
+   * @param {Object} [options] - List options
+   * @param {boolean} [options.listAll] - Whether to list all items
+   * @param {number} [options.pageSize] - Max items per page
+   * @returns {Promise<Array<{key: string}>>}
+   */
+  async listFiles(prefix, options = {}) {
+    throw new Error('listFiles() must be implemented');
+  }
 }

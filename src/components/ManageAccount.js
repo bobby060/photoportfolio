@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbumTags } from '../hooks/useAlbums';
 import { useRepositories } from '../hooks/useRepositories';
-import { upgradeAlbums } from "../helpers/upgrade_database";
 
 /**
  * @brief React Component for the manage account page
@@ -43,15 +42,10 @@ export default function ManageAccount() {
         if (!window.confirm(`Are you sure you want to delete the tag ${tag.title}?`)) return;
 
         try {
-            // Get albums associated with this tag
-            const tagAlbums = await albumRepo.getAlbumsByTag(tag.id);
-
-            // Delete all tag connections
-            for (const tagAlbum of tagAlbums) {
-                if (tagAlbum.id) {
-                    // Note: The deleteAlbumTagsAlbums would need to be wrapped in repository
-                    // For now, we just delete the tag itself
-                }
+            // Delete all join records before deleting the tag
+            const joinRecords = await albumRepo.getTagJoinRecords(tag.id);
+            for (const record of joinRecords) {
+                await albumRepo.removeTagFromAlbum(record.id);
             }
 
             // Delete the tag
@@ -82,8 +76,7 @@ export default function ManageAccount() {
                 </MDBListGroup>
 
 
-                <hr className="hr" />
-                <MDBBtn className="bg-dark m-1" onClick={() => upgradeAlbums()}>Update DB</MDBBtn>
+
             </MDBCol>
         );
     }

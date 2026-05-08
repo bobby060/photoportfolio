@@ -1,106 +1,41 @@
 /** urlhelper.js
- * 
- * Handles the conversion of useful human readable album URLs to album IDs and back
- * 
+ *
+ * Pure utility functions for converting albums to URL-safe identifiers.
+ * Album lookup by URL is handled by AlbumRepository.getAlbumByUrl().
  */
 
-// Takes an album and generates it's url based the id and the title
-import { generateClient } from 'aws-amplify/api';
-import { getUrl } from '../graphql/customQueries';
-
-
-const client = generateClient({
-    authMode: 'apiKey'
-});
-
 /**
- * @brief Given an album, returns it's url
- * 
- * Format for url is the Album name, split with '-', followed
- * by the last two digits of the album id
- * 
- * Example: title "Killer Whales" with an id of "e4ef3321"
- * would have a url of "killer-whales-21" 
- * 
- * @param {Object} album Album object 
- * @returns {String} url
+ * @brief Given an album, returns its URL slug
+ *
+ * Format: album title (lowercased, spaces → hyphens) + last 2 chars of album ID.
+ * Example: title "Killer Blue Whales" with id ending "21" → "killer-blue-whales-21"
+ *
+ * @param {Object} album - Album object with id and title
+ * @returns {string} URL slug
  */
 export function urlhelperEncode(album) {
     const ending = album.id.slice(-2);
-    const new_name = album.title.toLowerCase().replace(' ', '-');
-    const url = new_name.concat("-", ending);
-    return url;
+    const new_name = album.title.toLowerCase().replace(/\s+/g, '-');
+    return new_name.concat("-", ending);
 }
 
 /**
- * @brief Given an album, returns it's url
- * 
- * Format for url is the Album name, split with '-', followed
- * by the last two digits of the album id
- * 
- * Example: title "Killer Whales" with an id of "e4ef3321"
- * would have a url of "killer-whales-21" 
- * 
- * @param {Object} album Album object 
- * @returns {String} url
+ * @brief Same as urlhelperEncode but percent-encoded for use in URLs
+ *
+ * @param {Object} album - Album object with id and title
+ * @returns {string} URL-encoded slug
  */
 export function urlhelperEncodeUrlSafe(album) {
-    const ending = album.id.slice(-2);
-    const new_name = album.title.toLowerCase().replace(' ', '-');
-    const url = new_name.concat("-", ending);
-    // Make URL safe by encoding special characters and removing any remaining unsafe characters
-    const urlSafe = encodeURIComponent(url);
-    return urlSafe;
+    return encodeURIComponent(urlhelperEncode(album));
 }
 
-
 /**
- * @brief given a url, fetch the album
- * 
- * a Url document is created in the database when the album is created.
- * The url is the key, and the album id is the data field.
- * 
- * getUrl query is designed to return the whole album object as part of a nested query,
- * preventing need to then query again with the album id
- * 
- * @param {*} url 
- * @returns 
- */
-export async function getAlbumFromAlbumUrl(url) {
-
-
-    // Decode the URL to remove any encoded characters
-    const decodedUrl = decodeURIComponent(url);
-
-    // Use graphql query to fetch the album associated with url
-    const data = {
-        id: decodedUrl
-    }
-    try {
-        const res = await client.graphql({
-            query: getUrl,
-            variables: data
-        })
-        // Return album object
-        return res.data.getUrl.album;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Album not found, ' + error);
-    }
-}
-
-
-/**
- * @brief takes an album and a url and returns true or false
- * 
- * Use: validating if a specific path is the right one for a given album
- * 
- * @deprecated No longer needed with introductino of Url table
- * 
- * @param {Object} album 
- * @param {String} url
- *  
- * @returns True if valid, False if not
+ * @brief Returns true if the given URL slug matches the album
+ * @deprecated No longer needed with introduction of Url table
+ *
+ * @param {Object} album
+ * @param {string} url
+ * @returns {boolean}
  */
 export function urlhelperDecode(album, url) {
     const ending = url.slice(-2);

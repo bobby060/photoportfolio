@@ -169,12 +169,8 @@ export default function EditAlbum({ album_url, setEditMode }) {
 
     async function addTagToAlbum(tag) {
         try {
-            // Note: createAlbumTagsAlbums would need to be added to repository
-            // For now, we'll need to use the API adapter directly through the repository
-            // This is a limitation that could be addressed by adding this method to AlbumRepository
-            await refetch(); // Refetch album after adding tag
-            const updatedTags = { ...currentTags, [tag.id]: Object.keys(currentTags).length };
-            setCurrentTags(updatedTags);
+            await albumRepo.addTagToAlbum(currentAlbum.id, tag.id);
+            await refetch();
         } catch (error) {
             console.error('Failed to add tag to album:', error);
         }
@@ -182,11 +178,14 @@ export default function EditAlbum({ album_url, setEditMode }) {
 
     async function removeTagFromAlbum(tag) {
         try {
-            // Note: Similar to addTagToAlbum, this would need repository support
-            await refetch(); // Refetch album after removing tag
-            const updatedTags = { ...currentTags };
-            delete updatedTags[tag.id];
-            setCurrentTags(updatedTags);
+            // Find the join record ID for this tag on this album
+            const joinRecord = currentAlbum.albumtagss?.items?.find(
+                item => item.albumTagsId === tag.id
+            );
+            if (joinRecord) {
+                await albumRepo.removeTagFromAlbum(joinRecord.id);
+            }
+            await refetch();
         } catch (error) {
             console.error('Failed to remove tag from album:', error);
         }

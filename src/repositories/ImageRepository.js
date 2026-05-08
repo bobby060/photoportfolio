@@ -11,6 +11,15 @@ export class ImageRepository {
   }
 
   /**
+   * List highlight/header images from storage
+   * @param {string} [prefix='highlights/h'] - Storage prefix for header images
+   * @returns {Promise<Array<{key: string}>>}
+   */
+  async listHighlightImages(prefix = 'highlights/h') {
+    return this.api.listFiles(prefix, { listAll: true });
+  }
+
+  /**
    * Get a single image by ID
    * @param {string} imageId - Image ID
    * @returns {Promise<Object>} Image object
