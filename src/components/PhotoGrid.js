@@ -14,13 +14,7 @@ import {
     MDBIcon,
 } from 'mdb-react-ui-kit';
 
-import { } from '@aws-amplify/ui-react';
-import { remove } from 'aws-amplify/storage';
-import { generateClient } from 'aws-amplify/api';
 import { IMAGEDELIVERYHOST } from '../helpers/Config';
-// Database
-import { imagesByAlbumsID } from '../graphql/queries';
-import { deleteImages as deleteImageMutation } from '../graphql/mutations';
 import ResponsiveGrid from "./ResponsiveGrid";
 
 // Components
@@ -32,18 +26,8 @@ import ImageWrapper from "./Image";
 
 import { breakpoints } from "./Home";
 
-// Inputs:
-// setFeaturedImg - callback to set an image as the albums featured image
-// editMode - lets photogrid know if it is in edit mode
-// selectedAlbum - where photogrid is pulling photos from
-const client = generateClient({
-    authMode: 'apiKey'
-});
-
-const userGroupClient = generateClient({
-    authMode: 'userPool'
-});
-
+// Hooks
+import { useRepositories } from '../hooks/useRepositories';
 
 // Number of images to load per fetch
 const numImagesToLoad = 10;
@@ -51,18 +35,17 @@ const numImagesToLoad = 10;
 
 
 
-/** 
+/**
  * @param {
  *  setFeaturedImg - callback for setting the feature image
  *  selectedAlbum - album object to display
- *  editMode - should user be able to set featured img or delete etc. 
+ *  editMode - should user be able to set featured img or delete etc.
  *  signedIn - is there a user signed in
- * } 
+ * }
  * @returns React Component
  */
 export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = false, signedIn = false }) {
-
-
+    const { images: imageRepo } = useRepositories();
 
     // Ref for loading state, avoids race condition
     const isLoadingFetching = useRef(false);
@@ -83,51 +66,37 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
     // Fetches next set of items when bottom of scroll is reached
     const fetchData = useCallback(async () => {
-
         // Don't fetch more data if already loading or no more data to fetch
         if (isLoadingFetching.current || nextToken === null) return;
-
 
         setIsLoading(true);
         isLoadingFetching.current = true;
 
         try {
-            const queryData = {
-                albumsID: selectedAlbum.id,
+            const options = {
                 limit: numImagesToLoad
-            }
+            };
+
             if (nextToken !== -1) {
-                queryData.nextToken = nextToken;
+                options.nextToken = nextToken;
             }
 
-            let res = await client.graphql({
-                query: imagesByAlbumsID,
-                variables: queryData
-            });
+            const result = await imageRepo.getImagesByAlbum(selectedAlbum.id, options);
 
-            if (!res || !res.data) {
-                console.error("Error fetching data", res);
-                setIsLoading(false);
-                return;
-            }
-
-            const newItems = res.data.imagesByAlbumsID.items;
+            const newItems = result.items;
             setItems(items => [...items, ...newItems].map((img, i) => {
                 img.index = i;
-                return img
+                return img;
             }));
 
-            setNextToken(res.data.imagesByAlbumsID.nextToken);
+            setNextToken(result.nextToken);
         } catch (error) {
-            console.error("Error fetching data", error);
+            console.error("Error fetching images:", error);
         } finally {
             setIsLoading(false);
             isLoadingFetching.current = false;
-            return;
-
         }
-
-    }, [nextToken, selectedAlbum.id]);
+    }, [nextToken, selectedAlbum.id, imageRepo]);
 
 
     // Effect to trigger initial data fetch for an album
@@ -143,18 +112,21 @@ export default function PhotoGrid({ setFeaturedImg, selectedAlbum, editMode = fa
 
 
     // Deletes image object and source image on AWS
-    // TODO(bobby): extract to a Model function
     async function deleteImage(image) {
-        const newImages = items.filter((img) => img.id !== image.id);
-        await remove({
-            key: `${image.id}-${image.filename}`
-        });
-        await userGroupClient.graphql({
-            query: deleteImageMutation,
-            variables: { input: { id: image.id } },
-        });
-        console.log(`image with ID ${image.id} is deleted from album`);
-        setItems(newImages);
+        try {
+            await imageRepo.deleteImage(image.id);
+            console.log(`Image with ID ${image.id} deleted from album`);
+
+            // Update local state to remove the deleted image
+            const newImages = items.filter((img) => img.id !== image.id).map((img, i) => {
+                img.index = i;
+                return img;
+            });
+            setItems(newImages);
+        } catch (error) {
+            console.error('Failed to delete image:', error);
+            alert(`Failed to delete image: ${error.message}`);
+        }
     }
 
     // Ensures grid does not render if no items are in props
