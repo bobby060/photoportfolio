@@ -137,10 +137,12 @@ export default function AllAlbums() {
      * @returns number of columns
      */
     function getBreakpoint() {
+        if (!windowSize.width) return 1;
         const cur_width = windowSize.width;
         for (let i = breakpoints.length - 1; i >= 0; i--) {
             if (breakpoints[i] < cur_width) return i;
         }
+        return 1;
     }
 
 

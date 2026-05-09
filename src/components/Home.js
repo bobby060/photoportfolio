@@ -16,8 +16,6 @@ import {
     MDBIcon,
     MDBTypography
 } from 'mdb-react-ui-kit';
-import { list } from 'aws-amplify/storage';
-
 // Components
 import Carousel from 'react-bootstrap/Carousel';
 import AllAlbums from './AllAlbums';
@@ -25,6 +23,7 @@ import FeaturedCarouselWrapper from './Carousel';
 import Image from 'next/image';
 // Helpers
 import { IMAGEDELIVERYHOST } from "../helpers/Config";
+import { useRepositories } from '../hooks/useRepositories';
 
 // import {createDefaultTags} from '../helpers/upgrade_database';
 
@@ -34,6 +33,7 @@ export const breakpoints = [0, 350, 750, 1200];
 // import {upgradeDB} from '../helpers/upgrade_database';
 
 export default function Home() {
+    const { images: imageRepo } = useRepositories();
 
     // State for header images
     const [headerImgs, setHeaderImgs] = useState([]);
@@ -67,15 +67,8 @@ export default function Home() {
      * 
      */
     async function getHeaderImgs() {
-        const response = await list({
-            prefix: 'highlights/h',
-            options: {
-                listAll: true,
-                pageSize: 50,
-            }
-        });
-
-        const urls = response.items.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
+        const items = await imageRepo.listHighlightImages('highlights/h');
+        const urls = items.map((item) => `https://${IMAGEDELIVERYHOST}/public/${item.key}?width=1280`);
         setHeaderImgs(urls);
     }
 

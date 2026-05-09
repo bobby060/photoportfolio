@@ -106,6 +106,19 @@ export class AlbumRepository {
   }
 
   /**
+   * Get raw join records for a tag (includes join record ID needed for deletion)
+   * @param {string} tagId - Tag ID
+   * @returns {Promise<Array<{id: string, albumsId: string}>>}
+   */
+  async getTagJoinRecords(tagId) {
+    const data = await this.api.query(customQueries.albumTagsAlbumsByAlbumTagsId, {
+      variables: { albumTagsId: tagId },
+      authMode: 'apiKey'
+    });
+    return data.albumTagsAlbumsByAlbumTagsId.items.map(item => ({ id: item.id, albumsId: item.albumsId }));
+  }
+
+  /**
    * Create a new album (requires authentication)
    * @param {Object} albumData - Album data
    * @returns {Promise<Object>}
@@ -160,6 +173,19 @@ export class AlbumRepository {
   }
 
   /**
+   * Delete album URL mapping (requires authentication)
+   * @param {string} id - URL slug (primary key of URL record)
+   * @returns {Promise<Object>}
+   */
+  async deleteAlbumUrl(id) {
+    const data = await this.api.mutate(mutations.deleteUrl, {
+      variables: { input: { id } },
+      authMode: 'userPool'
+    });
+    return data.deleteUrl;
+  }
+
+  /**
    * Delete an album (requires authentication)
    * @param {string} id - Album ID
    * @returns {Promise<Object>}
@@ -197,6 +223,33 @@ export class AlbumRepository {
       authMode: 'userPool'
     });
     return data.updateAlbumTags;
+  }
+
+  /**
+   * Add an existing tag to an album (creates join record)
+   * @param {string} albumId - Album ID
+   * @param {string} tagId - Tag ID
+   * @returns {Promise<Object>}
+   */
+  async addTagToAlbum(albumId, tagId) {
+    const data = await this.api.mutate(mutations.createAlbumTagsAlbums, {
+      variables: { input: { albumsId: albumId, albumTagsId: tagId } },
+      authMode: 'userPool'
+    });
+    return data.createAlbumTagsAlbums;
+  }
+
+  /**
+   * Remove a tag from an album (deletes join record)
+   * @param {string} joinRecordId - ID of the AlbumTagsAlbums join record
+   * @returns {Promise<Object>}
+   */
+  async removeTagFromAlbum(joinRecordId) {
+    const data = await this.api.mutate(mutations.deleteAlbumTagsAlbums, {
+      variables: { input: { id: joinRecordId } },
+      authMode: 'userPool'
+    });
+    return data.deleteAlbumTagsAlbums;
   }
 
   /**

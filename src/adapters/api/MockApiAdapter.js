@@ -137,6 +137,21 @@ export class MockApiAdapter extends IApiAdapter {
   }
 
   /**
+   * List mock files under a prefix
+   * @param {string} prefix - Storage path prefix
+   * @returns {Promise<Array<{key: string}>>}
+   */
+  async listFiles(prefix, options = {}) {
+    const items = [];
+    for (const key of this.mockFiles.keys()) {
+      if (key.startsWith(prefix)) {
+        items.push({ key });
+      }
+    }
+    return items;
+  }
+
+  /**
    * Extract operation name from GraphQL string
    * @private
    * @param {string} graphqlString

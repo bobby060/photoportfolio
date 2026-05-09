@@ -1,4 +1,5 @@
 import { fetchAuthSession, signOut as amplifySignOut } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 import { IAuthAdapter } from './IAuthAdapter';
 
 /**
@@ -11,6 +12,14 @@ export class AmplifyAuthAdapter extends IAuthAdapter {
     this._cachedUser = null;
     this._cacheExpiry = null;
     this.CACHE_TTL = 60000; // 1 minute cache
+    this._listeners = new Set();
+    // Clear cache and notify listeners on Cognito sign-in / sign-out events
+    Hub.listen('auth', ({ payload }) => {
+      if (payload.event === 'signedIn' || payload.event === 'signedOut') {
+        this.clearCache();
+        this._listeners.forEach(fn => fn());
+      }
+    });
   }
 
   /**
@@ -105,5 +114,13 @@ export class AmplifyAuthAdapter extends IAuthAdapter {
   clearCache() {
     this._cachedUser = null;
     this._cacheExpiry = null;
+  }
+
+  onAuthChange(fn) {
+    this._listeners.add(fn);
+  }
+
+  offAuthChange(fn) {
+    this._listeners.delete(fn);
   }
 }

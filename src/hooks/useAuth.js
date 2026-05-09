@@ -45,17 +45,18 @@ export function useAuth() {
     mountedRef.current = true;
     loadUser();
 
-    // Optional: Refresh user data periodically (every 5 minutes)
-    // This ensures the auth state stays fresh, leveraging the adapter's 1-minute cache
-    const intervalId = setInterval(() => {
-      loadUser();
-    }, 5 * 60 * 1000);
+    // Refresh every 5 minutes as a fallback
+    const intervalId = setInterval(loadUser, 5 * 60 * 1000);
+
+    // Re-load immediately on sign-in / sign-out events from the adapter
+    auth.onAuthChange(loadUser);
 
     return () => {
       mountedRef.current = false;
       clearInterval(intervalId);
+      auth.offAuthChange(loadUser);
     };
-  }, [loadUser]);
+  }, [auth, loadUser]);
 
   // Sign out function
   const signOut = useCallback(async () => {

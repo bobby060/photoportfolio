@@ -1,5 +1,5 @@
 import { generateClient } from 'aws-amplify/api';
-import { uploadData, getUrl, remove } from 'aws-amplify/storage';
+import { uploadData, getUrl, remove, list } from 'aws-amplify/storage';
 import { IApiAdapter } from './IApiAdapter';
 
 /**
@@ -127,6 +127,28 @@ export class AmplifyApiAdapter extends IApiAdapter {
       await remove({ key });
     } catch (error) {
       console.error('File deletion error:', error);
+      throw this._transformError(error);
+    }
+  }
+
+  /**
+   * List files in S3 storage under a prefix
+   * @param {string} prefix - Storage path prefix
+   * @param {Object} [options] - List options
+   * @returns {Promise<Array<{key: string}>>}
+   */
+  async listFiles(prefix, options = {}) {
+    try {
+      const result = await list({
+        prefix,
+        options: {
+          listAll: options.listAll ?? true,
+          pageSize: options.pageSize,
+        }
+      });
+      return result.items;
+    } catch (error) {
+      console.error('File list error:', error);
       throw this._transformError(error);
     }
   }
