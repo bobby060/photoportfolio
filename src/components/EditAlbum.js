@@ -70,6 +70,9 @@ export default function EditAlbum({ album_url, setEditMode }) {
                 date: date,
             };
 
+            // Capture old URL before updating
+            const oldUrl = albumRepo.generateAlbumUrl(currentAlbum);
+
             // Update album
             const updatedAlbum = await albumRepo.updateAlbum(currentAlbum.id, albumData);
 
@@ -84,13 +87,16 @@ export default function EditAlbum({ album_url, setEditMode }) {
 
             console.log(`Successfully updated album: ${form.get("title")}`);
 
-            // Generate new URL
+            // Update URL record only if the title changed (DynamoDB PKs are immutable)
             const newUrl = albumRepo.generateAlbumUrl(updatedAlbum);
-
-            await albumRepo.updateAlbumUrl(updatedAlbum.id, {
-                id: newUrl,
-                urlAlbumId: updatedAlbum.id
-            });
+            if (oldUrl !== newUrl) {
+                try {
+                    await albumRepo.deleteAlbumUrl(oldUrl);
+                } catch (e) {
+                    console.warn('Could not delete old URL record:', e.message);
+                }
+                await albumRepo.createAlbumUrl({ id: newUrl, urlAlbumId: updatedAlbum.id });
+            }
 
             setEditMode(false);
             router.push(`/albums/${newUrl}`);

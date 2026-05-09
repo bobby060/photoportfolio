@@ -95,4 +95,20 @@ export class AuthRepository {
   clearCache() {
     this.adapter.clearCache();
   }
+
+  /**
+   * Register a listener called when auth state changes
+   * @param {Function} fn - Callback
+   */
+  onAuthChange(fn) {
+    this.adapter.onAuthChange(fn);
+  }
+
+  /**
+   * Unregister an auth change listener
+   * @param {Function} fn - Callback to remove
+   */
+  offAuthChange(fn) {
+    this.adapter.offAuthChange(fn);
+  }
 }

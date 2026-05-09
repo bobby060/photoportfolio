@@ -15,7 +15,7 @@
           "additionalAuthenticationProviders": [
             {
               "apiKeyConfig": {
-                "apiKeyExpirationDate": "2025-11-23T08:55:56.007Z",
+                "apiKeyExpirationDate": "2027-11-23T08:55:56.007Z",
                 "apiKeyExpirationDays": 360,
                 "description": "graphqlportfolio"
               },

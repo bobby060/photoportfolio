@@ -30,7 +30,6 @@ export class AmplifyApiAdapter extends IApiAdapter {
       const result = await client.graphql({
         query,
         variables,
-        authMode,
       });
       return result.data;
     } catch (error) {
@@ -55,7 +54,6 @@ export class AmplifyApiAdapter extends IApiAdapter {
       const result = await client.graphql({
         query: mutation,
         variables,
-        authMode,
       });
       return result.data;
     } catch (error) {

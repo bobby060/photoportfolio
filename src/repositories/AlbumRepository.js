@@ -173,6 +173,19 @@ export class AlbumRepository {
   }
 
   /**
+   * Delete album URL mapping (requires authentication)
+   * @param {string} id - URL slug (primary key of URL record)
+   * @returns {Promise<Object>}
+   */
+  async deleteAlbumUrl(id) {
+    const data = await this.api.mutate(mutations.deleteUrl, {
+      variables: { input: { id } },
+      authMode: 'userPool'
+    });
+    return data.deleteUrl;
+  }
+
+  /**
    * Delete an album (requires authentication)
    * @param {string} id - Album ID
    * @returns {Promise<Object>}

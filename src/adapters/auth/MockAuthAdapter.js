@@ -78,6 +78,14 @@ export class MockAuthAdapter extends IAuthAdapter {
     // No-op for mock adapter
   }
 
+  onAuthChange(fn) {
+    // No-op for mock adapter
+  }
+
+  offAuthChange(fn) {
+    // No-op for mock adapter
+  }
+
   /**
    * Reset mock state (for testing)
    */

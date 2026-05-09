@@ -53,4 +53,22 @@ export class IAuthAdapter {
   clearCache() {
     throw new Error('clearCache() must be implemented');
   }
+
+  /**
+   * Register a listener called when auth state changes (sign-in / sign-out)
+   * @param {Function} fn - Callback with no arguments
+   * @returns {void}
+   */
+  onAuthChange(fn) {
+    throw new Error('onAuthChange() must be implemented');
+  }
+
+  /**
+   * Unregister a previously registered auth change listener
+   * @param {Function} fn - Callback to remove
+   * @returns {void}
+   */
+  offAuthChange(fn) {
+    throw new Error('offAuthChange() must be implemented');
+  }
 }
