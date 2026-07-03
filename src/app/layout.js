@@ -2,7 +2,7 @@
 "use client"
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
-import amplifyconfig from '../amplifyconfiguration.json';
+import amplifyconfig from '../amplify_outputs.json';
 import '../css/index.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css"

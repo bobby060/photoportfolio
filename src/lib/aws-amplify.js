@@ -1,5 +1,5 @@
 import { Amplify } from 'aws-amplify';
-import amplifyconfig from '../amplifyconfiguration.json';
+import amplifyconfig from '../amplify_outputs.json';
 
 // Initialize Amplify
 Amplify.configure(amplifyconfig);
