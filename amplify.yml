@@ -5,7 +5,7 @@ backend:
     build:
       commands:
         - "# Execute Amplify CLI with the helper script"
-        - npm i -g npm@11
+        # - npm i -g npm@11
         - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
