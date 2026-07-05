@@ -8,6 +8,7 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.15.4",
     "@fortawesome/fontawesome-free": "^6.4.2",
+    "@opentelemetry/core": "^2.9.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -26,10 +27,9 @@
     "react-dom": "^18.2.0",
     "react-headroom": "^3.2.1",
     "react-hook-form": "^7.56.2",
+    "uuid": "^14.0.1",
     "web-vitals": "^2.1.4",
-    "yet-another-react-lightbox": "^3.15.1",
-    "@opentelemetry/core": "^2.0.0",
-    "uuid": "9.0.1"
+    "yet-another-react-lightbox": "^3.15.1"
   },
   "scripts": {
     "dev": "next dev",
