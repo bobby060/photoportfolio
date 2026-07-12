@@ -92,3 +92,18 @@ const sessionStorageMock = {
   clear: jest.fn(),
 };
 global.sessionStorage = sessionStorageMock;
+
+// jsdom does not implement object URLs or image decoding,
+// which ImageRepository uses to read image dimensions
+URL.createObjectURL = jest.fn(() => 'blob:mock');
+URL.revokeObjectURL = jest.fn();
+
+global.Image = class {
+  constructor() {
+    this.naturalWidth = 800;
+    this.naturalHeight = 600;
+  }
+  decode() {
+    return Promise.resolve();
+  }
+};

@@ -55,3 +55,8 @@ Need these permissions. For dev was role `us-east-2_50KgermZ3_Full-access`
 
 Some errors:
 
+Test
+`npx ampx sandbox --once`
+
+tear down
+`npx ampx sandbox delete`

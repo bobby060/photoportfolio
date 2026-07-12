@@ -75,7 +75,7 @@ export class AmplifyApiAdapter extends IApiAdapter {
       const { onProgress, ...uploadOptions } = options;
 
       const uploadTask = uploadData({
-        key,
+        path: `public/${key}`,
         data: file,
         options: {
           contentType: file.type,
@@ -109,7 +109,9 @@ export class AmplifyApiAdapter extends IApiAdapter {
    */
   async getFileUrl(key) {
     try {
-      const result = await getUrl({ key });
+      const result = await getUrl({ 
+        path: `public/${key}`
+      });
       return result.url.toString();
     } catch (error) {
       console.error('Get file URL error:', error);
@@ -124,7 +126,7 @@ export class AmplifyApiAdapter extends IApiAdapter {
    */
   async deleteFile(key) {
     try {
-      await remove({ key });
+      await remove({ path: `public/${key}` });
     } catch (error) {
       console.error('File deletion error:', error);
       throw this._transformError(error);
@@ -140,7 +142,7 @@ export class AmplifyApiAdapter extends IApiAdapter {
   async listFiles(prefix, options = {}) {
     try {
       const result = await list({
-        prefix,
+        path: `public/${prefix}`,
         options: {
           listAll: options.listAll ?? true,
           pageSize: options.pageSize,

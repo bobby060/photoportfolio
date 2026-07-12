@@ -165,7 +165,7 @@ describe('AmplifyApiAdapter', () => {
 
       expect(result).toEqual({ key: 'images/test.jpg' });
       expect(uploadData).toHaveBeenCalledWith({
-        key: 'images/test.jpg',
+        path: 'public/images/test.jpg',
         data: mockFile,
         options: {
           contentType: 'image/jpeg'
@@ -210,7 +210,7 @@ describe('AmplifyApiAdapter', () => {
       });
 
       expect(uploadData).toHaveBeenCalledWith({
-        key: 'test.jpg',
+        path: 'public/test.jpg',
         data: mockFile,
         options: {
           contentType: 'image/jpeg',
@@ -244,7 +244,7 @@ describe('AmplifyApiAdapter', () => {
       const url = await adapter.getFileUrl('images/test.jpg');
 
       expect(url).toBe('https://s3.amazonaws.com/bucket/images/test.jpg');
-      expect(getUrl).toHaveBeenCalledWith({ key: 'images/test.jpg' });
+      expect(getUrl).toHaveBeenCalledWith({ path: 'public/images/test.jpg' });
     });
 
     it('should handle getUrl errors', async () => {
@@ -261,7 +261,7 @@ describe('AmplifyApiAdapter', () => {
 
       await adapter.deleteFile('images/test.jpg');
 
-      expect(remove).toHaveBeenCalledWith({ key: 'images/test.jpg' });
+      expect(remove).toHaveBeenCalledWith({ path: 'public/images/test.jpg' });
     });
 
     it('should handle deletion errors', async () => {

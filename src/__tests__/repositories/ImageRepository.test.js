@@ -48,7 +48,7 @@ describe('ImageRepository', () => {
       const history = adapter.getCallHistory();
       expect(history.mutations).toHaveLength(1);
       expect(history.uploads).toHaveLength(1);
-      expect(history.uploads[0].key).toBe('images/123');
+      expect(history.uploads[0].key).toBe('123-photo.jpg');
     });
 
     it('should use custom metadata when provided', async () => {
