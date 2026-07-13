@@ -1,0 +1,16 @@
+{
+  "resourceName": "portfoliostorage",
+  "policyUUID": "e45f609c",
+  "bucketName": "photoportfolio2823651daae6495a9294d18fa599cb62",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
